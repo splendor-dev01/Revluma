@@ -1,0 +1,76 @@
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:38:02.858 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:02.869 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:02.870 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:38:02.930 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:02.934 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:02.937 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ETIMEDOUT]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:38:11.680 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:11.830 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:11.894 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:38:11.979 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:11.992 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:12.063 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:38:12.114 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:12.126 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:12.164 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:38:48.310 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:48.317 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:48.318 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:38:48.372 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:48.375 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:38:48.377 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ETIMEDOUT]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:40:43.127 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:41:12.872 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:41:12.881 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:41:12.883 +01:00","version":"1.0.0"}
+{"error":"","level":"error","message":"Redis connection error","service":"splendor-ai-backend","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1134:18)\n    at afterConnectMultiple (node:net:1715:7)","timestamp":"2026-03-24 01:41:12.953 +01:00","version":"1.0.0"}
+{"level":"warn","message":"Redis connection closed","service":"splendor-ai-backend","timestamp":"2026-03-24 01:41:12.963 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis reconnecting...","service":"splendor-ai-backend","timestamp":"2026-03-24 01:41:12.977 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 03:10:44.249 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:10:44.253 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:10:44.263 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 03:10:56.292 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:10:56.300 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:10:56.306 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 03:14:24.790 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:14:24.795 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:14:24.809 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 03:20:36.499 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:20:36.507 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:20:36.512 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 03:21:20.239 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:21:20.396 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 03:21:20.458 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:07:47.779 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:07:47.783 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:07:47.799 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:08:10.006 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:08:10.120 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:08:10.497 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:08:49.079 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:08:49.091 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:08:49.226 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:12:48.152 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:12:48.199 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:12:48.248 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:12:57.922 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:12:57.926 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:12:57.932 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:13:07.813 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:13:07.824 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:13:07.859 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:46:17.590 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:46:17.600 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:46:17.607 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:47:01.034 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:47:01.043 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:47:01.057 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 11:47:24.377 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:47:24.388 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 11:47:24.400 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 12:04:03.039 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 12:04:03.054 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 12:04:03.076 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-24 12:28:12.550 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-24 12:28:12.588 +01:00","version":"1.0.0"}
+{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-24 12:28:12.659 +01:00","version":"1.0.0"}

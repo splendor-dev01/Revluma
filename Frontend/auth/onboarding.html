@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../assets/images/Revluma-icon.png"></link>
+  <title>Revluma - Create Your Account</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #060608;
+      --surface:  rgba(255,255,255,0.028);
+      --border:   rgba(255,255,255,0.07);
+      --border-focus: rgba(255,255,255,0.22);
+      --text:     #f0f0f5;
+      --muted:    #5a5a72;
+      --muted2:   #3a3a50;
+      --accent:   #7c6fff;
+      --red:      #f87171;
+      --green:    #34d399;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    /* Smooth transitions */
+    .step-container {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    /* Input focus effects */
+    .input-field {
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus {
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+      border-color: var(--border-focus);
+    }
+
+    .input-field.valid {
+      border-color: var(--green);
+    }
+
+    .input-field.error {
+      border-color: var(--red);
+    }
+
+    /* Password match indicator animation */
+    #passwordMatch {
+      animation: fadeInScale 0.3s ease-out;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Password toggle button hover */
+    #togglePassword:hover, #toggleConfirmPassword:hover {
+      color: var(--text) !important;
+    }
+
+    /* Password strength indicator */
+    .password-strength {
+      height: 4px;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .password-strength.weak {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+      width: 33%;
+    }
+
+    .password-strength.medium {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
+      width: 66%;
+    }
+
+    .password-strength.strong {
+      background: linear-gradient(90deg, #34d399, #10b981);
+      width: 100%;
+    }
+
+    /* Card hover effects */
+    .selection-card {
+      transition: all 0.2s ease;
+    }
+
+    .selection-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .selection-card.selected {
+      border-color: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Button effects */
+    .btn-primary {
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Progress bar animation - Ocean wave effect */
+    .progress-bar {
+      position: relative;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 300%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,0.3) 25%,
+        rgba(255,255,255,0.5) 50%,
+        rgba(255,255,255,0.3) 75%,
+        transparent 100%
+      );
+      animation: oceanWave 3s linear infinite;
+    }
+
+    @keyframes oceanWave {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(33.33%); }
+    }
+
+    /* Add subtle grain and glow like login page */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.018;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 128px;
+    }
+
+    .glow-1 {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      top: -160px;
+      left: -160px;
+      background: radial-gradient(circle, rgba(124,111,255,0.055) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-2 {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      bottom: -100px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(255,255,255,0.025) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error shake */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .shake {
+      animation: shake 0.3s ease;
+    }
+
+    /* Glow effect for selected cards */
+    .glow {
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+    }
+
+    /* Verification code input */
+    .code-input {
+      letter-spacing: 0.5em;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    /* Countdown timer */
+    .countdown {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Logo animation */
+    .logo-container {
+      transition: all 0.3s ease;
+    }
+
+    .logo-container:hover {
+      transform: scale(1.05);
+    }
+
+    .logo-name {
+      display: inline-block;
+      opacity: 0;
+      transform: translateX(-10px);
+      animation: slideNameIn 0.6s ease forwards;
+      animation-delay: 0.2s;
+    }
+
+    @keyframes slideNameIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Checkbox custom style */
+    .checkbox-custom {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .checkbox-custom:checked {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(255, 255, 255, 0.9);
+    }
+
+    .checkbox-custom:checked::after {
+      content: '\2713';
+      display: block;
+      text-align: center;
+      color: #0a0a0a;
+      font-size: 12px;
+      font-weight: bold;
+      line-height: 16px;
+    }
+
+    /* Logo mark styling */
+    .logo-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        flex-shrink: 0;
+        animation: logoFloat 5s ease-in-out infinite;
+    }
+    .logo-mark img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 12px;
+        display: block;
+    }
+    @keyframes logoFloat {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-3px); }
+    }
+
+    .logo-name-wrap {
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .logo-name {
+        display: inline-block;
+        opacity: 0;
+        transform: translateX(-24px);
+        animation: slideNameIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        animation-delay: 0.5s;
+    }
+
+    @keyframes slideNameIn {
+        0% {
+            opacity: 0;
+            transform: translateX(-24px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              900: '#0a0a0a',
+              800: '#111111',
+              700: '#1a1a1a',
+              600: '#222222',
+              500: '#2a2a2a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen" style="background: var(--bg); color: var(--text);">
+  <!-- Glow effects -->
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+  <!-- Main Container -->
+  <div class="min-h-screen flex flex-col" style="position: relative; z-index: 1;">
+    <!-- Progress Bar -->
+    <div class="w-full h-1" style="background: rgba(255,255,255,0.1);">
+      <div id="progressBar" class="progress-bar h-full" style="width: 20%; background: linear-gradient(90deg, #f0f0f5, #ffffff);"></div>
+    </div>
+
+    <!-- Logo & Branding -->
+    <div class="flex justify-center items-center py-6 px-4">
+      <a href="../index.html" class="logo-container flex items-center gap-3">
+        <div class="logo-mark">
+          <img 
+            src="../assets/images/Revluma-logo.png" 
+            alt="Revluma Logo" 
+          >
+        </div>
+        <div class="logo-name-wrap">
+          <span class="logo-name text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Revluma</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Step Indicators -->
+    <div class="flex justify-center items-center gap-2 pb-6 px-4">
+      <div class="step-indicator flex items-center gap-2">
+        <div id="step1Indicator" class="w-8 h-8 rounded-full bg-white text-dark-900 flex items-center justify-center text-sm font-semibold">1</div>
+        <span class="text-sm text-gray-400 hidden sm:inline">Account</span>
+      </div>
+      <div class="w-8 h-px bg-dark-600"></div>
+      <div class="step-indicator flex items-center gap-2">
+        <div id="step2Indicator" class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">2</div>
+        <span class="text-sm text-gray-400 hidden sm:inline">Business</span>
+      </div>
+      <div class="w-8 h-px bg-dark-600"></div>
+      <div class="step-indicator flex items-center gap-2">
+        <div id="step3Indicator" class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">3</div>
+        <span class="text-sm text-gray-400 hidden sm:inline">Goals</span>
+      </div>
+      <div class="w-8 h-px bg-dark-600"></div>
+      <div class="step-indicator flex items-center gap-2">
+        <div id="step4Indicator" class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">4</div>
+        <span class="text-sm text-gray-400 hidden sm:inline">Revenue</span>
+      </div>
+      <div class="w-8 h-px bg-dark-600"></div>
+      <div class="step-indicator flex items-center gap-2">
+        <div id="step5Indicator" class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">5</div>
+        <span class="text-sm text-gray-400 hidden sm:inline">Recovery</span>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="flex-1 flex items-center justify-center px-4 py-8">
+      <div class="w-full max-w-lg">
+        <!-- Step 1: Basic Account Setup -->
+        <div id="step1" class="step-container">
+          <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3">Create your account</h1>
+            <p class="text-gray-400 text-lg">Takes less than 60 seconds</p>
+          </div>
+
+          <form id="step1Form" class="space-y-5">
+            <!-- First Name & Last Name -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="firstName" class="block text-sm font-medium mb-2" style="color: var(--muted);">First Name</label>
+                <input 
+                  type="text" 
+                  id="firstName" 
+                  name="firstName"
+                  class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border);"
+                  placeholder="John"
+                  required
+                >
+                <p id="firstNameError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+              </div>
+              <div>
+                <label for="lastName" class="block text-sm font-medium mb-2" style="color: var(--muted);">Last Name</label>
+                <input 
+                  type="text" 
+                  id="lastName" 
+                  name="lastName"
+                  class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border);"
+                  placeholder="Doe"
+                  required
+                >
+                <p id="lastNameError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="email" class="block text-sm font-medium mb-2" style="color: var(--muted);">Email Address</label>
+              <div class="flex gap-2">
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email"
+                  class="input-field flex-1 px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border);"
+                  placeholder="john@example.com"
+                  required
+                >
+                <button 
+                  type="button" 
+                  id="verifyEmailBtn"
+                  class="px-4 py-3 rounded-lg font-semibold whitespace-nowrap transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style="background: var(--surface); border: 1px solid var(--border); color: var(--text);"
+                >
+                  Verify Email
+                </button>
+              </div>
+              <p id="emailError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+              <p id="emailStatus" class="text-sm mt-1 hidden"></p>
+            </div>
+
+            <!-- Email Verification Code (Hidden by default) -->
+            <div id="verificationSection" class="hidden">
+              <label for="verificationCode" class="block text-sm font-medium mb-2" style="color: var(--muted);">Verification Code</label>
+              <div class="flex gap-2">
+                <input 
+                  type="text" 
+                  id="verificationCode" 
+                  name="verificationCode"
+                  maxlength="6"
+                  class="input-field code-input flex-1 px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border);"
+                  placeholder="000000"
+                >
+                <button 
+                  type="button" 
+                  id="submitCodeBtn"
+                  class="px-4 py-3 rounded-lg font-semibold whitespace-nowrap"
+                  style="background: var(--text); color: var(--bg);"
+                >
+                  Verify
+                </button>
+              </div>
+              <p id="codeError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+              <div class="flex items-center justify-between mt-2">
+                <p class="text-xs" style="color: var(--muted2);">Code expires in 15 minutes</p>
+                <button 
+                  type="button" 
+                  id="resendCodeBtn"
+                  class="text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style="color: var(--muted);"
+                  disabled
+                >
+                  Resend code (<span id="countdown" class="countdown">60</span>s)
+                </button>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div>
+              <label for="password" class="block text-sm font-medium mb-2" style="color: var(--muted);">Password</label>
+              <div class="relative">
+                <input 
+                  type="password" 
+                  id="password" 
+                  name="password"
+                  class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none pr-12"
+                  style="background: var(--surface); border: 1px solid var(--border);"
+                  placeholder="••••••••"
+                  required
+                >
+                <button 
+                  type="button" 
+                  id="togglePassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style="color: var(--muted2);"
+                >
+                  <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg id="eyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+              <p id="passwordError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+              <p class="text-xs mt-1" style="color: var(--muted2);">Must be at least 8 characters</p>
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+              <label for="confirmPassword" class="block text-sm font-medium mb-2" style="color: var(--muted);">Confirm Password</label>
+              <div class="relative">
+                <input 
+                  type="password" 
+                  id="confirmPassword" 
+                  name="confirmPassword"
+                  class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none pr-12"
+                  style="background: var(--surface); border: 1px solid var(--border);"
+                  placeholder="••••••••"
+                  required
+                >
+                <button 
+                  type="button" 
+                  id="toggleConfirmPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style="color: var(--muted2);"
+                >
+                  <svg id="confirmEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg id="confirmEyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+              <p id="confirmPasswordError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+              <div id="passwordMatch" class="flex items-center gap-2 mt-2 opacity-0 transition-opacity duration-300">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style="color: var(--green);">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-xs" style="color: var(--green);">Passwords match</span>
+              </div>
+            </div>
+
+            <!-- Newsletter Opt-in -->
+            <label class="flex items-center gap-2.5 cursor-pointer select-none">
+              <input type="checkbox" id="newsletterOptIn" checked class="checkbox-custom">
+              <span class="text-sm" style="color: var(--muted);">Send me product updates, feature releases & e-commerce tips</span>
+            </label>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit" 
+              id="step1Submit"
+              class="btn-primary w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              style="background: var(--text); color: var(--bg);"
+              disabled
+            >
+              <span>Continue</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </form>
+
+          <p class="text-center text-gray-500 text-sm mt-6">
+            Already have an account? 
+            <a href="loginIn.html" class="text-white hover:underline">Sign in</a>
+          </p>
+        </div>
+
+        <!-- Step 2: Business Context -->
+        <div id="step2" class="step-container hidden">
+          <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3">Tell us about your business</h1>
+            <p class="text-gray-400 text-lg">Help us personalize your experience</p>
+          </div>
+
+          <form id="step2Form" class="space-y-6">
+            <!-- Platform Selection -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3">Which platform are you using?</label>
+              <div class="grid grid-cols-3 gap-3">
+                <button 
+                  type="button" 
+                  data-platform="shopify"
+                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600"
+                >
+                  <svg class="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.337 2.094c-.318-.066-.647-.108-.985-.108-2.593 0-4.697 2.104-4.697 4.697 0 .338.042.667.108.985l-4.697 1.691v10.641c0 1.381 1.119 2.5 2.5 2.5h10.641c1.381 0 2.5-1.119 2.5-2.5v-10.641l-1.691-4.697c-.066-.318-.108-.647-.108-.985 0-2.593-2.104-4.697-4.697-4.697z"/>
+                  </svg>
+                  <span class="text-sm font-medium">Shopify</span>
+                </button>
+                <button 
+                  type="button" 
+                  data-platform="woocommerce"
+                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600"
+                >
+                  <svg class="w-8 h-8 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  </svg>
+                  <span class="text-sm font-medium">WooCommerce</span>
+                </button>
+                <button 
+                  type="button" 
+                  data-platform="other"
+                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600"
+                >
+                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  </svg>
+                  <span class="text-sm font-medium">Other</span>
+                </button>
+              </div>
+              <input type="hidden" id="platform" name="platform" required>
+              <p id="platformError" class="text-red-400 text-sm mt-1 hidden"></p>
+            </div>
+
+            <!-- Store URL -->
+            <div>
+              <label for="storeUrl" class="block text-sm font-medium text-gray-300 mb-2">Store URL</label>
+              <input 
+                type="url" 
+                id="storeUrl" 
+                name="storeUrl"
+                class="input-field w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-white"
+                placeholder="https://yourstore.com"
+                required
+              >
+              <p id="storeUrlError" class="text-red-400 text-sm mt-1 hidden"></p>
+            </div>
+
+            <!-- Monthly Traffic -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3">Monthly traffic</label>
+              <div class="grid grid-cols-2 gap-3">
+                <button 
+                  type="button" 
+                  data-traffic="0-1k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
+                >
+                  0–1K
+                </button>
+                <button 
+                  type="button" 
+                  data-traffic="1k-10k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
+                >
+                  1K–10K
+                </button>
+                <button 
+                  type="button" 
+                  data-traffic="10k-50k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
+                >
+                  10K–50K
+                </button>
+                <button 
+                  type="button" 
+                  data-traffic="50k+"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
+                >
+                  50K+
+                </button>
+              </div>
+              <input type="hidden" id="monthlyTraffic" name="monthlyTraffic" required>
+              <p id="trafficError" class="text-red-400 text-sm mt-1 hidden"></p>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex gap-3 pt-4">
+              <button 
+                type="button" 
+                id="step2Back"
+                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors"
+              >
+                Back
+              </button>
+              <button 
+                type="submit" 
+                id="step2Submit"
+                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2"
+              >
+                <span>Continue</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 3: Goals Selection -->
+        <div id="step3" class="step-container hidden">
+          <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3">What do you want to improve the most?</h1>
+            <p class="text-gray-400 text-lg">Select all that apply</p>
+          </div>
+
+          <form id="step3Form" class="space-y-6">
+            <!-- Goals Selection -->
+            <div class="space-y-3">
+              <button 
+                type="button" 
+                data-goal="recover_carts"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
+              >
+                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <div class="font-semibold">Recover abandoned carts</div>
+                  <div class="text-sm text-gray-400">Bring back lost sales automatically</div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
+                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                data-goal="increase_conversion"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
+              >
+                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <div class="font-semibold">Increase conversion rate</div>
+                  <div class="text-sm text-gray-400">Turn more visitors into customers</div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
+                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                data-goal="find_products"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
+              >
+                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <div class="font-semibold">Find winning products</div>
+                  <div class="text-sm text-gray-400">Discover trending products to sell</div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
+                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                data-goal="scale_revenue"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
+              >
+                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <div class="font-semibold">Scale revenue</div>
+                  <div class="text-sm text-gray-400">Grow your business faster</div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
+                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+            </div>
+
+            <input type="hidden" id="goals" name="goals">
+            <p id="goalsError" class="text-red-400 text-sm mt-1 hidden"></p>
+
+            <!-- Navigation Buttons -->
+            <div class="flex gap-3 pt-4">
+              <button 
+                type="button" 
+                id="step3Back"
+                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors"
+              >
+                Back
+              </button>
+              <button 
+                type="submit" 
+                id="step3Submit"
+                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2"
+              >
+                <span>Continue</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 4: Revenue Stage (Optional) -->
+        <div id="step4" class="step-container hidden">
+          <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3">What's your monthly revenue?</h1>
+            <p class="text-gray-400 text-lg">This helps us tailor recommendations</p>
+          </div>
+
+          <form id="step4Form" class="space-y-6">
+            <!-- Monthly Revenue -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3">Monthly revenue (optional)</label>
+              <div class="grid grid-cols-2 gap-3">
+                <button 
+                  type="button" 
+                  data-revenue="0-1k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
+                >
+                  $0–$1K
+                </button>
+                <button 
+                  type="button" 
+                  data-revenue="1k-10k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
+                >
+                  $1K–$10K
+                </button>
+                <button 
+                  type="button" 
+                  data-revenue="10k-50k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
+                >
+                  $10K–$50K
+                </button>
+                <button 
+                  type="button" 
+                  data-revenue="50k+"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
+                >
+                  $50K+
+                </button>
+              </div>
+              <input type="hidden" id="monthlyRevenue" name="monthlyRevenue">
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex gap-3 pt-4">
+              <button 
+                type="button" 
+                id="step4Back"
+                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors"
+              >
+                Back
+              </button>
+              <button 
+                type="button" 
+                id="step4Skip"
+                class="flex-1 py-3 text-gray-400 font-semibold rounded-lg hover:text-white transition-colors"
+              >
+                Skip for now
+              </button>
+              <button 
+                type="submit" 
+                id="step4Submit"
+                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2"
+              >
+                <span>Continue</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 5: Recovery Channel Setup -->
+        <div id="step5" class="step-container hidden">
+          <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3">How should we recover your abandoned carts?</h1>
+            <p class="text-gray-400 text-lg">Choose your preferred recovery channel</p>
+          </div>
+
+          <form id="step5Form" class="space-y-6">
+            <!-- Recovery Channel Selection -->
+            <div class="space-y-3">
+              <button 
+                type="button" 
+                data-channel="email"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
+              >
+                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <div class="font-semibold">Email</div>
+                  <div class="text-sm text-gray-400">Automated email sequences</div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
+                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                data-channel="whatsapp"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
+              >
+                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <div class="font-semibold">WhatsApp</div>
+                  <div class="text-sm text-gray-400">Direct messaging recovery</div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
+                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                data-channel="both"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
+              >
+                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <div class="font-semibold">Both</div>
+                  <div class="text-sm text-gray-400">Email + WhatsApp combined</div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
+                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+            </div>
+
+            <input type="hidden" id="recoveryChannel" name="recoveryChannel" required>
+            <p id="channelError" class="text-red-400 text-sm mt-1 hidden"></p>
+
+            <!-- Navigation Buttons -->
+            <div class="flex gap-3 pt-4">
+              <button 
+                type="button" 
+                id="step5Back"
+                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors"
+              >
+                Back
+              </button>
+              <button 
+                type="submit" 
+                id="step5Submit"
+                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2"
+              >
+                <span>Complete Setup</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Success Screen -->
+        <div id="successScreen" class="step-container hidden text-center">
+          <div class="mb-8">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/20 flex items-center justify-center">
+              <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3">You're all set!</h1>
+            <p class="text-gray-400 text-lg">Your account is ready. Let's start recovering those carts.</p>
+          </div>
+
+          <a 
+            href="../index.html" 
+            class="inline-flex items-center gap-2 px-8 py-3 bg-white text-dark-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            Go to Dashboard
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="fixed inset-0 bg-dark-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+          <div class="text-center">
+            <div class="spinner w-12 h-12 border-4 border-dark-600 border-t-white rounded-full mx-auto mb-4"></div>
+            <p id="loadingMessage" class="text-gray-400">Creating your account...</p>
+          </div>
+        </div>
+
+        <!-- Error Toast -->
+        <div id="errorToast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-500/90 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span id="errorMessage">An error occurred</span>
+          </div>
+        </div>
+
+        <!-- Success Toast -->
+        <div id="successToast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-green-500/90 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="successMessage">Success!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====================== STATE MANAGEMENT ======================
+    const state = {
+      currentStep: 1,
+      token: null,
+      user: null,
+      emailVerified: false,
+      countdownInterval: null,
+      formData: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        platform: '',
+        storeUrl: '',
+        monthlyTraffic: '',
+        goals: [],
+        monthlyRevenue: '',
+        recoveryChannel: ''
+      }
+    };
+
+    // ====================== DOM ELEMENTS ======================
+    const elements = {
+      steps: {
+        1: document.getElementById('step1'),
+        2: document.getElementById('step2'),
+        3: document.getElementById('step3'),
+        4: document.getElementById('step4'),
+        5: document.getElementById('step5')
+      },
+      indicators: {
+        1: document.getElementById('step1Indicator'),
+        2: document.getElementById('step2Indicator'),
+        3: document.getElementById('step3Indicator'),
+        4: document.getElementById('step4Indicator'),
+        5: document.getElementById('step5Indicator')
+      },
+      progressBar: document.getElementById('progressBar'),
+      successScreen: document.getElementById('successScreen'),
+      loadingOverlay: document.getElementById('loadingOverlay'),
+      loadingMessage: document.getElementById('loadingMessage'),
+      errorToast: document.getElementById('errorToast'),
+      errorMessage: document.getElementById('errorMessage'),
+      successToast: document.getElementById('successToast'),
+      successMessage: document.getElementById('successMessage'),
+      verifyEmailBtn: document.getElementById('verifyEmailBtn'),
+      verificationSection: document.getElementById('verificationSection'),
+      verificationCode: document.getElementById('verificationCode'),
+      submitCodeBtn: document.getElementById('submitCodeBtn'),
+      resendCodeBtn: document.getElementById('resendCodeBtn'),
+      countdown: document.getElementById('countdown'),
+      emailStatus: document.getElementById('emailStatus'),
+      step1Submit: document.getElementById('step1Submit')
+    };
+
+    // ====================== API CONFIGURATION ======================
+    const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const API_BASE = isLocalDev
+      ? 'http://localhost:5000/api'
+      : 'https://api.splendor.ai/api'; // TODO: replace with your production backend URL
+
+    // ====================== UTILITY FUNCTIONS ======================
+    function showLoading(message = 'Creating your account...') {
+      elements.loadingMessage.textContent = message;
+      elements.loadingOverlay.classList.remove('hidden');
+    }
+
+    function hideLoading() {
+      elements.loadingOverlay.classList.add('hidden');
+    }
+
+    function showError(message) {
+      elements.errorMessage.textContent = message;
+      elements.errorToast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        elements.errorToast.classList.add('translate-y-20', 'opacity-0');
+      }, 4000);
+    }
+
+    function showSuccess(message) {
+      elements.successMessage.textContent = message;
+      elements.successToast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        elements.successToast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    function showFieldError(fieldId, message) {
+      const errorEl = document.getElementById(fieldId + 'Error');
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+        const input = document.getElementById(fieldId);
+        if (input) {
+          input.style.borderColor = 'var(--red)';
+          input.classList.add('shake');
+          setTimeout(() => input.classList.remove('shake'), 300);
+        }
+      }
+    }
+
+    function clearFieldError(fieldId) {
+      const errorEl = document.getElementById(fieldId + 'Error');
+      if (errorEl) {
+        errorEl.classList.add('hidden');
+        const input = document.getElementById(fieldId);
+        if (input) {
+          input.style.borderColor = '';
+        }
+      }
+    }
+
+    function updateProgressBar() {
+      const progress = (state.currentStep / 5) * 100;
+      elements.progressBar.style.width = `${progress}%`;
+    }
+
+    function updateStepIndicators() {
+      for (let i = 1; i <= 5; i++) {
+        const indicator = elements.indicators[i];
+        if (i < state.currentStep) {
+          indicator.className = 'w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-semibold';
+          indicator.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+        } else if (i === state.currentStep) {
+          indicator.className = 'w-8 h-8 rounded-full bg-white text-dark-900 flex items-center justify-center text-sm font-semibold';
+          indicator.textContent = i;
+        } else {
+          indicator.className = 'w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold';
+          indicator.textContent = i;
+        }
+      }
+    }
+
+    function showStep(step) {
+      // Hide all steps
+      Object.values(elements.steps).forEach(el => el.classList.add('hidden'));
+      elements.successScreen.classList.add('hidden');
+
+      // Show current step
+      if (step <= 5) {
+        elements.steps[step].classList.remove('hidden');
+        elements.steps[step].classList.add('slide-in');
+      } else {
+        elements.successScreen.classList.remove('hidden');
+      }
+
+      state.currentStep = step;
+      updateProgressBar();
+      updateStepIndicators();
+    }
+
+    function startCountdown() {
+      let seconds = 60;
+      elements.countdown.textContent = seconds;
+      elements.resendCodeBtn.disabled = true;
+
+      state.countdownInterval = setInterval(() => {
+        seconds--;
+        elements.countdown.textContent = seconds;
+
+        if (seconds <= 0) {
+          clearInterval(state.countdownInterval);
+          elements.resendCodeBtn.disabled = false;
+          elements.resendCodeBtn.innerHTML = 'Resend code';
+        }
+      }, 1000);
+    }
+
+    function updateEmailStatus(verified) {
+      state.emailVerified = verified;
+      const emailInput = document.getElementById('email');
+      
+      if (verified) {
+        elements.emailStatus.innerHTML = '<span class="text-green-400 flex items-center gap-1"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Email verified</span>';
+        elements.emailStatus.classList.remove('hidden');
+        elements.verifyEmailBtn.textContent = 'Verified';
+        elements.verifyEmailBtn.disabled = true;
+        elements.verifyEmailBtn.classList.add('bg-green-600', 'hover:bg-green-600');
+        elements.verifyEmailBtn.classList.remove('bg-dark-600', 'hover:bg-dark-500');
+        elements.verificationSection.classList.add('hidden');
+        emailInput.disabled = true;
+        emailInput.classList.add('bg-dark-600');
+        elements.step1Submit.disabled = false;
+      } else {
+        elements.emailStatus.classList.add('hidden');
+        elements.verifyEmailBtn.textContent = 'Verify Email';
+        elements.verifyEmailBtn.disabled = false;
+        elements.verifyEmailBtn.classList.remove('bg-green-600', 'hover:bg-green-600');
+        elements.verifyEmailBtn.classList.add('bg-dark-600', 'hover:bg-dark-500');
+        emailInput.disabled = false;
+        emailInput.classList.remove('bg-dark-600');
+        elements.step1Submit.disabled = true;
+      }
+    }
+
+    // ====================== API CALLS ======================
+    async function registerUser() {
+      try {
+        const response = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            first_name: state.formData.firstName,
+            last_name: state.formData.lastName,
+            email: state.formData.email,
+            password: state.formData.password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Registration failed');
+        }
+
+        state.token = data.token;
+        state.user = data.user;
+
+        // Store token securely
+        localStorage.setItem('splendor_token', data.token);
+        localStorage.setItem('splendor_user', JSON.stringify(data.user));
+
+        return data;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    async function sendVerificationCode() {
+      try {
+        const response = await fetch(`${API_BASE}/auth/send-verification`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to send verification code');
+        }
+
+        return data;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    async function verifyEmailCode(code) {
+      try {
+        const response = await fetch(`${API_BASE}/auth/verify-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ code })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Verification failed');
+        }
+
+        return data;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    async function updateOnboarding(step, data) {
+      try {
+        const response = await fetch(`${API_BASE}/auth/onboarding`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ step, data })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to update onboarding');
+        }
+
+        return result;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    // ====================== VALIDATION ======================
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    function validateUrl(url) {
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function validateStep1() {
+      let isValid = true;
+
+      // First Name
+      const firstName = document.getElementById('firstName').value.trim();
+      if (!firstName) {
+        showFieldError('firstName', 'First name is required');
+        isValid = false;
+      } else if (firstName.length < 1) {
+        showFieldError('firstName', 'First name is required');
+        isValid = false;
+      } else {
+        clearFieldError('firstName');
+        state.formData.firstName = firstName;
+      }
+
+      // Last Name
+      const lastName = document.getElementById('lastName').value.trim();
+      if (!lastName) {
+        showFieldError('lastName', 'Last name is required');
+        isValid = false;
+      } else if (lastName.length < 1) {
+        showFieldError('lastName', 'Last name is required');
+        isValid = false;
+      } else {
+        clearFieldError('lastName');
+        state.formData.lastName = lastName;
+      }
+
+      // Email
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        showFieldError('email', 'Email is required');
+        isValid = false;
+      } else if (!validateEmail(email)) {
+        showFieldError('email', 'Please enter a valid email');
+        isValid = false;
+      } else {
+        clearFieldError('email');
+        state.formData.email = email;
+      }
+
+      // Email verification
+      if (!state.emailVerified) {
+        showError('Please verify your email address');
+        isValid = false;
+      }
+
+      // Password
+      const password = document.getElementById('password').value;
+      if (!password) {
+        showFieldError('password', 'Password is required');
+        isValid = false;
+      } else if (password.length < 8) {
+        showFieldError('password', 'Password must be at least 8 characters');
+        isValid = false;
+      } else {
+        clearFieldError('password');
+        state.formData.password = password;
+      }
+
+      // Confirm Password
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const passwordMatch = document.getElementById('passwordMatch');
+      if (!confirmPassword) {
+        showFieldError('confirmPassword', 'Please confirm your password');
+        isValid = false;
+        passwordMatch.classList.remove('opacity-100');
+        passwordMatch.classList.add('opacity-0');
+      } else if (confirmPassword !== password) {
+        showFieldError('confirmPassword', 'Passwords do not match');
+        isValid = false;
+        passwordMatch.classList.remove('opacity-100');
+        passwordMatch.classList.add('opacity-0');
+      } else {
+        clearFieldError('confirmPassword');
+        passwordMatch.classList.remove('opacity-0');
+        passwordMatch.classList.add('opacity-100');
+      }
+
+      return isValid;
+    }
+
+    function validateStep2() {
+      let isValid = true;
+
+      // Platform
+      const platform = document.getElementById('platform').value;
+      if (!platform) {
+        document.getElementById('platformError').textContent = 'Please select a platform';
+        document.getElementById('platformError').classList.remove('hidden');
+        isValid = false;
+      } else {
+        document.getElementById('platformError').classList.add('hidden');
+        state.formData.platform = platform;
+      }
+
+      // Store URL
+      const storeUrl = document.getElementById('storeUrl').value.trim();
+      if (!storeUrl) {
+        showFieldError('storeUrl', 'Store URL is required');
+        isValid = false;
+      } else if (!validateUrl(storeUrl)) {
+        showFieldError('storeUrl', 'Please enter a valid URL');
+        isValid = false;
+      } else {
+        clearFieldError('storeUrl');
+        state.formData.storeUrl = storeUrl;
+      }
+
+      // Monthly Traffic
+      const monthlyTraffic = document.getElementById('monthlyTraffic').value;
+      if (!monthlyTraffic) {
+        document.getElementById('trafficError').textContent = 'Please select your monthly traffic';
+        document.getElementById('trafficError').classList.remove('hidden');
+        isValid = false;
+      } else {
+        document.getElementById('trafficError').classList.add('hidden');
+        state.formData.monthlyTraffic = monthlyTraffic;
+      }
+
+      return isValid;
+    }
+
+    function validateStep3() {
+      const goals = state.formData.goals;
+      if (goals.length === 0) {
+        document.getElementById('goalsError').textContent = 'Please select at least one goal';
+        document.getElementById('goalsError').classList.remove('hidden');
+        return false;
+      }
+      document.getElementById('goalsError').classList.add('hidden');
+      return true;
+    }
+
+    function validateStep5() {
+      const channel = document.getElementById('recoveryChannel').value;
+      if (!channel) {
+        document.getElementById('channelError').textContent = 'Please select a recovery channel';
+        document.getElementById('channelError').classList.remove('hidden');
+        return false;
+      }
+      document.getElementById('channelError').classList.add('hidden');
+      state.formData.recoveryChannel = channel;
+      return true;
+    }
+
+    // ====================== EVENT HANDLERS ======================
+    // Password toggle
+    document.getElementById('togglePassword').addEventListener('click', () => {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      const eyeOffIcon = document.getElementById('eyeOffIcon');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.add('hidden');
+        eyeOffIcon.classList.remove('hidden');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('hidden');
+        eyeOffIcon.classList.add('hidden');
+      }
+    });
+
+    // Confirm Password toggle
+    document.getElementById('toggleConfirmPassword').addEventListener('click', () => {
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+      const eyeIcon = document.getElementById('confirmEyeIcon');
+      const eyeOffIcon = document.getElementById('confirmEyeOffIcon');
+
+      if (confirmPasswordInput.type === 'password') {
+        confirmPasswordInput.type = 'text';
+        eyeIcon.classList.add('hidden');
+        eyeOffIcon.classList.remove('hidden');
+      } else {
+        confirmPasswordInput.type = 'password';
+        eyeIcon.classList.remove('hidden');
+        eyeOffIcon.classList.add('hidden');
+      }
+    });
+
+    // Real-time password match validation
+    document.getElementById('confirmPassword').addEventListener('input', () => {
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+      const confirmPasswordError = document.getElementById('confirmPasswordError');
+      const passwordMatch = document.getElementById('passwordMatch');
+
+      if (confirmPassword.length > 0) {
+        if (confirmPassword === password && password.length >= 8) {
+          confirmPasswordError.classList.add('hidden');
+          passwordMatch.classList.remove('opacity-0');
+          passwordMatch.classList.add('opacity-100');
+          confirmPasswordInput.style.borderColor = 'var(--green)';
+        } else {
+          passwordMatch.classList.remove('opacity-100');
+          passwordMatch.classList.add('opacity-0');
+          confirmPasswordInput.style.borderColor = '';
+        }
+      } else {
+        passwordMatch.classList.remove('opacity-100');
+        passwordMatch.classList.add('opacity-0');
+        confirmPasswordInput.style.borderColor = '';
+      }
+    });
+
+    // Verify email button
+    elements.verifyEmailBtn.addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      
+      if (!email) {
+        showFieldError('email', 'Please enter your email first');
+        return;
+      }
+
+      if (!validateEmail(email)) {
+        showFieldError('email', 'Please enter a valid email');
+        return;
+      }
+
+      // First, register the user if not already registered
+      if (!state.token) {
+        showLoading('Creating your account...');
+        try {
+          await registerUser();
+          hideLoading();
+
+          // Subscribe to newsletter if opted in
+          const newsletterCheckbox = document.getElementById('newsletterOptIn');
+          if (newsletterCheckbox && newsletterCheckbox.checked) {
+            fetch(`${API_BASE}/newsletter/subscribe`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: state.formData.email })
+            }).catch(() => {}); // Fire-and-forget; newsletter is optional
+          }
+        } catch (error) {
+          hideLoading();
+          showError(error.message);
+          return;
+        }
+      }
+
+      // Send verification code
+      showLoading('Sending verification code...');
+      try {
+        const result = await sendVerificationCode();
+        hideLoading();
+        
+        // Show verification section
+        elements.verificationSection.classList.remove('hidden');
+        elements.verifyEmailBtn.textContent = 'Code sent';
+        elements.verifyEmailBtn.disabled = true;
+        
+        // Start countdown
+        startCountdown();
+
+        showSuccess('Verification code sent to your email');
+      } catch (error) {
+        hideLoading();
+        showError(error.message);
+      }
+    });
+
+    // Submit verification code
+    elements.submitCodeBtn.addEventListener('click', async () => {
+      const code = elements.verificationCode.value.trim();
+      
+      if (!code) {
+        document.getElementById('codeError').textContent = 'Please enter the verification code';
+        document.getElementById('codeError').classList.remove('hidden');
+        return;
+      }
+
+      if (code.length !== 6) {
+        document.getElementById('codeError').textContent = 'Code must be 6 digits';
+        document.getElementById('codeError').classList.remove('hidden');
+        return;
+      }
+
+      showLoading('Verifying code...');
+      try {
+        await verifyEmailCode(code);
+        hideLoading();
+        updateEmailStatus(true);
+        showSuccess('Email verified successfully!');
+      } catch (error) {
+        hideLoading();
+        document.getElementById('codeError').textContent = error.message;
+        document.getElementById('codeError').classList.remove('hidden');
+      }
+    });
+
+    // Resend code button
+    elements.resendCodeBtn.addEventListener('click', async () => {
+      if (elements.resendCodeBtn.disabled) return;
+
+      showLoading('Sending new code...');
+      try {
+        const result = await sendVerificationCode();
+        hideLoading();
+        startCountdown();
+        showSuccess('New verification code sent');
+      } catch (error) {
+        hideLoading();
+        showError(error.message);
+      }
+    });
+
+    // Platform selection
+    document.querySelectorAll('[data-platform]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-platform]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('platform').value = btn.dataset.platform;
+        clearFieldError('platform');
+      });
+    });
+
+    // Traffic selection
+    document.querySelectorAll('[data-traffic]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-traffic]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('monthlyTraffic').value = btn.dataset.traffic;
+        document.getElementById('trafficError').classList.add('hidden');
+      });
+    });
+
+    // Goals selection (multi-select)
+    document.querySelectorAll('[data-goal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('selected');
+        const checkIcon = btn.querySelector('.goal-check svg');
+        checkIcon.classList.toggle('hidden');
+
+        const goal = btn.dataset.goal;
+        const index = state.formData.goals.indexOf(goal);
+        if (index > -1) {
+          state.formData.goals.splice(index, 1);
+        } else {
+          state.formData.goals.push(goal);
+        }
+
+        document.getElementById('goalsError').classList.add('hidden');
+      });
+    });
+
+    // Revenue selection
+    document.querySelectorAll('[data-revenue]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-revenue]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('monthlyRevenue').value = btn.dataset.revenue;
+      });
+    });
+
+    // Recovery channel selection
+    document.querySelectorAll('[data-channel]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-channel]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const checkIcon = btn.querySelector('.channel-check svg');
+        checkIcon.classList.remove('hidden');
+        document.getElementById('recoveryChannel').value = btn.dataset.channel;
+        document.getElementById('channelError').classList.add('hidden');
+      });
+    });
+
+    // Form submissions
+    document.getElementById('step1Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateStep1()) return;
+
+      showLoading('Creating your account...');
+      try {
+        await registerUser();
+        hideLoading();
+        showStep(2);
+      } catch (error) {
+        hideLoading();
+        showError(error.message);
+      }
+    });
+
+    document.getElementById('step2Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateStep2()) return;
+
+      showLoading('Saving business info...');
+      try {
+        await updateOnboarding(2, {
+          platform: state.formData.platform,
+          store_url: state.formData.storeUrl,
+          monthly_traffic: state.formData.monthlyTraffic
+        });
+        hideLoading();
+        showStep(3);
+      } catch (error) {
+        hideLoading();
+        showError(error.message);
+      }
+    });
+
+    document.getElementById('step3Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateStep3()) return;
+
+      showLoading('Saving your goals...');
+      try {
+        await updateOnboarding(3, {
+          goals: state.formData.goals
+        });
+        hideLoading();
+        showStep(4);
+      } catch (error) {
+        hideLoading();
+        showError(error.message);
+      }
+    });
+
+    document.getElementById('step4Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const revenue = document.getElementById('monthlyRevenue').value;
+      state.formData.monthlyRevenue = revenue;
+
+      showLoading('Saving revenue info...');
+      try {
+        await updateOnboarding(4, {
+          monthly_revenue: revenue || null
+        });
+        hideLoading();
+        showStep(5);
+      } catch (error) {
+        hideLoading();
+        showError(error.message);
+      }
+    });
+
+    document.getElementById('step4Skip').addEventListener('click', async () => {
+      showLoading('Continuing...');
+      try {
+        await updateOnboarding(4, {
+          monthly_revenue: null
+        });
+        hideLoading();
+        showStep(5);
+      } catch (error) {
+        hideLoading();
+        showError(error.message);
+      }
+    });
+
+    document.getElementById('step5Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateStep5()) return;
+
+      showLoading('Finalizing setup...');
+      try {
+        await updateOnboarding(5, {
+          preferred_recovery_channel: state.formData.recoveryChannel
+        });
+        hideLoading();
+        showStep(6); // Success screen
+      } catch (error) {
+        hideLoading();
+        showError(error.message);
+      }
+    });
+
+    // Back buttons
+    document.getElementById('step2Back').addEventListener('click', () => showStep(1));
+    document.getElementById('step3Back').addEventListener('click', () => showStep(2));
+    document.getElementById('step4Back').addEventListener('click', () => showStep(3));
+    document.getElementById('step5Back').addEventListener('click', () => showStep(4));
+
+    // Input focus effects
+    document.querySelectorAll('.input-field').forEach(input => {
+      input.addEventListener('focus', () => {
+        input.parentElement.classList.add('ring-2', 'ring-white/20');
+      });
+      input.addEventListener('blur', () => {
+        input.parentElement.classList.remove('ring-2', 'ring-white/20');
+      });
+    });
+
+    // Real-time validation
+    document.getElementById('email').addEventListener('blur', function() {
+      if (this.value && !validateEmail(this.value)) {
+        showFieldError('email', 'Please enter a valid email');
+      } else if (this.value) {
+        clearFieldError('email');
+      }
+    });
+
+    document.getElementById('password').addEventListener('input', function() {
+      if (this.value && this.value.length < 8) {
+        showFieldError('password', 'Password must be at least 8 characters');
+      } else if (this.value) {
+        clearFieldError('password');
+      }
+    });
+
+    document.getElementById('storeUrl').addEventListener('blur', function() {
+      if (this.value && !validateUrl(this.value)) {
+        showFieldError('storeUrl', 'Please enter a valid URL');
+      } else if (this.value) {
+        clearFieldError('storeUrl');
+      }
+    });
+
+    // ====================== INITIALIZATION ======================
+    // Check if user is already logged in
+    const existingToken = localStorage.getItem('splendor_token');
+    if (existingToken) {
+      // Verify token and redirect if valid
+      fetch(`${API_BASE}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${existingToken}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          // User exists, check onboarding status
+          if (data.user.onboarding_status === 'completed') {
+            window.location.href = '../index.html';
+          } else {
+            // Resume onboarding
+            state.token = existingToken;
+            state.user = data.user;
+            state.emailVerified = data.user.email_verified;
+            
+            // Update email status UI
+            if (state.emailVerified) {
+              updateEmailStatus(true);
+            }
+
+            // Determine which step to show
+            const status = data.user.onboarding_status;
+            if (status === 'started') showStep(1);
+            else if (status === 'step1') showStep(2);
+            else if (status === 'step2') showStep(3);
+            else if (status === 'step3') showStep(4);
+            else if (status === 'step4') showStep(5);
+            else showStep(1);
+          }
+        }
+      })
+      .catch(() => {
+        // Token invalid, clear it
+        localStorage.removeItem('splendor_token');
+        localStorage.removeItem('splendor_user');
+      });
+    }
+
+    // Show initial step
+    showStep(1);
+  </script>
+</body>
+</html>

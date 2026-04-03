@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="../assets/images/Revluma-icon.png" />
+  <title>Revluma — Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:       #060608;
+      --surface:  rgba(255,255,255,0.028);
+      --border:   rgba(255,255,255,0.07);
+      --border-focus: rgba(255,255,255,0.22);
+      --text:     #f0f0f5;
+      --muted:    #5a5a72;
+      --muted2:   #3a3a50;
+      --accent:   #7c6fff;
+      --red:      #f87171;
+      --green:    #34d399;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Subtle grain ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+      opacity: 0.018;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 128px;
+    }
+
+    /* ── Ambient glow ── */
+    .glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-1 {
+      width: 500px; height: 500px;
+      top: -160px; left: -160px;
+      background: radial-gradient(circle, rgba(124,111,255,0.055) 0%, transparent 70%);
+    }
+    .glow-2 {
+      width: 400px; height: 400px;
+      bottom: -100px; right: -100px;
+      background: radial-gradient(circle, rgba(255,255,255,0.025) 0%, transparent 70%);
+    }
+
+    /* ── Page layout ── */
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Logo above card ── */
+    .logo-lockup {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 44px;
+      text-decoration: none;
+      position: relative;
+    }
+
+    /* ── Logo mark — large, bare, no container ── */
+    .logo-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      object-fit: contain;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+      animation: logoFloat 5s ease-in-out infinite;
+      filter: drop-shadow(0 6px 20px rgba(0,0,0,0.55));
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-5px); }
+    }
+
+    /* ── Clip wrapper — masks the name so it emerges from the logo edge ── */
+    .logo-name-clip {
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      /* starts collapsed so the name is hidden behind the logo */
+      max-width: 0;
+      animation: clipExpand 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+    }
+    @keyframes clipExpand {
+      to { max-width: 260px; }
+    }
+
+    .logo-wordmark {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      white-space: nowrap;
+      padding-left: 14px;
+      /* starts behind the logo, slides right into position */
+      opacity: 0;
+      transform: translateX(-72px);
+      animation: nameSlideOut 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+    }
+    @keyframes nameSlideOut {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ── Heading above card ── */
+    .page-heading {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .page-heading h1 {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(1.7rem, 4vw, 2.2rem);
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .page-heading p {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+      animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .field-wrap { position: relative; }
+    .field input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .field input::placeholder { color: var(--muted2); }
+    .field input:focus {
+      border-color: var(--border-focus);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
+    }
+    .field input.has-error {
+      border-color: rgba(248,113,113,0.5);
+    }
+    .field-error {
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    /* Password toggle */
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted2);
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+    .pw-toggle:hover { color: var(--muted); }
+
+    /* ── Row (remember + forgot) ── */
+    .row-aux {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .remember-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--muted);
+      user-select: none;
+    }
+    .remember-label input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border: 1px solid var(--border-focus);
+      border-radius: 4px;
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .remember-label input[type="checkbox"]:checked {
+      background: rgba(255,255,255,0.88);
+      border-color: rgba(255,255,255,0.88);
+    }
+    .remember-label input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 5px;
+      width: 4px; height: 8px;
+      border: 2px solid #060608;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+    .forgot-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .forgot-link:hover { color: var(--text); }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: var(--text);
+      color: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s;
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(255,255,255,0.1);
+    }
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .spinner {
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── Divider + sign up ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0 20px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider span {
+      font-size: 11px;
+      color: var(--muted2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .signup-row {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .signup-row a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .signup-row a:hover { opacity: 0.75; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      z-index: 100;
+      pointer-events: none;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    .toast-error {
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+    }
+    .toast-success {
+      background: rgba(52,211,153,0.12);
+      border: 1px solid rgba(52,211,153,0.25);
+      color: #6ee7b7;
+    }
+
+    /* ── Shake ── */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-5px); }
+      60%      { transform: translateX(5px); }
+    }
+    .shake { animation: shake 0.3s ease; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #222230; border-radius: 4px; }
+  </style>
+</head>
+
+<body>
+  <!-- Ambient glows -->
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <div class="page">
+
+    <!-- Logo — outside the card -->
+    <a href="../index.html" class="logo-lockup">
+      <img src="../assets/images/Revluma-logo.png" alt="Revluma" class="logo-img" />
+      <div class="logo-name-clip">
+        <span class="logo-wordmark">Revluma</span>
+      </div>
+    </a>
+
+    <!-- Heading — outside the card -->
+    <div class="page-heading">
+      <h1>Welcome back</h1>
+      <p>Sign in to your account to continue</p>
+    </div>
+
+    <!-- Card — form only, clean -->
+    <div class="card">
+
+      <form id="loginForm" novalidate>
+
+        <!-- Email -->
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="field-wrap">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+          <div id="emailError" class="field-error"></div>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="field-wrap">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              style="padding-right: 42px;"
+              required
+            />
+            <button type="button" id="togglePassword" class="pw-toggle" aria-label="Toggle password">
+              <svg id="eyeIcon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <svg id="eyeOffIcon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+              </svg>
+            </button>
+          </div>
+          <div id="passwordError" class="field-error"></div>
+        </div>
+
+        <!-- Remember + Forgot -->
+        <div class="row-aux">
+          <label class="remember-label">
+            <input type="checkbox" id="rememberMe" />
+            Keep me signed in
+          </label>
+          <a href="forgottenPassword.html" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="loginBtn" class="btn-submit">
+          <span id="btnText">Sign in</span>
+          <svg id="btnSpinner" class="spinner" width="16" height="16" fill="none" viewBox="0 0 24 24" style="display:none;">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="40" stroke-dashoffset="10" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <!-- Divider -->
+        <div class="divider"><span>or</span></div>
+
+        <!-- Sign up -->
+        <div class="signup-row">
+          No account? <a href="onboarding.html">Create one free</a>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Footer note -->
+    <p style="margin-top: 28px; font-size: 11px; color: var(--muted2); text-align: center; letter-spacing: 0.02em;">
+      Protected by Revluma &nbsp;·&nbsp; <a href="#" style="color: inherit; text-decoration: none;">Privacy</a> &nbsp;·&nbsp; <a href="#" style="color: inherit; text-decoration: none;">Terms</a>
+    </p>
+
+  </div>
+
+  <!-- Error Toast -->
+  <div id="errorToast" class="toast toast-error">
+    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <span id="errorMessage">An error occurred</span>
+  </div>
+
+  <!-- Success Toast -->
+  <div id="successToast" class="toast toast-success">
+    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>
+    <span id="successMessage">Success!</span>
+  </div>
+
+  <script>
+    // ====================== STATE ======================
+    const state = { isLoading: false, rememberMe: false };
+
+    // ====================== DOM ======================
+    const el = {
+      form:          document.getElementById('loginForm'),
+      email:         document.getElementById('email'),
+      password:      document.getElementById('password'),
+      togglePw:      document.getElementById('togglePassword'),
+      eyeIcon:       document.getElementById('eyeIcon'),
+      eyeOffIcon:    document.getElementById('eyeOffIcon'),
+      rememberMe:    document.getElementById('rememberMe'),
+      loginBtn:      document.getElementById('loginBtn'),
+      btnText:       document.getElementById('btnText'),
+      btnSpinner:    document.getElementById('btnSpinner'),
+      emailError:    document.getElementById('emailError'),
+      passwordError: document.getElementById('passwordError'),
+      errorToast:    document.getElementById('errorToast'),
+      errorMessage:  document.getElementById('errorMessage'),
+      successToast:  document.getElementById('successToast'),
+      successMessage:document.getElementById('successMessage'),
+    };
+
+    // ====================== API ======================
+    const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const API_BASE = isLocalDev
+      ? 'http://localhost:5000/api'
+      : 'https://api.revluma.com/api';
+
+    // ====================== TOASTS ======================
+    function showToast(toastEl, msgEl, message, duration = 4000) {
+      msgEl.textContent = message;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), duration);
+    }
+    const showError   = msg => showToast(el.errorToast,   el.errorMessage,   msg, 4500);
+    const showSuccess = msg => showToast(el.successToast, el.successMessage, msg, 3000);
+
+    // ====================== FIELD ERRORS ======================
+    function setFieldError(id, message) {
+      const errEl = document.getElementById(id + 'Error');
+      const input = document.getElementById(id);
+      if (errEl) { errEl.textContent = message; errEl.classList.add('visible'); }
+      if (input)  { input.classList.add('has-error'); input.classList.add('shake'); setTimeout(() => input.classList.remove('shake'), 300); }
+    }
+    function clearFieldError(id) {
+      const errEl = document.getElementById(id + 'Error');
+      const input = document.getElementById(id);
+      if (errEl) errEl.classList.remove('visible');
+      if (input)  input.classList.remove('has-error');
+    }
+
+    // ====================== LOADING ======================
+    function setLoading(on) {
+      state.isLoading = on;
+      el.loginBtn.disabled = on;
+      el.btnText.textContent = on ? 'Signing in…' : 'Sign in';
+      el.btnSpinner.style.display = on ? 'block' : 'none';
+    }
+
+    // ====================== VALIDATION ======================
+    function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+    function validateForm() {
+      let ok = true;
+      const email = el.email.value.trim();
+      const pw    = el.password.value;
+      if (!email)               { setFieldError('email', 'Email is required'); ok = false; }
+      else if (!validateEmail(email)) { setFieldError('email', 'Enter a valid email address'); ok = false; }
+      else clearFieldError('email');
+      if (!pw) { setFieldError('password', 'Password is required'); ok = false; }
+      else     clearFieldError('password');
+      return ok;
+    }
+
+    // ====================== API CALL ======================
+    async function loginUser(email, password) {
+      const res  = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+      return data;
+    }
+
+    // ====================== SESSION ======================
+    function storeSession(token, user, remember) {
+      const store = remember ? localStorage : sessionStorage;
+      store.setItem('splendor_token', token);
+      store.setItem('splendor_user', JSON.stringify(user));
+    }
+    function clearSession() {
+      ['splendor_token','splendor_user'].forEach(k => {
+        localStorage.removeItem(k);
+        sessionStorage.removeItem(k);
+      });
+    }
+    function getStoredToken() {
+      return localStorage.getItem('splendor_token') || sessionStorage.getItem('splendor_token');
+    }
+    async function checkAutoLogin() {
+      const token = getStoredToken();
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) { const d = await res.json(); if (d.user) window.location.href = '../index.html'; }
+        else clearSession();
+      } catch { clearSession(); }
+    }
+
+    // ====================== EVENTS ======================
+    el.togglePw.addEventListener('click', () => {
+      const isPw = el.password.type === 'password';
+      el.password.type = isPw ? 'text' : 'password';
+      el.eyeIcon.style.display    = isPw ? 'none'  : 'block';
+      el.eyeOffIcon.style.display = isPw ? 'block' : 'none';
+    });
+
+    el.rememberMe.addEventListener('change', e => { state.rememberMe = e.target.checked; });
+
+    el.form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (state.isLoading || !validateForm()) return;
+      const email = el.email.value.trim();
+      const pw    = el.password.value;
+      setLoading(true);
+      try {
+        const data = await loginUser(email, pw);
+        storeSession(data.token, data.user, state.rememberMe);
+        showSuccess('Login successful — redirecting…');
+        setTimeout(() => {
+          window.location.href = data.user.onboarding_status === 'completed'
+            ? '../index.html'
+            : 'onboarding.html';
+        }, 1000);
+      } catch (err) {
+        setLoading(false);
+        let msg = 'Login failed. Please try again.';
+        if (err.message.includes('Invalid email or password')) msg = 'Invalid email or password.';
+        else if (err.message.includes('Too many'))             msg = 'Too many attempts. Try again later.';
+        else if (err.message.includes('Network') || err.name === 'TypeError') msg = 'Network error. Check your connection.';
+        showError(msg);
+      }
+    });
+
+    el.email.addEventListener('blur', function() {
+      if (this.value && !validateEmail(this.value)) setFieldError('email', 'Enter a valid email address');
+      else if (this.value) clearFieldError('email');
+    });
+    el.password.addEventListener('input', () => { if (el.password.value) clearFieldError('password'); });
+
+    // Remember email
+    const remembered = localStorage.getItem('splendor_remembered_email');
+    if (remembered) { el.email.value = remembered; el.rememberMe.checked = true; state.rememberMe = true; }
+    el.rememberMe.addEventListener('change', function() {
+      if (this.checked && el.email.value) localStorage.setItem('splendor_remembered_email', el.email.value);
+      else localStorage.removeItem('splendor_remembered_email');
+    });
+    el.email.addEventListener('blur', function() {
+      if (state.rememberMe && this.value) localStorage.setItem('splendor_remembered_email', this.value);
+    });
+
+    // ====================== INIT ======================
+    checkAutoLogin();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./assets/images/Revluma-icon.png"></link>
+    <title>Revluma</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&f[]=inter@400,700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Satoshi', sans-serif;
+            background-color: #0A0A0A;
+            color: white;
+            overflow-x: hidden;
+            min-height: 100%;
+        }
+
+        .glass {
+            background: rgba(14, 14, 14, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .glass-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.65rem 1.8rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-size: 0.72rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .logo-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            flex-shrink: 0;
+            animation: logoFloat 5s ease-in-out infinite;
+        }
+        .logo-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            display: block;
+        }
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-3px); }
+        }
+
+        @keyframes floatLogo {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-4px) scale(1.02);
+            }
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(to right, #1f1f1f 1px, transparent 1px),
+                linear-gradient(to bottom, #1f1f1f 1px, transparent 1px);
+            background-size: 4.5rem 4.5rem;
+            mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%);
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .premium-headline {
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: transparent;
+            background: linear-gradient(135deg, #ffffff, #d8d8ff 45%, #b5b5ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            text-shadow: none;
+            position: relative;
+            display: inline-block;
+            animation: shimmerText 4.5s ease-in-out infinite alternate, floatText 7s ease-in-out infinite;
+        }
+
+        .premium-headline::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.35), transparent 22%);
+            opacity: 0.65;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        .premium-headline span {
+            color: rgba(255, 255, 255, 0.9);
+            display: inline-block;
+        }
+
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            opacity: 0.94;
+            filter: brightness(0.42) saturate(1.1) contrast(1.05);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bounce-logo-container {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .bounce-logo {
+            position: absolute;
+            width: clamp(48px, 8vw, 96px);
+            height: clamp(48px, 8vw, 96px);
+            border-radius: 18px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bounce-logo img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+
+        .hero-video-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top center, rgba(255, 255, 255, 0.05), transparent 30%),
+                linear-gradient(180deg, rgba(8, 8, 10, 0.45), rgba(5, 5, 7, 0.8));
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .video-promo-section {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .video-promo-card {
+            position: relative;
+            width: 100%;
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            border-radius: 0;
+            overflow: hidden;
+            display: block;
+        }
+
+        .video-promo-card::before {
+            content: none;
+        }
+
+        .video-promo-content {
+            position: relative;
+            z-index: 1;
+            display: block;
+            padding: 0;
+            width: 100%;
+        }
+
+        .video-promo-image {
+            width: 85vw;
+            max-width: 85vw;
+            min-height: 420px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin-left: 0;
+            margin-right: auto;
+            transform: translateX(-15%);
+        }
+
+        @media (max-width: 768px) {
+            .video-promo-image {
+                width: 130vw;
+                max-width: 130vw;
+                min-height: 280px;
+                transform: translateX(-15%);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .video-promo-image {
+                width: 150vw;
+                max-width: 150vw;
+                min-height: 220px;
+                transform: translateX(-15%);
+            }
+        }
+
+        .video-promo-title {
+            font-size: clamp(1.35rem, 2vw, 2rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #F8FAFC;
+        }
+
+        .video-promo-description {
+            color: rgba(255, 255, 255, 0.72);
+            max-width: 37rem;
+            line-height: 1.75;
+            margin-bottom: 1.75rem;
+        }
+
+        .video-play-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.85rem;
+            padding: 1rem 1.6rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: white;
+            font-weight: 700;
+            min-width: 170px;
+            transition: transform 0.25s ease, background 0.25s ease;
+        }
+
+        .video-play-button:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .video-play-button svg {
+            width: 1rem;
+            height: 1rem;
+            fill: white;
+        }
+
+        /* ── Split Promo Layout ── */
+        .split-promo-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            min-height: 480px;
+            overflow: hidden;
+        }
+
+        .split-left {
+            width: 50%;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Laptop wrapper — positions the image + video together */
+        .laptop-container {
+            position: relative;
+            width: 85vw;
+            max-width: 85vw;
+            margin-left: 0;
+            margin-right: auto;
+            opacity: 0;
+            transform: translateX(-60px) scale(0.96);
+            transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .laptop-container.laptop-visible {
+            opacity: 1;
+            transform: translateX(-15%) scale(1);
+        }
+
+        /* Laptop image/video fills the container */
+        .laptop-container .laptop-img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .split-right {
+            width: 50%;
+            flex-shrink: 0;
+            padding: 3rem 2.5rem 3rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0;
+        }
+
+        /* Promo items — no borders, no boxes */
+        .promo-item {
+            padding: 1.6rem 0 0.8rem;
+            border: none;
+            background: none;
+            opacity: 0;
+            display: block;
+        }
+
+        .promo-slash {
+            display: block;
+            width: 140px;
+            height: 40px;
+            overflow: visible;
+            flex-shrink: 0;
+            margin-left: -10px;
+        }
+
+        .slash-path {
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .promo-item.item-visible .slash-path {
+            stroke-dashoffset: 0;
+        }
+
+        .promo-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            width: 100%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .promo-arrow-line {
+            display: flex;
+            align-items: flex-end;
+            gap: 0;
+            transform: translateY(9px);
+        }
+
+        .rotate-up {
+            transform: rotate(-45deg);
+        }
+
+        .rotate-down {
+            transform: rotate(45deg);
+        }
+
+        .promo-label {
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+            line-height: 1.4;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .promo-arrow {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.25s, transform 0.25s;
+        }
+
+        .promo-arrow:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.1);
+        }
+
+        .promo-arrow svg {
+            width: 14px;
+            height: 14px;
+            stroke: white;
+        }
+
+        /* Scatter-in keyframes */
+        @keyframes scatterIn0 {
+            0% {
+                opacity: 0;
+                transform: translate(-80px, -40px) rotate(-6deg) skewX(-8deg);
+            }
+
+            60% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) skewX(0deg);
+            }
+        }
+
+        @keyframes scatterIn1 {
+            0% {
+                opacity: 0;
+                transform: translate(60px, 50px) rotate(5deg) skewX(6deg);
+            }
+
+            60% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) skewX(0deg);
+            }
+        }
+
+        @keyframes scatterIn2 {
+            0% {
+                opacity: 0;
+                transform: translate(-40px, 70px) rotate(-4deg) skewX(10deg);
+            }
+
+            60% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) skewX(0deg);
+            }
+        }
+
+        .promo-item.item-visible:nth-child(1) {
+            animation: scatterIn0 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .promo-item.item-visible:nth-child(2) {
+            animation: scatterIn1 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .promo-item.item-visible:nth-child(3) {
+            animation: scatterIn2 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* ── Tablet: keep split, scale down ── */
+        @media (max-width: 768px) {
+            .split-promo-wrapper {
+                flex-direction: row;
+                align-items: center;
+                min-height: 320px;
+            }
+
+            .split-left {
+                width: 50%;
+            }
+
+            .split-right {
+                width: 50%;
+                padding: 1.5rem 1rem 1.5rem 1.2rem;
+            }
+
+            .promo-label {
+                font-size: clamp(0.6rem, 2.4vw, 0.8rem);
+            }
+
+            .promo-arrow {
+                width: 26px;
+                height: 26px;
+            }
+
+            .promo-arrow svg {
+                width: 10px;
+                height: 10px;
+            }
+
+            .promo-item {
+                padding: 1rem 0 0.5rem;
+            }
+
+            .laptop-container {
+                width: 130vw;
+                max-width: 130vw;
+            }
+
+            .promo-slash {
+                width: 100px;
+                height: 32px;
+            }
+        }
+
+        /* ── Mobile: laptop full width on top, text stacked below ── */
+        @media (max-width: 480px) {
+            .split-promo-wrapper {
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .split-left {
+                width: 100%;
+                overflow: hidden;
+            }
+
+            .laptop-container {
+                width: 150vw;
+                max-width: 150vw;
+                transform: translateX(-15%) scale(0.96);
+            }
+
+            .laptop-container.laptop-visible {
+                transform: translateX(-15%) scale(1);
+            }
+
+            .split-right {
+                width: 100%;
+                padding: 2rem 1.5rem;
+            }
+
+            .promo-label {
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+
+            .promo-arrow {
+                width: 30px;
+                height: 30px;
+            }
+
+            .promo-arrow svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            .promo-item {
+                padding: 1.2rem 0 0.6rem;
+            }
+        }
+
+        /* ── Responsive tweaks ── */
+        @media (max-width: 768px) {
+            .video-promo-section {
+                padding: 2.5rem 0;
+            }
+
+            .video-promo-content {
+                padding: 1.5rem;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .video-promo-image {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .premium-headline {
+                font-size: clamp(2.4rem, 11vw, 4rem) !important;
+                line-height: 1.05;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .premium-headline {
+                font-size: clamp(2rem, 10vw, 3rem) !important;
+            }
+        }
+
+        @keyframes shimmerText {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes floatText {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+    </style>
+</head>
+
+<body x-data="{ scrolled: false, mobileMenu: false }" @scroll.window="scrolled = (window.pageYOffset > 50)">
+
+    <!-- ── Navigation ── -->
+    <nav :class="scrolled ? 'glass shadow-sm shadow-black/30' : 'glass'"
+        class="fixed inset-x-4 top-4 z-50 max-w-7xl mx-auto left-0 right-0 rounded-full transition-all duration-500">
+        <div class="flex items-center justify-between gap-2 px-3 py-1.5">
+            <a href="index.html" class="flex items-center gap-2.5 transition-transform duration-300 hover:-translate-y-0.5">
+                <div class="logo-mark">
+                    <img src="assets/images/Revluma-logo.png" alt="Revluma" />
+                </div>
+                <div class="logo-name-wrap">
+                    <span class="logo-name">Revluma</span>
+                </div>
+            </a>
+
+            <div class="hidden md:flex items-center gap-5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#A1A1AA]">
+                <a href="#features" class="group relative hover:text-white transition-colors">Features
+                    <span class="absolute left-0 -bottom-1 h-px w-0 bg-white transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#pricing" class="group relative hover:text-white transition-colors">Pricing
+                    <span class="absolute left-0 -bottom-1 h-px w-0 bg-white transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#integrations" class="group relative hover:text-white transition-colors">Integrations
+                    <span class="absolute left-0 -bottom-1 h-px w-0 bg-white transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#" class="group relative hover:text-white transition-colors">Contact
+                    <span class="absolute left-0 -bottom-1 h-px w-0 bg-white transition-all duration-300 group-hover:w-full"></span>
+                </a>
+            </div>
+
+            <div class="hidden md:flex items-center gap-2">
+                <a href="./auth/loginIn.html" target="_blank" class="text-[11px] font-semibold text-[#A1A1AA] hover:text-white transition-colors">Login</a>
+                <a href="./auth/signUp.html" target="_blank" >
+                    <button class="bg-white text-black px-3 py-1.5 rounded-full text-[11px] font-bold hover:-translate-y-0.5 transition-transform">Get Started</button>
+                </a>
+            </div>
+
+            <button @click="mobileMenu = !mobileMenu"
+                class="md:hidden p-2 rounded-full border border-white/10 bg-white/5 text-[#A1A1AA]">
+                <svg x-show="!mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/>
+                </svg>
+                <svg x-show="mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── Mobile Menu ── -->
+    <div x-show="mobileMenu" x-transition.opacity x-cloak
+        class="fixed inset-x-0 top-20 z-40 rounded-b-3xl border border-white/10 bg-[#090909]/95 px-6 py-8 md:hidden">
+        <div class="flex flex-col gap-6 text-lg font-semibold uppercase tracking-wide">
+            <a href="#features" @click="mobileMenu=false" class="hover:text-[#A1A1AA] transition-colors">Features</a>
+            <a href="#pricing" @click="mobileMenu=false" class="hover:text-[#A1A1AA] transition-colors">Pricing</a>
+            <a href="#integrations" @click="mobileMenu=false" class="hover:text-[#A1A1AA] transition-colors">Integrations</a>
+            <a href="#" @click="mobileMenu=false" class="hover:text-[#A1A1AA] transition-colors">Login</a>
+            <button class="mt-2 bg-white text-black py-4 rounded-2xl font-bold hover:-translate-y-0.5 transition-transform">Get Started</button>
+        </div>
+    </div>
+
+    <!-- ── Hero ── -->
+    <section id="hero-landing"
+        class="relative min-h-screen flex flex-col items-center justify-center pt-0 px-6 overflow-hidden">
+        <video autoplay muted loop playsinline class="hero-video">
+            <source src="assets/videos/growth-video.mp4" type="video/mp4">
+        </video>
+        <div class="hero-video-overlay"></div>
+        <div class="bounce-logo-container">
+            <div id="bounceLogo" class="bounce-logo">
+                <img id="bounceLogoImg" src="assets/images/shopifyLoog.png" alt="Shopify Logo">
+            </div>
+        </div>
+        <div class="absolute inset-0 z-0 grid-bg opacity-20"></div>
+
+        <div class="relative z-10 text-center max-w-5xl mx-auto w-full px-4">
+
+            <!-- Trust badge -->
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-[11px] uppercase tracking-widest text-[#A1A1AA] mb-6 font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block"></span>
+                Trusted by 2,400+ e-commerce brands
+            </div>
+
+            <h1 class="premium-headline text-5xl md:text-[90px] tracking-tighter leading-[0.95] mb-8">
+                Recover Lost Revenue. <br>
+                <span>Sell What Actually Wins.</span>
+            </h1>
+
+            <p class="text-[#A1A1AA] text-lg md:text-xl max-w-2xl mx-auto mb-8 font-light leading-relaxed">
+                Revluma plugs directly into your store — finding abandoned carts, dead product lines, and untapped
+                demand signals your team is too busy to catch.
+            </p>
+
+            <div class="flex flex-row items-center justify-center gap-6">
+                <a href="./auth/signUp.html" target="_blank">
+                    <div class="glass-btn text-sm font-bold uppercase tracking-wide text-white hover:scale-[1.02] transition-all duration-300">
+                        Get Started Free
+                    </div>
+                </a>
+                <div class="glass w-12 h-12 rounded-full flex items-center justify-center hover:scale-[1.02] transition-all duration-300 cursor-pointer" onclick="window.open('./auth/signUp.html', '_blank')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M7 7h10v10">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <!-- Micro trust line -->
+        <p class="mt-5 text-[11px] text-[#555] tracking-wide">No credit card required &nbsp;·&nbsp; Setup in 4 minutes
+            &nbsp;·&nbsp; Cancel anytime</p>
+    </section>
+
+    <!-- ── Split Promo Section ── -->
+    <section class="video-promo-section -mt-4">
+        <div class="split-promo-wrapper">
+
+            <div class="split-left">
+                <div class="laptop-container">
+                    <video class="laptop-img" autoplay muted loop playsinline>
+                        <source src="assets/videos/dashboard_video.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+
+            <div class="split-right">
+
+                <div class="promo-item" data-delay="0">
+                    <div class="promo-row">
+                        <p class="promo-label">Recover More. <br>Convert Better.</p>
+                        <div class="promo-arrow-line">
+                            <svg class="promo-slash" viewBox="0 0 140 40" fill="none">
+                                <path class="slash-path" d="M0 38 L60 38 L100 10 L140 10" stroke="white"
+                                    stroke-width="1.5" />
+                            </svg>
+                            <div class="promo-arrow mb-[22px]"> <svg class="rotate-up" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="promo-item" data-delay="200">
+                    <div class="promo-row">
+                        <p class="promo-label">Turn Traffic Into <br>Recurring Revenue.</p>
+                        <div class="promo-arrow-line">
+                            <svg class="promo-slash" viewBox="0 0 140 40" fill="none">
+                                <path class="slash-path" d="M0 38 L50 38 L90 10 L140 10" stroke="white"
+                                    stroke-width="1.5" />
+                            </svg>
+                            <div class="promo-arrow">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="promo-item" data-delay="400">
+                    <div class="promo-row">
+                        <p class="promo-label">Data-Driven <br>Real Results.</p>
+                        <div class="promo-arrow-line">
+                            <svg class="promo-slash" viewBox="0 0 140 40" fill="none">
+                                <path class="slash-path" d="M0 10 L60 10 L100 38 L140 38" stroke="white"
+                                    stroke-width="1.5" />
+                            </svg>
+                            <div class="promo-arrow">
+                                <svg class="rotate-down" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Features ── -->
+    <section id="features" class="py-24 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-14 text-center md:text-left">
+                <p class="text-[11px] uppercase tracking-widest text-[#555] font-semibold mb-3">Platform Capabilities
+                </p>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tighter mb-3">The new standard for intelligence.</h2>
+                <p class="text-[#A1A1AA] max-w-md text-sm">Every feature built to put money back in your store.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+
+                <!-- Card 1 -->
+                <div
+                    class="rounded-2xl border border-[#1F1F1F] bg-[#0D0D0D] overflow-hidden reveal group hover:border-white/10 transition-all duration-300 flex flex-col">
+                    <!-- Image placeholder -->
+                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0">
+                        <img src="assets/images/feature-cart.jpg" alt="AI Cart Recovery"
+                            class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
+                            onerror="this.style.display='none'">
+                        <!-- Fallback gradient placeholder -->
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23] flex items-center justify-center">
+                            <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                        </div>
+                        <div class="absolute bottom-3 left-3">
+                            <span
+                                class="text-[10px] uppercase tracking-widest font-bold text-white/50 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">Cart
+                                Recovery</span>
+                        </div>
+                    </div>
+                    <!-- Content -->
+                    <div class="p-5 flex flex-col flex-1">
+                        <h3 class="text-base font-bold mb-2">AI Cart Recovery</h3>
+                        <p class="text-[#A1A1AA] text-xs leading-relaxed mb-3 flex-1">Recover 25% more checkouts with
+                            dynamic, intent-based messaging sequences that adapt to each shopper's behaviour.</p>
+                        <p class="text-xs text-green-400 font-semibold">↑ Avg. $4,200/mo recovered per store</p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div
+                    class="rounded-2xl border border-[#1F1F1F] bg-[#0D0D0D] overflow-hidden reveal group hover:border-white/10 transition-all duration-300 flex flex-col">
+                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0">
+                        <img src="assets/images/feature-product.jpg" alt="Product Intelligence"
+                            class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
+                            onerror="this.style.display='none'">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-[#0d1b0d] via-[#122212] to-[#0a1a0a] flex items-center justify-center">
+                            <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                        </div>
+                        <div class="absolute bottom-3 left-3">
+                            <span
+                                class="text-[10px] uppercase tracking-widest font-bold text-white/50 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">Product
+                                Intel</span>
+                        </div>
+                    </div>
+                    <div class="p-5 flex flex-col flex-1">
+                        <h3 class="text-base font-bold mb-2">Product Intelligence</h3>
+                        <p class="text-[#A1A1AA] text-xs leading-relaxed mb-3 flex-1">Identify winning products across
+                            12+ marketplaces before they go viral. Know what's trending 3–6 weeks ahead of your
+                            competitors.</p>
+                        <p class="text-xs text-green-400 font-semibold">↑ 3–6 week market advantage</p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div
+                    class="rounded-2xl border border-[#1F1F1F] bg-[#0D0D0D] overflow-hidden reveal group hover:border-white/10 transition-all duration-300 flex flex-col">
+                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0">
+                        <img src="assets/images/feature-roas.jpg" alt="Opportunity Scoring"
+                            class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
+                            onerror="this.style.display='none'">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-[#1a0d0d] via-[#221212] to-[#1a0a0a] flex items-center justify-center">
+                            <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <div class="absolute bottom-3 left-3 flex items-center gap-2">
+                            <span
+                                class="text-[10px] uppercase tracking-widest font-bold text-white/50 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">Opportunity
+                                Scoring</span>
+                            <span
+                                class="text-[9px] uppercase font-black text-white bg-white/15 px-1.5 py-0.5 rounded">Beta</span>
+                        </div>
+                    </div>
+                    <div class="p-5 flex flex-col flex-1">
+                        <h3 class="text-base font-bold mb-2">Opportunity Scoring</h3>
+                        <p class="text-[#A1A1AA] text-xs leading-relaxed mb-3 flex-1">Know your ROAS potential before
+                            you spend a single dollar on ads. Score every product opportunity with predictive AI.</p>
+                        <p class="text-xs text-green-400 font-semibold">↑ Avg. 34% reduction in wasted ad spend</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- All Features Button -->
+            <div class="mt-12 text-center reveal">
+                <a target="_blank" href="features.html"
+                    class="inline-flex items-center justify-center px-8 py-3 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-white font-semibold text-sm hover:bg-white/10 hover:border-white/30 transition-all duration-300">
+                    All Features
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Stats ── -->
+    <section class="py-24 px-6 border-y border-[#1F1F1F]">
+        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+            <div class="reveal">
+                <p class="text-4xl md:text-5xl font-bold tracking-tighter mb-2 counter" data-target="2400">0</p>
+                <p class="text-[#555] text-sm uppercase tracking-widest font-semibold">Brands Active</p>
+            </div>
+            <div class="reveal">
+                <p class="text-4xl md:text-5xl font-bold tracking-tighter mb-2"><span class="counter"
+                        data-target="38">0</span>%</p>
+                <p class="text-[#555] text-sm uppercase tracking-widest font-semibold">Avg. Revenue Lift</p>
+            </div>
+            <div class="reveal">
+                <p class="text-4xl md:text-5xl font-bold tracking-tighter mb-2">$<span class="counter"
+                        data-target="124">0</span>M</p>
+                <p class="text-[#555] text-sm uppercase tracking-widest font-semibold">Revenue Recovered</p>
+            </div>
+            <div class="reveal">
+                <p class="text-4xl md:text-5xl font-bold tracking-tighter mb-2"><span class="counter"
+                        data-target="4">0</span> min</p>
+                <p class="text-[#555] text-sm uppercase tracking-widest font-semibold">Avg. Setup Time</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Why Revluma vs Others ── -->
+    <section class="py-32 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <p class="text-[11px] uppercase tracking-widest text-[#555] font-semibold mb-3">The Honest Comparison
+                </p>
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tighter mb-4">Why Smart Stores Choose Revluma
+                </h2>
+                <p class="text-[#A1A1AA] max-w-lg mx-auto">Most tools send messages. Revluma makes decisions.</p>
+            </div>
+
+            <!-- Column headers -->
+            <div class="grid grid-cols-3 gap-4 mb-3 px-2 reveal">
+                <div></div>
+                <div class="text-center">
+                    <span
+                        class="inline-block px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white font-bold text-sm tracking-tight">Revluma
+                        </span>
+                </div>
+                <div class="text-center">
+                    <span
+                        class="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#555] font-semibold text-sm tracking-tight">Typical
+                        Tools</span>
+                </div>
+            </div>
+
+            <!-- Comparison rows -->
+            <div class="space-y-2 reveal">
+
+                <div
+                    class="grid grid-cols-3 gap-4 items-center px-4 py-4 rounded-2xl hover:bg-white/[0.025] transition-colors group">
+                    <p class="text-[#A1A1AA] text-sm font-medium">AI Cart Recovery</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span class="text-green-400 text-xs font-semibold hidden sm:inline">AI-Driven behavior-based recovery</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+                            </svg>
+                        </span>
+                        <span class="text-[#555] text-xs hidden sm:inline">Basic flows only</span>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-3 gap-4 items-center px-4 py-4 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
+                    <p class="text-[#A1A1AA] text-sm font-medium">Product Trend Intelligence</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span class="text-green-400 text-xs font-semibold hidden sm:inline">Data-backed winning product insights</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </span>
+                        <span class="text-[#555] text-xs hidden sm:inline">Not available</span>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-3 gap-4 items-center px-4 py-4 rounded-2xl hover:bg-white/[0.025] transition-colors group">
+                    <p class="text-[#A1A1AA] text-sm font-medium">ROAS Opportunity Scoring</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span class="text-green-400 text-xs font-semibold hidden sm:inline">Pre-ad prediction</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </span>
+                        <span class="text-[#555] text-xs hidden sm:inline">Not available</span>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-3 gap-4 items-center px-4 py-4 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
+                    <p class="text-[#A1A1AA] text-sm font-medium">WhatsApp & Multi-channel</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span class="text-green-400 text-xs font-semibold hidden sm:inline">Native support</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+                            </svg>
+                        </span>
+                        <span class="text-[#555] text-xs hidden sm:inline">Email + SMS only</span>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-3 gap-4 items-center px-4 py-4 rounded-2xl hover:bg-white/[0.025] transition-colors group">
+                    <p class="text-[#A1A1AA] text-sm font-medium">AI Decision Layer</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span class="text-green-400 text-xs font-semibold hidden sm:inline">AI advisor tells you what to do next</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+                            </svg>
+                        </span>
+                        <span class="text-[#555] text-xs hidden sm:inline">Manual guesswork</span>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-3 gap-4 items-center px-4 py-4 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
+                    <p class="text-[#A1A1AA] text-sm font-medium">Setup Time</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span class="text-green-400 text-xs font-semibold hidden sm:inline">Fast, minimal setup under 4 minutes</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+                            </svg>
+                        </span>
+                        <span class="text-[#555] text-xs hidden sm:inline">Complex workfolws & days of config</span>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-3 gap-4 items-center px-4 py-4 rounded-2xl hover:bg-white/[0.025] transition-colors group">
+                    <p class="text-[#A1A1AA] text-sm font-medium">Learning system</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span class="text-green-400 text-xs font-semibold hidden sm:inline">Improves overtime with data + benchmark comparison</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </span>
+                        <span class="text-[#555] text-xs hidden sm:inline">No adaptive learning</span>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-3 gap-4 items-center px-4 py-4 rounded-2xl hover:bg-white/[0.025] transition-colors group">
+                    <p class="text-[#A1A1AA] text-sm font-medium">Pricing model</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span class="text-green-400 text-xs font-semibold hidden sm:inline">Flat. No limits.</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+                            </svg>
+                        </span>
+                        <span class="text-[#555] text-xs hidden sm:inline">Scales with contacts</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom CTA nudge -->
+            <div class="mt-10 text-center reveal">
+                <a href="./auth/signUp.html">
+                    <button
+                        class="px-8 py-3.5 rounded-2xl border border-white/15 text-sm font-bold text-white hover:bg-white hover:text-black transition-all duration-300">
+                        See Revluma in action →
+                    </button>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Testimonials ── -->
+    <section class="py-24 px-6 border-t border-[#1F1F1F]">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <p class="text-[11px] uppercase tracking-widest text-[#555] font-semibold mb-3">From Real Merchants</p>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tighter">What our customers actually say</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-7 rounded-3xl border border-[#1F1F1F] bg-[#0A0A0A] reveal">
+                    <div class="flex gap-1 mb-4">
+                        <span class="text-yellow-400 text-sm">★★★★★</span>
+                    </div>
+                    <p class="text-[#D1D1D1] text-sm leading-relaxed mb-6">"We recovered $18K in the first 30 days. I'd
+                        been using other nessaging tools for 2 years and never saw results like this. The AI just knows
+                        when someone is actually going to buy."</p>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">
+                            BF</div>
+                        <div>
+                            <p class="text-sm font-semibold">Benjamin F.</p>
+                            <p class="text-[10px] text-[#555]">Founder, LuxeBeauty</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-7 rounded-3xl border border-[#1F1F1F] bg-[#0A0A0A] reveal">
+                    <div class="flex gap-1 mb-4">
+                        <span class="text-yellow-400 text-sm">★★★★★</span>
+                    </div>
+                    <p class="text-[#D1D1D1] text-sm leading-relaxed mb-6">"The product intelligence feature alone is
+                        worth it. We spotted a trending SKU 4 weeks before it blew up and tripled our stock in time.
+                        Competitors were scrambling."</p>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">
+                            KM</div>
+                        <div>
+                            <p class="text-sm font-semibold">Kimberly M.</p>
+                            <p class="text-[10px] text-[#555]">CEO, Drip Streetwear</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-7 rounded-3xl border border-[#1F1F1F] bg-[#0A0A0A] reveal">
+                    <div class="flex gap-1 mb-4">
+                        <span class="text-yellow-400 text-sm">★★★★★</span>
+                    </div>
+                    <p class="text-[#D1D1D1] text-sm leading-relaxed mb-6">"Switched from amateur tools after 3 years.
+                        Setup took 6 minutes. Revenue from automations doubled within the first month. The WhatsApp
+                        integration is a game changer for our market."</p>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">
+                            JE</div>
+                        <div>
+                            <p class="text-sm font-semibold">Jonathan E.</p>
+                            <p class="text-[10px] text-[#555]">Head of Growth, Konga Seller</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Pricing Teaser ── -->
+    <section id="pricing" class="py-32 px-6">
+        <div class="max-w-4xl mx-auto text-center reveal">
+            <p class="text-[11px] uppercase tracking-widest text-[#555] font-semibold mb-3">Simple Pricing</p>
+            <h2 class="text-4xl md:text-5xl font-bold tracking-tighter mb-4">One flat price. No surprises.</h2>
+            <p class="text-[#A1A1AA] mb-12 max-w-lg mx-auto">Unlike other tools, we don't charge you more as your contact
+                list grows. Pay once, scale without limits.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-3xl mx-auto">
+                <div class="p-8 rounded-3xl border border-[#1F1F1F] bg-[#0F0F0F]">
+                    <p class="text-xs uppercase tracking-widest text-[#555] mb-2 font-semibold">Growth</p>
+                    <p class="text-4xl font-bold mb-1">$29<span class="text-base font-normal text-[#555]">/mo</span></p>
+                    <p class="text-[#555] text-sm mb-6">Perfect for stores doing up to $50K/mo</p>
+                    <ul class="space-y-3 text-sm text-[#A1A1AA]">
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> AI Cart Recovery</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Product Intelligence</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Up to 1,000 monthly tracked
+                            visitors</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Basic reporting dashboards</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> 1 Store integration (Shopify /
+                            WooCoomerce)</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Basic support</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Email recovery flows</li>
+
+
+
+                    </ul>
+                    <a href="./auth/signUp.html"><button
+                            class="mt-8 w-full py-3 rounded-2xl border border-white/10 text-sm font-bold hover:bg-white hover:text-black transition-all duration-300">Start
+                            Free Trial</button></a>
+                </div>
+
+
+                <div class="p-8 rounded-3xl border border-white/20 bg-white/5 relative">
+                    <span
+                        class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full">Most
+                        Popular</span>
+                    <p class="text-xs uppercase tracking-widest text-[#555] mb-2 font-semibold">Scale</p>
+                    <p class="text-4xl font-bold mb-1">$50<span class="text-base font-normal text-[#555]">/mo</span></p>
+                    <p class="text-[#555] text-sm mb-6">For stores scaling past $100K/mo</p>
+                    <ul class="space-y-3 text-sm text-[#A1A1AA]">
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Everything in Growth</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Winning / Trending products
+                            dashboard</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> ROAS Opportunity Scoring</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Unlimited Flows</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> WhatsApp + Email Automation</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Dedicated Onboarding</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Up to 10,000 monthly tracked
+                            visitors</li>
+                        <li class="flex gap-2"><span class="text-green-400">✓</span> Priority support</li>
+
+
+                    </ul>
+                    <a href="./auth/signUp.html" target="_blank" ><button
+                            class="mt-8 w-full py-3 rounded-2xl bg-white text-black text-sm font-bold hover:scale-[1.02] transition-all duration-300">Get
+                            Started Free</button></a>
+                </div>
+            </div>
+            <p class="mt-8 text-[11px] text-[#444]">All plans include a 14-day free trial. No credit card required.</p>
+        </div>
+    </section>
+
+    <!-- ── Integrations ── -->
+    <div id="integrations" class="py-20 border-y border-[#1F1F1F] overflow-hidden">
+        <p class="text-center text-[10px] uppercase tracking-widest text-[#444] font-semibold mb-10">Plugs seamlessly into your existing stack</p>
+
+        <style>
+            .marquee-track {
+                display: flex;
+                width: max-content;
+                animation: marqueeFlow 60s linear infinite;
+            }
+            .marquee-track:hover { animation-play-state: paused; }
+            .marquee-track-rev {
+                display: flex;
+                width: max-content;
+                animation: marqueeFlowRev 50s linear infinite;
+            }
+            .marquee-track-rev:hover { animation-play-state: paused; }
+            @keyframes marqueeFlow {
+                0%   { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+            @keyframes marqueeFlowRev {
+                0%   { transform: translateX(-50%); }
+                100% { transform: translateX(0); }
+            }
+            .int-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                padding: 7px 16px;
+                margin: 0 5px;
+                border-radius: 999px;
+                border: 1px solid rgba(255,255,255,0.07);
+                background: rgba(255,255,255,0.025);
+                white-space: nowrap;
+                cursor: default;
+                transition: border-color 0.25s ease, background 0.25s ease;
+            }
+            .int-pill:hover {
+                border-color: rgba(255,255,255,0.16);
+                background: rgba(255,255,255,0.055);
+            }
+            .int-dot {
+                width: 5px; height: 5px;
+                border-radius: 50%;
+                background: #2d2d42;
+                flex-shrink: 0;
+                transition: background 0.25s;
+            }
+            .int-pill:hover .int-dot { background: #5a5a7a; }
+            .int-name {
+                font-size: 12px;
+                font-weight: 600;
+                color: #565670;
+                letter-spacing: 0.01em;
+                transition: color 0.25s;
+            }
+            .int-pill:hover .int-name { color: #9898b8; }
+            .beta-tag {
+                font-size: 7.5px;
+                font-weight: 800;
+                letter-spacing: 0.09em;
+                text-transform: uppercase;
+                color: #7c6fff;
+                background: rgba(124,111,255,0.1);
+                border: 1px solid rgba(124,111,255,0.2);
+                padding: 1px 5px;
+                border-radius: 3px;
+                line-height: 1.5;
+                flex-shrink: 0;
+            }
+            .mq-fade {
+                mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+            }
+        </style>
+
+        <!-- Row 1 — left flowing -->
+        <div class="mq-fade mb-2.5">
+            <div class="marquee-track">
+                <!-- half -->
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Shopify</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">WooCommerce</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Stripe</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">WhatsApp</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">TikTok</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Instagram</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">BigCommerce</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">X (Twitter)</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">PayPal</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Mailchimp</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Google Ads</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Meta Ads</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Zapier</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Gorgias</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Recharge</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Yotpo</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Okendo</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Attentive</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Pinterest</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Snapchat Ads</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Omnisend</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Postscript</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Drip</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Wix Commerce</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Squarespace</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Privy</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Klaviyo</span></span>
+                <!-- duplicate half -->
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Shopify</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">WooCommerce</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Stripe</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">WhatsApp</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">TikTok</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Instagram</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">BigCommerce</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">X (Twitter)</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">PayPal</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Mailchimp</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Google Ads</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Meta Ads</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Zapier</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Gorgias</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Recharge</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Yotpo</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Okendo</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Attentive</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Pinterest</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Snapchat Ads</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Omnisend</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Postscript</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Drip</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Wix Commerce</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Squarespace</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Privy</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Klaviyo</span></span>
+            </div>
+        </div>
+
+        <!-- Row 2 — right flowing (reverse) -->
+        <div class="mq-fade">
+            <div class="marquee-track-rev">
+                <!-- half -->
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Amazon Seller</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Etsy</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Zendesk</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Intercom</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Slack</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Google Analytics</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Hotjar</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Trustpilot</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Judge.me</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Loox</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Bold Commerce</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">LoyaltyLion</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Smile.io</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Checkout.com</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Klarna</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Afterpay</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">ShipBob</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">ShipStation</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">EasyShip</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Printful</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Printify</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">HubSpot</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Typeform</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Airtable</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Notion</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Tidio</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">LiveChat</span><span class="beta-tag">Beta</span></span>
+                <!-- duplicate half -->
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Amazon Seller</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Etsy</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Zendesk</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Intercom</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Slack</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Google Analytics</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Hotjar</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Trustpilot</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Judge.me</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Loox</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Bold Commerce</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">LoyaltyLion</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Smile.io</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Checkout.com</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Klarna</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Afterpay</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">ShipBob</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">ShipStation</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">EasyShip</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Printful</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Printify</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">HubSpot</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Typeform</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Airtable</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Notion</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">Tidio</span><span class="beta-tag">Beta</span></span>
+                <span class="int-pill"><span class="int-dot"></span><span class="int-name">LiveChat</span><span class="beta-tag">Beta</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CTA ── -->
+    <section class="py-48 px-6 text-center">
+        <div class="reveal max-w-3xl mx-auto">
+            <p class="text-[11px] uppercase tracking-widest text-[#555] font-semibold mb-4">Ready to switch?</p>
+            <h2 class="text-5xl md:text-7xl font-bold tracking-tighter mb-6 leading-tight">
+                Scale with <br> intelligence.
+            </h2>
+            <p class="text-[#A1A1AA] mb-10 max-w-md mx-auto">Join 2,400+ brands already recovering more revenue than
+                they thought possible.</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="./auth/signUp.html">
+                    <button class="glass-btn text-base font-bold hover:scale-[1.05] transition-all">
+                        Get Started Free →
+                    </button>
+                </a>
+                <button class="glass px-10 py-5 rounded-2xl font-bold text-base hover:border-white/30 transition-all hover:scale-[1.02]">
+                    Book a Demo
+                </button>
+            </div>
+            <p class="mt-5 text-[11px] text-[#444]">No credit card required &nbsp;·&nbsp; 14-day free trial
+                &nbsp;·&nbsp; Cancel anytime</p>
+        </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer class="py-16 px-6 border-t border-[#1F1F1F]">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-14">
+                <!-- Brand -->
+                <div class="col-span-2 sm:col-span-2 md:col-span-1 space-y-3">
+                    <div class="flex items-center gap-2">
+                        <img src="assets/images/Revluma-logo.png" alt="Revluma" class="w-6 h-6 rounded-lg object-cover">
+                        <span class="text-sm font-bold tracking-tighter">REVLUMA</span>
+                    </div>
+                    <p class="text-[#555] text-[11px] leading-relaxed max-w-[220px]">The revenue intelligence platform for modern e-commerce teams.</p>
+                    <div class="flex gap-1.5 mt-2">
+                        <input type="email" placeholder="Your email"
+                            class="flex-1 max-w-[160px] bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white placeholder-[#444] outline-none focus:border-white/25 transition-colors">
+                        <button
+                            class="bg-white text-black px-3 py-1.5 rounded-lg text-[11px] font-bold hover:scale-[1.02] transition-all">Join</button>
+                    </div>
+                </div>
+
+                <!-- Product -->
+                <div class="space-y-2.5">
+                    <p class="text-white text-[10px] uppercase tracking-widest font-semibold mb-3">Product</p>
+                    <a href="features.html" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Features</a>
+                    <a href="#pricing" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Pricing</a>
+                    <a href="#" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Changelog</a>
+                    <a href="#" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Docs</a>
+                </div>
+
+                <!-- Company -->
+                <div class="space-y-2.5">
+                    <p class="text-white text-[10px] uppercase tracking-widest font-semibold mb-3">Company</p>
+                    <a href="#" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">About</a>
+                    <a href="#" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Blog</a>
+                    <a href="#" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Careers</a>
+                    <a href="#" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Contact</a>
+                </div>
+
+                <!-- Social -->
+                <div class="space-y-2.5">
+                    <p class="text-white text-[10px] uppercase tracking-widest font-semibold mb-3">Social</p>
+                    <a href="https://x.com/SplenAutomate02" target="_blank" rel="noopener noreferrer" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Twitter / X</a>
+                    <a href="#" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">LinkedIn</a>
+                    <a href="#" class="block text-[#555] text-[11px] font-medium hover:text-white transition-colors">Instagram</a>
+                </div>
+            </div>
+
+            <div class="border-t border-[#1A1A1A] pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-[10px] text-[#444]">
+                <p>&copy; 2025 Revluma. All rights reserved.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition-colors">Cookie Settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Laptop + promo items scatter animation on scroll
+        const laptop = document.querySelector('.laptop-container');
+        const promoItems = document.querySelectorAll('.promo-item');
+
+        const promoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (entry.target === laptop) {
+                        laptop.classList.add('laptop-visible');
+                    } else {
+                        const delay = parseInt(entry.target.dataset.delay) || 0;
+                        setTimeout(() => {
+                            entry.target.classList.add('item-visible');
+                        }, delay);
+                    }
+                    promoObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        if (laptop) promoObserver.observe(laptop);
+        promoItems.forEach(item => promoObserver.observe(item));
+
+        // Animated counters
+        const counters = document.querySelectorAll('.counter');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.target);
+                    const duration = 1800;
+                    const step = target / (duration / 16);
+                    let current = 0;
+                    const timer = setInterval(() => {
+                        current += step;
+                        if (current >= target) { current = target; clearInterval(timer); }
+                        el.textContent = Math.floor(current).toLocaleString();
+                    }, 16);
+                    counterObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+        counters.forEach(c => counterObserver.observe(c));
+
+        // Intersection Observer for scroll reveals
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        // Bouncing logo animation with icon cycling on edge hits
+        const bounceContainer = document.getElementById('hero-landing');
+        const bounceLogo = document.getElementById('bounceLogo');
+        const bounceLogoImg = document.getElementById('bounceLogoImg');
+
+        const logos = [
+            { src: 'assets/images/shopifyLoog.png', alt: 'Shopify Logo' },
+            { src: 'assets/images/woocomrceLogo.webp', alt: 'WooCommerce Logo' },
+            { src: 'assets/images/cart-recovery-icon.png', alt: 'Cart Recovery Icon' }
+        ];
+        let logoIndex = 0;
+
+        let position = { x: 24, y: 24 };
+        let velocity = { x: 130, y: 110 };
+        let lastTime = null;
+
+        const updateBounceBounds = () => {
+            const bounds = bounceContainer.getBoundingClientRect();
+            const logoBounds = bounceLogo.getBoundingClientRect();
+            return {
+                width: bounds.width - logoBounds.width,
+                height: bounds.height - logoBounds.height
+            };
+        };
+
+        const setLogo = (index) => {
+            logoIndex = index % logos.length;
+            bounceLogoImg.src = logos[logoIndex].src;
+            bounceLogoImg.alt = logos[logoIndex].alt;
+        };
+
+        const nextLogo = () => {
+            setLogo((logoIndex + 1) % logos.length);
+        };
+
+        const animateBounce = (timestamp) => {
+            if (!lastTime) lastTime = timestamp;
+            const dt = Math.min((timestamp - lastTime) / 1000, 0.032);
+            lastTime = timestamp;
+
+            const bounds = updateBounceBounds();
+            let collided = false;
+
+            position.x += velocity.x * dt;
+            position.y += velocity.y * dt;
+
+            if (position.x <= 0) {
+                position.x = 0;
+                velocity.x = Math.abs(velocity.x);
+                collided = true;
+            } else if (position.x >= bounds.width) {
+                position.x = bounds.width;
+                velocity.x = -Math.abs(velocity.x);
+                collided = true;
+            }
+
+            if (position.y <= 0) {
+                position.y = 0;
+                velocity.y = Math.abs(velocity.y);
+                collided = true;
+            } else if (position.y >= bounds.height) {
+                position.y = bounds.height;
+                velocity.y = -Math.abs(velocity.y);
+                collided = true;
+            }
+
+            bounceLogo.style.transform = `translate(${position.x}px, ${position.y}px)`;
+
+            if (collided) {
+                nextLogo();
+            }
+
+            requestAnimationFrame(animateBounce);
+        };
+
+        window.addEventListener('load', () => {
+            setLogo(0);
+            requestAnimationFrame(animateBounce);
+        });
+
+        window.addEventListener('resize', () => {
+            const bounds = updateBounceBounds();
+            position.x = Math.min(position.x, bounds.width);
+            position.y = Math.min(position.y, bounds.height);
+        });
+    </script>
+</body>
+
+</html>
