@@ -111,8 +111,10 @@ app.use(errorHandler);
         redis: redisHealthy ? 'healthy' : 'unavailable'
       });
     } else if (isProduction && (!dbHealthy || !redisHealthy)) {
-      logger.error('Startup health check failed in production – exiting');
-      process.exit(1);
+      logger.warn('Startup health check has warnings — continuing in production (limited mode)', {
+        db: dbHealthy ? 'healthy' : 'unavailable',
+        redis: redisHealthy ? 'healthy' : 'unavailable'
+      });
     }
 
     logger.info(`Revluma Backend starting`, {

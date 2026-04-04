@@ -119,24 +119,17 @@ async function systemQuery(text, params = []) {
 (async () => {
   if (!process.env.DATABASE_URL) {
     console.warn('⚠️  DATABASE_URL not set — DB queries will fail until configured');
+    console.warn('⚠️  Server continuing in limited mode (no database)');
     return;
   }
   try {
     const healthy = await checkConnection();
     if (!healthy) {
-      if (process.env.NODE_ENV === 'production') {
-        console.error('Database connection failed at startup – exiting');
-        process.exit(1);
-      }
-      console.warn('⚠️  Database connection failed in dev mode — continuing anyway');
+      console.warn('⚠️  Database connection failed — continuing in limited mode');
       return;
     }
     console.log('PostgreSQL connection pool initialized and healthy');
   } catch (err) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('Database connection error at startup – exiting', err.message);
-      process.exit(1);
-    }
-    console.warn('⚠️  Database connection error in dev mode:', err.message);
+    console.warn('⚠️  Database connection error — continuing without DB:', err.message);
   }
 })();

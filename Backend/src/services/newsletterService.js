@@ -78,7 +78,7 @@ function buildVerificationEmailHTML(email, token) {
             Revluma — Revenue intelligence for modern e-commerce
           </p>
           <p style="margin:0;color:#333333;font-size:11px;text-align:center;">
-            You received this because you subscribed at splendor.ai
+            You received this because you subscribed at revluma.vercel.app
           </p>
         </td></tr>
       </table>
@@ -115,7 +115,7 @@ function buildNewsletterHTML(subject, content, unsubToken) {
           <p style="margin:0;color:#333333;font-size:11px;text-align:center;">
             <a href="${unsubUrl}" style="color:#555555;text-decoration:underline;">Unsubscribe</a>
             &nbsp;&middot;&nbsp;
-            <a href="${BASE_URL}" style="color:#555555;text-decoration:underline;">splendor.ai</a>
+            <a href="${BASE_URL}" style="color:#555555;text-decoration:underline;">revluma.vercel.app</a>
           </p>
         </td></tr>
       </table>

@@ -121,7 +121,7 @@ const recoveryWorker = new Worker('cart-recovery', async (job) => {
           });
 
           await transporter.sendMail({
-            from: process.env.FROM_EMAIL || 'no-reply@splendor.ai',
+            from: process.env.FROM_EMAIL || 'no-reply@revluma.vercel.app',
             to: cart.customer_email,
             subject: `Your cart is waiting – ${offer.text}`,
             text: message,
