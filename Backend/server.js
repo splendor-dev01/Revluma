@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // CORS – restrict to frontend in production
 app.use(cors({
-  origin: isProduction ? ['https://revluma.com'] : true,
+  origin: isProduction ? ['https://revluma.vercel.app'] : true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

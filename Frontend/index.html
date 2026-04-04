@@ -641,6 +641,32 @@
                 transform: translateY(-6px);
             }
         }
+        .upload-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .feat-card:hover .upload-overlay {
+            display: flex;
+        }
+        .upload-overlay::after {
+            content: 'Click to change';
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
     </style>
 </head>
 
@@ -844,14 +870,17 @@
                 <!-- Card 1 -->
                 <div
                     class="rounded-2xl border border-[#1F1F1F] bg-[#0D0D0D] overflow-hidden reveal group hover:border-white/10 transition-all duration-300 flex flex-col">
-                    <!-- Image placeholder -->
-                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0">
-                        <img src="assets/images/feature-cart.jpg" alt="AI Cart Recovery"
+                    <!-- Image placeholder with upload -->
+                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0 group">
+                        <label class="absolute inset-0 cursor-pointer z-10 upload-overlay">
+                            <input type="file" accept="image/*" class="hidden" onchange="loadImage(this, 'feature-img-1')">
+                        </label>
+                        <img id="feature-img-1" src="./assets/images/cart-recovery-icon.png" alt="AI Cart Recovery"
                             class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
                             onerror="this.style.display='none'">
                         <!-- Fallback gradient placeholder -->
                         <div
-                            class="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23] flex items-center justify-center">
+                            class="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23] flex items-center justify-center pointer-events-none">
                             <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
@@ -874,12 +903,15 @@
                 <!-- Card 2 -->
                 <div
                     class="rounded-2xl border border-[#1F1F1F] bg-[#0D0D0D] overflow-hidden reveal group hover:border-white/10 transition-all duration-300 flex flex-col">
-                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0">
-                        <img src="assets/images/feature-product.jpg" alt="Product Intelligence"
+                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0 group">
+                        <label class="absolute inset-0 cursor-pointer z-10 upload-overlay">
+                            <input type="file" accept="image/*" class="hidden" onchange="loadImage(this, 'feature-img-2')">
+                        </label>
+                        <img id="feature-img-2" src="assets/images/feature-product.jpg" alt="Product Intelligence"
                             class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
                             onerror="this.style.display='none'">
                         <div
-                            class="absolute inset-0 bg-gradient-to-br from-[#0d1b0d] via-[#122212] to-[#0a1a0a] flex items-center justify-center">
+                            class="absolute inset-0 bg-gradient-to-br from-[#0d1b0d] via-[#122212] to-[#0a1a0a] flex items-center justify-center pointer-events-none">
                             <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                             </svg>
@@ -902,12 +934,15 @@
                 <!-- Card 3 -->
                 <div
                     class="rounded-2xl border border-[#1F1F1F] bg-[#0D0D0D] overflow-hidden reveal group hover:border-white/10 transition-all duration-300 flex flex-col">
-                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0">
-                        <img src="assets/images/feature-roas.jpg" alt="Opportunity Scoring"
+                    <div class="w-full h-40 bg-[#111] relative overflow-hidden flex-shrink-0 group">
+                        <label class="absolute inset-0 cursor-pointer z-10 upload-overlay">
+                            <input type="file" accept="image/*" class="hidden" onchange="loadImage(this, 'feature-img-3')">
+                        </label>
+                        <img id="feature-img-3" src="assets/images/feature-roas.jpg" alt="Opportunity Scoring"
                             class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
                             onerror="this.style.display='none'">
                         <div
-                            class="absolute inset-0 bg-gradient-to-br from-[#1a0d0d] via-[#221212] to-[#1a0a0a] flex items-center justify-center">
+                            class="absolute inset-0 bg-gradient-to-br from-[#1a0d0d] via-[#221212] to-[#1a0a0a] flex items-center justify-center pointer-events-none">
                             <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -1754,6 +1789,21 @@
             position.x = Math.min(position.x, bounds.width);
             position.y = Math.min(position.y, bounds.height);
         });
+    </script>
+    <script>
+        // Feature image upload handler
+        function loadImage(input, imgId) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById(imgId);
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
     </script>
 </body>
 

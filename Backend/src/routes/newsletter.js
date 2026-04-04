@@ -105,7 +105,7 @@ function renderHTMLPage(title, message, isSuccess) {
     <div class="icon">${icon}</div>
     <h1>${title}</h1>
     <p>${message}</p>
-    <a href="${process.env.BASE_URL || 'https://revluma.com'}" class="back-link">&larr; Back to Revluma</a>
+    <a href="${process.env.BASE_URL || 'https://revluma.vercel.app'}" class="back-link">&larr; Back to Revluma</a>
   </div>
 </body>
 </html>`;
