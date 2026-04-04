@@ -3,28 +3,37 @@
 
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
+const path = require('path');
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '..', '..', '.env') });
 
 const isProduction = process.env.NODE_ENV === 'production';
-const hasDbUrl = process.env.DATABASE_URL && (process.env.DATABASE_URL.startsWith('postgresql') || process.env.DATABASE_URL.startsWith('postgres'));
 
-// Only create pool if DATABASE_URL is set
-const pool = hasDbUrl ? new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Production SSL – NEVER disable verification in real prod
-  // For local dev, use sslmode=disable in DATABASE_URL
-  ssl: isProduction && !process.env.DATABASE_URL?.includes('sslmode=disable') ? {
-    rejectUnauthorized: true,
-    ca: process.env.DB_CA_CERT || undefined,
-  } : false,
+// Always try to create pool if DATABASE_URL is set (supports both postgresql:// and postgres://)
+let pool = null;
+let hasDbUrl = false;
 
-  // Production tuning
-  max: 20,                // max connections (adjust based on traffic)
-  idleTimeoutMillis: 30000, // close idle after 30s
-  connectionTimeoutMillis: 5000, // fail fast if DB unreachable
-  allowExitOnIdle: false,
-}) : null;
+if (process.env.DATABASE_URL && process.env.DATABASE_URL.length > 10) {
+  const urlPattern = /^postgresql(s)?:\/\//i;
+  if (urlPattern.test(process.env.DATABASE_URL)) {
+    hasDbUrl = true;
+    try {
+      pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: isProduction && !process.env.DATABASE_URL?.includes('sslmode=disable') ? {
+          rejectUnauthorized: true,
+          ca: process.env.DB_CA_CERT || undefined,
+        } : false,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+        allowExitOnIdle: false,
+      });
+    } catch (poolErr) {
+      console.error('[DB] Pool creation failed:', poolErr.message);
+    }
+  }
+}
 
 // Error handling on pool creation
 if (pool) {
@@ -38,7 +47,8 @@ if (pool) {
 
 // Health check function (use in startup or monitoring)
 async function checkConnection() {
-  if (!pool || !hasDbUrl) {
+  if (!pool) {
+    console.log('[DB] checkConnection: pool is null');
     return false;
   }
   const client = await pool.connect();

@@ -33,8 +33,24 @@ router.post('/register', async (req, res) => {
   }
 
   try {
-    // Use systemQuery for registration (no RLS needed for creating new tenant/user)
-    const client = await db.pool.connect();
+    // Check database connection first
+    if (!db.pool) {
+      console.error('Database pool not initialized - DATABASE_URL may not be loaded');
+      console.error('Environment check - process.env.DATABASE_URL:', !!process.env.DATABASE_URL);
+      return res.status(503).json({ error: 'Database not configured. Please contact support.' });
+    }
+    
+    let client;
+    try {
+      client = await db.pool.connect();
+    } catch (connErr) {
+      console.error('Failed to connect to database:', connErr.message);
+      return res.status(503).json({ error: 'Database connection failed. Please try again later.' });
+    }
+    
+    if (!client) {
+      return res.status(503).json({ error: 'Database connection failed. Please try again later.' });
+    }
     
     try {
       await client.query('BEGIN');
