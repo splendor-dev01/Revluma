@@ -106,7 +106,10 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Registration error:', err);
+    console.error('=== REGISTRATION ERROR ===');
+    console.error('Message:', err.message);
+    console.error('Stack:', err.stack);
+    console.error('Email:', email);
     logger.error('Registration failed', { error: err.message, stack: err.stack, email });
 
     let status = 500;
@@ -115,11 +118,11 @@ router.post('/register', async (req, res) => {
     if (err.message.includes('already registered')) {
       status = 409;
       message = 'Email already in use';
-    } else if (err.message.includes('database')) {
-      message = 'Database error – please try again';
+    } else if (err.message.includes('database') || err.message.includes('relation') || err.message.includes('table')) {
+      message = 'Database setup incomplete – please contact support';
     }
 
-    res.status(status).json({ error: message });
+    res.status(status).json({ error: message, details: err.message });
   }
 });
 

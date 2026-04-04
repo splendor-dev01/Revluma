@@ -105,6 +105,40 @@ app.use(errorHandler);
     const dbHealthy = await db.checkConnection();
     const redisHealthy = await checkRedisHealth();
 
+    // Auto-run schema setup on startup (idempotent - uses IF NOT EXISTS)
+    if (dbHealthy) {
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const schemas = [
+          'schema-recovery.sql',
+          'schema-onboarding.sql',
+          'schema-email-verification.sql',
+          'schema-password-reset.sql',
+          'schema-newsletter.sql',
+          'schema-splendor.sql'
+        ];
+        
+        logger.info('Checking/setting up database schemas...');
+        const client = await db.pool.connect();
+        
+        for (const schema of schemas) {
+          try {
+            const content = fs.readFileSync(path.join(__dirname, schema), 'utf8');
+            await client.query(content);
+            logger.info(`Schema ${schema} applied`);
+          } catch (schemaErr) {
+            logger.warn(`Schema ${schema}: ${schemaErr.message}`);
+          }
+        }
+        
+        client.release();
+        logger.info('Database schemas ready');
+      } catch (setupErr) {
+        logger.warn('Schema setup warning:', setupErr.message);
+      }
+    }
+
     if (!isProduction && (!dbHealthy || !redisHealthy)) {
       logger.warn('Startup health check has warnings — continuing in dev mode', {
         db: dbHealthy ? 'healthy' : 'unavailable',

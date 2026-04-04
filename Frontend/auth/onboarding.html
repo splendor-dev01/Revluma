@@ -1364,7 +1364,7 @@
 
         if (!response.ok) {
           console.error('Registration error:', response.status, data);
-          throw new Error(data.error || `Registration failed (${response.status})`);
+          throw new Error(data.details || data.error || `Registration failed (${response.status})`);
         }
 
         state.token = data.token;
