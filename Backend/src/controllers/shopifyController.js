@@ -6,7 +6,7 @@ const logger = require('../utils/logger');
 const SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY;
 const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET;
 const SCOPES = 'read_products,read_orders';
-const APP_URL = process.env.APP_URL || (process.env.NODE_ENV === 'production' ? 'https://revluma.vercel.app' : 'http://localhost:5000');
+const APP_URL = process.env.APP_URL || (process.env.NODE_ENV === 'production' ? 'https://revluma.onrender.com' : 'http://localhost:5000');
 
 // @desc    Initiate Shopify OAuth flow
 exports.initiateAuth = async (req, res) => {

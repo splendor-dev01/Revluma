@@ -16,9 +16,9 @@ const logger = require('../utils/logger');
 // Initialize SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@revluma.vercel.app';
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@revluma.onrender.com';
 const FROM_NAME = process.env.SENDGRID_FROM_NAME || 'Revluma';
-const BASE_URL = process.env.BASE_URL || 'https://revluma.vercel.app';
+const BASE_URL = process.env.BASE_URL || 'https://revluma.onrender.com';
 const VERIFICATION_EXPIRY_HOURS = 24;
 const BATCH_SIZE = 500;
 const BATCH_DELAY_MS = 1200; // ~50 emails/sec to stay under SendGrid limits
@@ -78,7 +78,7 @@ function buildVerificationEmailHTML(email, token) {
             Revluma — Revenue intelligence for modern e-commerce
           </p>
           <p style="margin:0;color:#333333;font-size:11px;text-align:center;">
-            You received this because you subscribed at revluma.vercel.app
+            You received this because you subscribed at revluma.onrender.com
           </p>
         </td></tr>
       </table>
@@ -115,7 +115,7 @@ function buildNewsletterHTML(subject, content, unsubToken) {
           <p style="margin:0;color:#333333;font-size:11px;text-align:center;">
             <a href="${unsubUrl}" style="color:#555555;text-decoration:underline;">Unsubscribe</a>
             &nbsp;&middot;&nbsp;
-            <a href="${BASE_URL}" style="color:#555555;text-decoration:underline;">revluma.vercel.app</a>
+            <a href="${BASE_URL}" style="color:#555555;text-decoration:underline;">revluma.onrender.com</a>
           </p>
         </td></tr>
       </table>

@@ -21,9 +21,9 @@ try {
   logger.warn('Redis not available for newsletter queue — falling back to synchronous sending');
 }
 
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@revluma.vercel.app';
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@revluma.onrender.com';
 const FROM_NAME = process.env.SENDGRID_FROM_NAME || 'Revluma';
-const BASE_URL = process.env.BASE_URL || 'https://revluma.vercel.app';
+const BASE_URL = process.env.BASE_URL || 'https://revluma.onrender.com';
 
 // ====================== QUEUE SETUP ======================
 

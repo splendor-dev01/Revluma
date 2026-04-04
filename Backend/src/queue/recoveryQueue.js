@@ -88,7 +88,9 @@ const recoveryWorker = new Worker('cart-recovery', async (job) => {
 
     // Personalized message
     const customerName = cart.customer_email ? cart.customer_email.split('@')[0] : 'there';
-    const resumeLink = `https://revluma.vercel.app/resume-cart/${cartId}`; // replace with real short link later
+    const BASE_URL = process.env.BASE_URL || 'https://revluma.onrender.com';
+    const FROM_EMAIL = process.env.FROM_EMAIL || 'no-reply@revluma.onrender.com';
+    const resumeLink = `${BASE_URL}/resume-cart/${cartId}`;
 
     const message = `
       Hey ${customerName} 👋

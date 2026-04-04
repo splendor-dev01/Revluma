@@ -61,7 +61,7 @@ new Worker('alerts', async (job) => {
       });
 
       await transporter.sendMail({
-        from: process.env.FROM_EMAIL || 'no-reply@revluma.vercel.app',
+        from: process.env.FROM_EMAIL || 'no-reply@revluma.onrender.com',
         to: user.email,
         subject: `Trend Alert: ${product_key} is exploding!`,
         text: message,

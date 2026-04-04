@@ -5,7 +5,7 @@ const logger = require('./logger');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Email sender configuration
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@revluma.vercel.app';
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@revluma.onrender.com';
 const FROM_NAME = process.env.SENDGRID_FROM_NAME || 'Revluma';
 
 /**
@@ -111,7 +111,7 @@ async function sendWelcomeEmail(toEmail, userName) {
         name: FROM_NAME
       },
       subject: 'Welcome to Revluma! 🎉',
-      text: `Hi ${userName},\n\nWelcome to Revluma! Your account has been successfully created.\n\nYou're now ready to start recovering abandoned carts and growing your revenue.\n\nGet started by completing your onboarding:\n${process.env.FRONTEND_URL || 'https://revluma.vercel.app'}/auth/onboarding.html\n\nBest regards,\nRevluma Team`,
+      text: `Hi ${userName},\n\nWelcome to Revluma! Your account has been successfully created.\n\nYou're now ready to start recovering abandoned carts and growing your revenue.\n\nGet started by completing your onboarding:\n${process.env.FRONTEND_URL || 'https://revluma.onrender.com'}/auth/onboarding.html\n\nBest regards,\nRevluma Team`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -143,7 +143,7 @@ async function sendWelcomeEmail(toEmail, userName) {
                       <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 30px;">
                         <tr>
                           <td align="center">
-                            <a href="${process.env.FRONTEND_URL || 'https://revluma.vercel.app'}/auth/onboarding.html" style="display: inline-block; background-color: #ffffff; color: #0a0a0a; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">Complete Your Setup</a>
+                            <a href="${process.env.FRONTEND_URL || 'https://revluma.onrender.com'}/auth/onboarding.html" style="display: inline-block; background-color: #ffffff; color: #0a0a0a; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">Complete Your Setup</a>
                           </td>
                         </tr>
                       </table>
