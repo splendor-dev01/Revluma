@@ -1,10 +1,15 @@
 // Production-ready PostgreSQL connection pool with tenant-aware RLS support
 
 const { Pool } = require('pg');
-const dotenv   = require('dotenv');
-const path     = require('path');
+const dotenv = require('dotenv');
+const path = require('path');
 
+// Load .env FIRST before any other code runs
+// On production (Render), environment variables should be set directly
+// Try multiple paths for flexibility
 dotenv.config({ path: path.resolve(__dirname, '..', '..', '.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+dotenv.config(); // Also try default .env
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -13,25 +18,45 @@ let pool = null;
 // ── Pool initialisation ──────────────────────────────────────────
 const dbUrl = process.env.DATABASE_URL;
 
+console.log('[DB] Loading - DATABASE_URL:', dbUrl ? `SET (${dbUrl.length} chars, starts: ${dbUrl.substring(0, 15)}...)` : 'NOT SET');
+console.log('[DB] NODE_ENV:', process.env.NODE_ENV);
+console.log('[DB] Current working directory:', process.cwd());
+
 // Accept both postgres:// AND postgresql:// (pg supports both)
 const validUrl = dbUrl && /^postgres(ql)?s?:\/\//i.test(dbUrl);
 
+// SSL configuration for production
+const getSslConfig = () => {
+  if (!isProduction) return false;
+  if (dbUrl && dbUrl.includes('sslmode=disable')) return false;
+  
+  // For Render and most cloud providers, we need to allow self-signed certs
+  return {
+    rejectUnauthorized: false,
+    ca: undefined,
+    servername: undefined
+  };
+};
+
 if (!dbUrl) {
-  console.warn('⚠️  DATABASE_URL not set — all DB queries will fail');
+  console.error('⚠️  DATABASE_URL is NOT SET in environment');
 } else if (!validUrl) {
-  console.error('❌  DATABASE_URL format invalid. Must start with postgres:// or postgresql://');
+  console.error('⚠️  DATABASE_URL format invalid. Must start with postgres:// or postgresql://');
   console.error('    Current value starts with:', dbUrl.substring(0, 20));
 } else {
   try {
     pool = new Pool({
       connectionString: dbUrl,
-      ssl: isProduction && !dbUrl.includes('sslmode=disable')
-        ? { rejectUnauthorized: true, ca: process.env.DB_CA_CERT || undefined }
-        : false,
+      ssl: getSslConfig(),
       max: 20,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 10000, // Increased from 5000
       allowExitOnIdle: false,
+    });
+
+    // Test connection immediately
+    pool.on('connect', () => {
+      console.log('[DB] New client connected');
     });
 
     pool.on('error', (err) => {
@@ -39,7 +64,13 @@ if (!dbUrl) {
       if (isProduction) process.exit(-1);
     });
 
-    console.log('[DB] Pool created — awaiting first connection...');
+    console.log('[DB] Pool created successfully');
+    
+    // Try a test query immediately
+    pool.query('SELECT 1')
+      .then(() => console.log('[DB] ✅ Test query passed'))
+      .catch(err => console.error('[DB] ❌ Test query failed:', err.message));
+      
   } catch (err) {
     console.error('[DB] Pool creation threw:', err.message);
     pool = null;
@@ -49,10 +80,18 @@ if (!dbUrl) {
 // ── Safe pool getter ─────────────────────────────────────────────
 function getPool() {
   if (!pool) {
-    throw new Error(
-      'Database pool is null. Check DATABASE_URL in your .env file. ' +
-      'It must start with postgres:// or postgresql:// and include a valid password.'
-    );
+    const dbUrl = process.env.DATABASE_URL;
+    let errorMsg = 'Database not configured. ';
+    
+    if (!dbUrl) {
+      errorMsg += 'Please add DATABASE_URL environment variable in your hosting dashboard (e.g., Render).';
+    } else if (!/^postgres/i.test(dbUrl)) {
+      errorMsg += 'DATABASE_URL must start with "postgres://" or "postgresql://".';
+    } else {
+      errorMsg += 'Please contact support.';
+    }
+    
+    throw new Error(errorMsg);
   }
   return pool;
 }

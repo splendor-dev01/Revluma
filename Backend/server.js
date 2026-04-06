@@ -1,8 +1,13 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path');
+
+// Load env FIRST, before any other imports
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config(); // Also load default
+
 const cors = require('cors');
 const helmet = require('helmet');
-const path = require('path');
 const logger = require('./src/utils/logger');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -11,10 +16,16 @@ const { triggerIngest } = require('./src/pipeline/ingestionPipeline');
 const { checkRedisHealth } = require('./src/queue/redis');
 const db = require('./src/config/db');
 
-dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Debug: Log env vars at startup
+console.log('=== SERVER STARTUP DEBUG ===');
+console.log('DATABASE_URL from process.env:', process.env.DATABASE_URL ? 'SET (' + process.env.DATABASE_URL.substring(0,30) + '...)' : 'NOT SET');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('Working dir:', process.cwd());
+console.log('================================');
 
 // ====================== SECURITY & MIDDLEWARE ======================
 app.use(helmet({

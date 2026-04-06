@@ -33,11 +33,29 @@ router.post('/register', async (req, res) => {
   }
 
   try {
+    // Debug: Log environment info
+    console.log('[AUTH] Register attempt - db.pool exists:', !!db.pool);
+    console.log('[AUTH] DATABASE_URL in env:', !!process.env.DATABASE_URL);
+    console.log('[AUTH] NODE_ENV:', process.env.NODE_ENV);
+    
     // Check database connection first
     if (!db.pool) {
-      console.error('Database pool not initialized - DATABASE_URL may not be loaded');
-      console.error('Environment check - process.env.DATABASE_URL:', !!process.env.DATABASE_URL);
-      return res.status(503).json({ error: 'Database not configured. Please contact support.' });
+      const dbUrl = process.env.DATABASE_URL;
+      console.error('=== DB CONFIG ERROR ===');
+      console.error('DATABASE_URL set:', !!dbUrl);
+      console.error('DATABASE_URL value:', dbUrl ? dbUrl.substring(0, 30) + '...' : 'undefined');
+      console.error('NODE_ENV:', process.env.NODE_ENV);
+      console.error('========================');
+      
+      let helpMsg = 'Database not configured. ';
+      if (!dbUrl) {
+        helpMsg += 'Please add DATABASE_URL environment variable in your hosting dashboard (e.g., Render).';
+      } else if (!/^postgres/i.test(dbUrl)) {
+        helpMsg += 'DATABASE_URL must start with "postgres://" or "postgresql://"';
+      } else {
+        helpMsg += 'Please contact support.';
+      }
+      return res.status(503).json({ error: helpMsg });
     }
     
     let client;
