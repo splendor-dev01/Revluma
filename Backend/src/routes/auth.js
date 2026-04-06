@@ -50,7 +50,7 @@ router.post('/register', async (req, res) => {
       let helpMsg = 'Database not configured. ';
       if (!dbUrl) {
         helpMsg += 'Please add DATABASE_URL environment variable in your hosting dashboard (e.g., Render).';
-      } else if (!/^postgres/i.test(dbUrl)) {
+      } else if (!/^postgres/i.test(dbUrl.trim())) {
         helpMsg += 'DATABASE_URL must start with "postgres://" or "postgresql://"';
       } else {
         helpMsg += 'Please contact support.';

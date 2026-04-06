@@ -3,27 +3,39 @@
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
 const path = require('path');
+const fs = require('fs');
 
-// Load .env FIRST before any other code runs
-// On production (Render), environment variables should be set directly
-// Try multiple paths for flexibility
-dotenv.config({ path: path.resolve(__dirname, '..', '..', '.env') });
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
-dotenv.config(); // Also try default .env
-
+// FIRST: Check if we're in production (by checking NODE_ENV)
+// In production, we should NOT load local .env - use platform env vars
 const isProduction = process.env.NODE_ENV === 'production';
+
+console.log('[DB] Initial NODE_ENV:', process.env.NODE_ENV);
+
+// Only load local .env in development
+if (!isProduction) {
+  const envPath = path.resolve(__dirname, '..', '..', '.env');
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    console.log('[DB] Loaded local .env for development');
+  }
+}
+
+console.log('[DB] After config, DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+
+// Use isProduction consistently
+console.log('[DB] NODE_ENV after dotenv:', isProduction ? 'production' : 'development');
 
 let pool = null;
 
 // ── Pool initialisation ──────────────────────────────────────────
-const dbUrl = process.env.DATABASE_URL;
+let dbUrl = process.env.DATABASE_URL;
 
-console.log('[DB] Loading - DATABASE_URL:', dbUrl ? `SET (${dbUrl.length} chars, starts: ${dbUrl.substring(0, 15)}...)` : 'NOT SET');
-console.log('[DB] NODE_ENV:', process.env.NODE_ENV);
-console.log('[DB] Current working directory:', process.cwd());
+console.log('[DB] Final DATABASE_URL:', dbUrl ? `SET (${dbUrl.substring(0, 25)}...)` : 'NOT SET');
 
 // Accept both postgres:// AND postgresql:// (pg supports both)
-const validUrl = dbUrl && /^postgres(ql)?s?:\/\//i.test(dbUrl);
+// Trim whitespace from the URL
+const urlStr = dbUrl ? dbUrl.trim() : '';
+const validUrl = urlStr && /^postgres(ql)?s?:\/\//i.test(urlStr);
 
 // SSL configuration for production
 const getSslConfig = () => {
@@ -42,7 +54,8 @@ if (!dbUrl) {
   console.error('⚠️  DATABASE_URL is NOT SET in environment');
 } else if (!validUrl) {
   console.error('⚠️  DATABASE_URL format invalid. Must start with postgres:// or postgresql://');
-  console.error('    Current value starts with:', dbUrl.substring(0, 20));
+  console.error('    Current value starts with:', urlStr ? urlStr.substring(0, 20) : 'N/A');
+  console.error('    Full value:', dbUrl);
 } else {
   try {
     pool = new Pool({
