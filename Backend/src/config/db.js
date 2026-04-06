@@ -12,8 +12,11 @@ const { Pool } = require('pg');
 function validateEnvironment() {
   const errors = [];
   
-  // Check DATABASE_URL
-  const dbUrl = process.env.DATABASE_URL;
+  // Check DATABASE_URL - check both process.env and global
+  const dbUrl = process.env.DATABASE_URL || global.DATABASE_URL;
+  
+  console.log('[DB] validateEnvironment - DATABASE_URL:', dbUrl ? `"${dbUrl.substring(0, 30)}..."` : 'NOT SET');
+  console.log('[DB] validateEnvironment - process.env keys:', Object.keys(process.env).filter(k => k.includes('DATABASE')).join(', '));
   
   if (!dbUrl) {
     errors.push('DATABASE_URL is not set');
@@ -21,6 +24,9 @@ function validateEnvironment() {
     // Trim and validate format
     const trimmedUrl = dbUrl.trim();
     const validPrefix = /^postgres(ql)?:\/\//i;
+    
+    console.log('[DB] trimmed URL starts with:', trimmedUrl.substring(0, 20));
+    console.log('[DB] validPrefix test:', validPrefix.test(trimmedUrl));
     
     if (!validPrefix.test(trimmedUrl)) {
       errors.push(`DATABASE_URL must start with "postgres://" or "postgresql://". Got: "${trimmedUrl.substring(0, 20)}..."`);
@@ -113,10 +119,11 @@ function getPool() {
 /**
  * Execute a query with parameters
  * @param {string} text - SQL query
- * @param {Array} params - Query parameters
+ * @param {Array} params - Query parameters  
+ * @param {string} tenantId - Optional tenant ID (use 'system' for non-tenant queries)
  * @returns {Promise} Query result
  */
-async function query(text, params = []) {
+async function query(text, params = [], tenantId = null) {
   const p = getPool();
   try {
     const result = await p.query(text, params);
@@ -163,10 +170,17 @@ async function systemQuery(text, params = []) {
  * Get a client from the pool for transactions
  * IMPORTANT: Always release the client after use!
  * @returns {Promise<Object>} Connected client
+ * @throws {Error} If pool not initialized
  */
 async function getClient() {
-  const p = getPool();
-  return await p.connect();
+  if (!pool) {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) {
+      throw new Error('Database not configured. Please add DATABASE_URL environment variable.');
+    }
+    throw new Error('Database connection pool not initialized. Please contact support.');
+  }
+  return await pool.connect();
 }
 
 /**
@@ -209,14 +223,15 @@ async function closePool() {
 // ============================================================
 
 module.exports = {
-  pool: pool,            // Raw pool (for direct access if needed)
+  pool: pool,
   getPool,
   query,
   queryRows,
   queryOne,
   getClient,
   checkConnection,
-  closePool
+  closePool,
+  systemQuery
 };
 
 // ============================================================
