@@ -1,16 +1,47 @@
+# Environment & Secrets (NEVER PUSH)
 .env
 .env.*
+*.pem
+*.key
+secrets/
+
+# Dependencies (NEVER PUSH)
 node_modules/
+Backend/node_modules/
+Frontend/node_modules/
+Frontend/node/
 
-# Prisma - don't commit migration snapshots
-# prisma/migrations/ - keep this! Commit migrations to git
-
-# Build
+# Build outputs (NEVER PUSH)
 Frontend/dist/
 Backend/dist/
+Frontend/build/
+Backend/build/
 
-# Large video files
+# IDE & OS files (NEVER PUSH)
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Large files (NEVER PUSH)
 *.MOV
 *.mov
-*.mp4
 *.webm
+*.zip
+*.tar.gz
+
+# Database backups (NEVER PUSH)
+*.backup
+*.dump
+*.sql (in backup folders)
+
+# Prisma (DO PUSH - migrations only)
+prisma/migrations/
+!prisma/migrations/.gitkeep
+
+# Temporary files
+*.log
+*.tmp
+.cache/
