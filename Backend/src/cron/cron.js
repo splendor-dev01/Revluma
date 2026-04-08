@@ -21,6 +21,51 @@ cron.schedule('0 */1 * * *', async () => {
   logger.info('Internal sales aggregated');
 });
 
+// 4. Ghost account cleanup (hourly) - Interim guardrail
+cron.schedule('0 */1 * * *', async () => {
+  try {
+    const { prisma } = require('../services/prisma');
+
+    // Delete unverified users older than 24 hours (cascades to tenants)
+    const result = await prisma.user.deleteMany({
+      where: {
+        emailVerified: false,
+        createdAt: {
+          lt: new Date(Date.now() - 24 * 60 * 60 * 1000) // 24 hours ago
+        }
+      }
+    });
+
+    if (result.count > 0) {
+      logger.info(`Cleaned up ${result.count} ghost accounts`);
+    }
+  } catch (err) {
+    logger.error('Ghost account cleanup failed', err);
+  }
+});
+
+// 5. Pending registration cleanup (hourly) - Target architecture
+cron.schedule('0 */1 * * *', async () => {
+  try {
+    const { prisma } = require('../services/prisma');
+
+    // Delete expired pending registrations
+    const result = await prisma.pendingRegistration.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date()
+        }
+      }
+    });
+
+    if (result.count > 0) {
+      logger.info(`Cleaned up ${result.count} expired pending registrations`);
+    }
+  } catch (err) {
+    logger.error('Pending registration cleanup failed', err);
+  }
+});
+
 // 2. Trigger ingest every 2 hours (high-priority sources)
 cron.schedule('0 */2 * * *', async () => {
   const { triggerIngest } = require('../pipeline/ingestionPipeline');
@@ -54,7 +99,7 @@ cron.schedule('0 2 * * *', async () => {
 cron.schedule('0 3 * * *', async () => {
   logger.info('Cron jobs healthy');
 });
-  await db.query(`
+await db.query(`
     INSERT INTO internal_aggregated_sales (region, category, total_sales_24h, total_sales_7d, aggregated_at)
     SELECT 
       jsonb_object_keys(top_regions) as region,

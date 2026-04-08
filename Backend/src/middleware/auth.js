@@ -24,8 +24,12 @@ const authenticate = async (req, res, next) => {
     });
 
     // Basic claims check
-    if (!decoded.id || !decoded.tenant_id || !decoded.email) {
+    if (!decoded.id || !decoded.tenant_id || !decoded.email || typeof decoded.emailVerified !== 'boolean') {
       throw new Error('Invalid token claims');
+    }
+
+    if (decoded.emailVerified !== true) {
+      return res.status(403).json({ error: 'Email verification required' });
     }
 
     // Set user for all subsequent requests
@@ -33,7 +37,8 @@ const authenticate = async (req, res, next) => {
       id: decoded.id,
       email: decoded.email,
       tenant_id: decoded.tenant_id,
-      role: decoded.role || 'user'
+      role: decoded.role || 'user',
+      email_verified: decoded.emailVerified
     };
 
     next();

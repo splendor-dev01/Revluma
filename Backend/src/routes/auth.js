@@ -5,115 +5,140 @@ const crypto = require('crypto');
 const { prisma } = require('../services/prisma');
 const logger = require('../utils/logger');
 const authenticate = require('../middleware/auth');
+const { authenticatePending, createPendingToken } = require('../middleware/pendingAuth');
 const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/messaging');
 const router = express.Router();
 
 const VERIFICATION_CODE_EXPIRY_MINUTES = 15;
+const PENDING_REGISTRATION_TTL_HOURS = 24;
 
-// REGISTER - Step 1: Basic account creation
+function isEmailValid(email) {
+  return typeof email === 'string' && email.includes('@');
+}
+
+function buildPendingProfileData(onboardingData) {
+  return {
+    industry: onboardingData.industry || 'general',
+    businessModel: onboardingData.businessModel || null,
+    targetMarket: onboardingData.targetMarket || null,
+    aov: onboardingData.aov || null,
+    purchaseFrequency: onboardingData.purchaseFrequency || null,
+    salesChannels: onboardingData.salesChannels || null,
+    paymentMethods: onboardingData.paymentMethods || null,
+    teamSize: onboardingData.teamSize || null,
+    inventorySize: onboardingData.inventorySize || null,
+    fulfillmentSpeed: onboardingData.fulfillmentSpeed || null,
+    growthGoals: onboardingData.growthGoals || null,
+    brandTone: onboardingData.brandTone || null,
+    maturityScore: onboardingData.maturityScore || 0,
+    preferredChannel: onboardingData.preferredRecoveryChannel || onboardingData.preferredChannel || 'whatsapp',
+    touch1Delay: onboardingData.touch1Delay || 15,
+    touch2Delay: onboardingData.touch2Delay || 90,
+    discountThreshold: onboardingData.discountThreshold || 0.1,
+    platform: onboardingData.platform || null,
+    storeUrl: onboardingData.storeUrl || null,
+    monthlyTraffic: onboardingData.monthlyTraffic || null,
+    monthlyRevenue: onboardingData.monthlyRevenue || null,
+    goals: onboardingData.goals || null,
+    preferredRecoveryChannel: onboardingData.preferredRecoveryChannel || null
+  };
+}
+
+async function cleanupUnverifiedUser(email) {
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      email: { equals: email.trim().toLowerCase(), mode: 'insensitive' },
+      emailVerified: false
+    }
+  });
+
+  if (!existingUser) {
+    return;
+  }
+
+  await prisma.tenant.delete({ where: { id: existingUser.tenantId } });
+  logger.info('Removed stale unverified user and tenant', { email, userId: existingUser.id, tenantId: existingUser.tenantId });
+}
+
+// REGISTER - Step 1: Deferred account creation in pending registration
 router.post('/register', async (req, res) => {
-  const { email, password, full_name } = req.body;
+  const { email, password, first_name, last_name } = req.body;
 
-  // Basic validation
-  if (!email || !password || !full_name) {
-    return res.status(400).json({ error: 'All fields required: email, password, full_name' });
+  if (!email || !password || !first_name || !last_name) {
+    return res.status(400).json({ error: 'All fields required: email, password, first_name, last_name' });
+  }
+
+  if (!isEmailValid(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
   }
 
   if (password.length < 8) {
     return res.status(400).json({ error: 'Password must be at least 8 characters' });
   }
 
-  if (!email.includes('@')) {
-    return res.status(400).json({ error: 'Invalid email format' });
-  }
+  const normalizedEmail = String(email).trim().toLowerCase();
 
   try {
-    // Check if user already exists
+    await cleanupUnverifiedUser(normalizedEmail);
+
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email: normalizedEmail }
     });
 
     if (existingUser) {
       return res.status(409).json({ error: 'Email already in use' });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const verificationCodeHash = await bcrypt.hash(otp, 12);
+    const verificationExpiresAt = new Date(Date.now() + VERIFICATION_CODE_EXPIRY_MINUTES * 60 * 1000);
+    const expiresAt = new Date(Date.now() + PENDING_REGISTRATION_TTL_HOURS * 60 * 60 * 1000);
 
-    // Create tenant and user in transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // Create tenant
-      const tenant = await tx.tenant.create({
-        data: {
-          storeName: 'Pending',
-          industry: 'general',
-          onboardingStatus: 'started'
-        }
-      });
-
-      // Create user
-      const user = await tx.user.create({
-        data: {
-          tenantId: tenant.id,
-          email,
-          passwordHash,
-          fullName: full_name,
-          onboardingStatus: 'started',
-          emailVerified: false
-        }
-      });
-
-      // Create tenant profile with defaults
-      await tx.tenantProfile.create({
-        data: {
-          tenantId: tenant.id,
-          onboardingStatus: 'started',
-          preferredChannel: 'whatsapp',
-          touch1Delay: 15,
-          touch2Delay: 90,
-          discountThreshold: 0.1
-        }
-      });
-
-      return { tenant, user };
-    });
-
-    // Generate JWT
-    const token = jwt.sign(
-      { id: result.user.id, email: result.user.email, tenant_id: result.tenant.id },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d', algorithm: 'HS256' }
-    );
-
-    logger.info('New user registered', { tenant_id: result.tenant.id, email });
-
-    res.status(201).json({
-      message: 'Account created successfully! Welcome to Revluma',
-      token,
-      user: {
-        id: result.user.id,
-        email: result.user.email,
-        tenant_id: result.tenant.id,
-        email_verified: false
+    const pendingRegistration = await prisma.pendingRegistration.upsert({
+      where: { email: normalizedEmail },
+      update: {
+        firstName: first_name,
+        lastName: last_name,
+        passwordHash,
+        verificationCodeHash,
+        verificationExpiresAt,
+        emailVerified: false,
+        emailVerifiedAt: null,
+        expiresAt,
+        onboardingData: {},
+        step: 1,
+        updatedAt: new Date()
+      },
+      create: {
+        email: normalizedEmail,
+        firstName: first_name,
+        lastName: last_name,
+        passwordHash,
+        verificationCodeHash,
+        verificationExpiresAt,
+        expiresAt,
+        onboardingData: {},
+        step: 1
       }
     });
 
+    await sendVerificationEmail(normalizedEmail, otp, first_name);
+
+    const pendingToken = createPendingToken(pendingRegistration.id, normalizedEmail);
+
+    logger.info('Pending registration created', { email: normalizedEmail, pendingRegistrationId: pendingRegistration.id });
+
+    res.status(201).json({
+      message: 'Verification code sent. Please check your email.',
+      pendingRegistrationId: pendingRegistration.id,
+      pendingToken,
+      expiresAt: pendingRegistration.expiresAt
+    });
   } catch (err) {
-    logger.error('Registration failed', { error: err.message, email });
-
-    let status = 500;
-    let message = 'Registration failed';
-
-    if (err.code === 'P2002') { // Prisma unique constraint
-      status = 409;
-      message = 'Email already in use';
-    } else if (err.message.includes('connection') || err.message.includes('database')) {
-      status = 503;
-      message = 'Database temporarily unavailable';
-    }
-
-    res.status(status).json({ error: message });
+    logger.error('Pending registration failed', { error: err.message, email: normalizedEmail });
+    res.status(500).json({ error: 'Registration failed' });
   }
 });
 
@@ -155,54 +180,180 @@ router.post('/send-verification', authenticate, async (req, res) => {
 });
 
 // VERIFY EMAIL CODE
-router.post('/verify-email', authenticate, async (req, res) => {
+router.post('/verify-email', authenticatePending, async (req, res) => {
   const { code } = req.body;
-  const { id: user_id, tenant_id } = req.user;
+  const { id: pendingId } = req.pending;
 
   if (!code) {
     return res.status(400).json({ error: 'Verification code is required' });
   }
 
   try {
-    const validCode = await prisma.emailVerificationCode.findFirst({
-      where: {
-        userId: user_id,
-        code,
-        used: false,
-        expiresAt: { gt: new Date() }
-      },
-      orderBy: { createdAt: 'desc' }
+    const pending = await prisma.pendingRegistration.findUnique({ where: { id: pendingId } });
+
+    if (!pending) {
+      return res.status(404).json({ error: 'Pending registration not found' });
+    }
+
+    if (pending.emailVerified) {
+      return res.status(200).json({ message: 'Email already verified', verified: true });
+    }
+
+    if (new Date(pending.verificationExpiresAt) < new Date()) {
+      return res.status(400).json({ error: 'Verification code expired' });
+    }
+
+    const isValidCode = await bcrypt.compare(code, pending.verificationCodeHash);
+    if (!isValidCode) {
+      return res.status(400).json({ error: 'Invalid verification code' });
+    }
+
+    await prisma.pendingRegistration.update({
+      where: { id: pendingId },
+      data: {
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
+        step: 2,
+        updatedAt: new Date()
+      }
     });
 
-    if (!validCode) {
-      return res.status(400).json({ error: 'Invalid or expired verification code' });
-    }
-
-    await prisma.$transaction([
-      prisma.emailVerificationCode.update({
-        where: { id: validCode.id },
-        data: { used: true }
-      }),
-      prisma.user.update({
-        where: { id: user_id },
-        data: { 
-          emailVerified: true, 
-          emailVerifiedAt: new Date() 
-        }
-      })
-    ]);
-
-    const user = await prisma.user.findUnique({ where: { id: user_id } });
-    if (user) {
-      await sendWelcomeEmail(user.email, user.full_name);
-    }
-
-    logger.info('Email verified successfully', { user_id });
+    logger.info('Pending registration email verified', { pendingId, email: pending.email });
 
     res.status(200).json({ message: 'Email verified successfully', verified: true });
   } catch (err) {
-    logger.error('Email verification failed', { error: err.message, user_id });
+    logger.error('Pending email verification failed', { error: err.message, pendingId });
     res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
+// UPDATE PENDING REGISTRATION ONBOARDING DATA
+router.patch('/pending-registration', authenticatePending, async (req, res) => {
+  const { step, data } = req.body;
+  const { id: pendingId } = req.pending;
+
+  if (!step || !data) {
+    return res.status(400).json({ error: 'Step and data are required' });
+  }
+
+  const allowedSteps = [2, 3, 4, 5];
+  if (!allowedSteps.includes(step)) {
+    return res.status(400).json({ error: 'Invalid onboarding step' });
+  }
+
+  try {
+    const pending = await prisma.pendingRegistration.findUnique({ where: { id: pendingId } });
+    if (!pending) {
+      return res.status(404).json({ error: 'Pending registration not found' });
+    }
+
+    const updatedOnboardingData = {
+      ...pending.onboardingData,
+      ...data
+    };
+
+    await prisma.pendingRegistration.update({
+      where: { id: pendingId },
+      data: {
+        onboardingData: updatedOnboardingData,
+        step,
+        updatedAt: new Date()
+      }
+    });
+
+    logger.info('Pending registration onboarding updated', { pendingId, step });
+
+    res.status(200).json({ message: `Step ${step} saved`, step });
+  } catch (err) {
+    logger.error('Failed to update pending onboarding', { error: err.message, pendingId, step });
+    res.status(500).json({ error: 'Failed to save onboarding data' });
+  }
+});
+
+// FINALIZE REGISTRATION AND CREATE USER + TENANT
+router.post('/complete-registration', authenticatePending, async (req, res) => {
+  const { id: pendingId } = req.pending;
+
+  try {
+    const pending = await prisma.pendingRegistration.findUnique({ where: { id: pendingId } });
+
+    if (!pending) {
+      return res.status(404).json({ error: 'Pending registration not found' });
+    }
+
+    if (!pending.emailVerified) {
+      return res.status(400).json({ error: 'Email must be verified before completing registration' });
+    }
+
+    if (pending.step < 5) {
+      return res.status(400).json({ error: 'Complete all onboarding steps before finalizing registration' });
+    }
+
+    const profileData = buildPendingProfileData(pending.onboardingData || {});
+
+    const result = await prisma.$transaction(async (tx) => {
+      const tenant = await tx.tenant.create({
+        data: {
+          storeName: pending.onboardingData.storeUrl || 'Pending Store',
+          industry: profileData.industry,
+          onboardingStatus: 'completed'
+        }
+      });
+
+      const user = await tx.user.create({
+        data: {
+          tenantId: tenant.id,
+          email: pending.email,
+          passwordHash: pending.passwordHash,
+          fullName: `${pending.firstName} ${pending.lastName}`,
+          onboardingStatus: 'completed',
+          emailVerified: true,
+          emailVerifiedAt: pending.emailVerifiedAt || new Date()
+        }
+      });
+
+      await tx.tenantProfile.create({
+        data: {
+          tenantId: tenant.id,
+          ...profileData,
+          onboardingStatus: 'completed',
+          onboardingCompletedAt: new Date()
+        }
+      });
+
+      await tx.pendingRegistration.delete({ where: { id: pendingId } });
+
+      return { tenant, user };
+    });
+
+    const token = jwt.sign(
+      {
+        id: result.user.id,
+        email: result.user.email,
+        tenant_id: result.tenant.id,
+        emailVerified: true
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d', algorithm: 'HS256' }
+    );
+
+    logger.info('Pending registration completed and user created', { email: pending.email, tenantId: result.tenant.id });
+
+    await sendWelcomeEmail(pending.email, `${pending.firstName} ${pending.lastName}`);
+
+    res.status(201).json({
+      message: 'Account created successfully',
+      token,
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        tenant_id: result.tenant.id,
+        email_verified: true
+      }
+    });
+  } catch (err) {
+    logger.error('Complete registration failed', { error: err.message, pendingId });
+    res.status(500).json({ error: 'Registration completion failed' });
   }
 });
 
@@ -224,74 +375,6 @@ router.get('/verification-status', authenticate, async (req, res) => {
   } catch (err) {
     logger.error('Failed to check verification status', { error: err.message, user_id });
     res.status(500).json({ error: 'Failed to check verification status' });
-  }
-});
-
-// UPDATE ONBOARDING - Steps 2-5
-router.patch('/onboarding', authenticate, async (req, res) => {
-  const { step, data } = req.body;
-  const { tenant_id, id: user_id } = req.user;
-
-  if (!step || !data) {
-    return res.status(400).json({ error: 'Step and data are required' });
-  }
-
-  try {
-    const updateData = {};
-    let onboardingStatus = '';
-
-    switch (step) {
-      case 2:
-        updateData.platform = data.platform;
-        updateData.storeUrl = data.store_url;
-        updateData.monthlyTraffic = data.monthly_traffic;
-        onboardingStatus = 'step2';
-        break;
-      case 3:
-        updateData.goals = data.goals;
-        onboardingStatus = 'step3';
-        break;
-      case 4:
-        updateData.monthlyRevenue = data.monthly_revenue;
-        onboardingStatus = 'step4';
-        break;
-      case 5:
-        updateData.preferredRecoveryChannel = data.preferred_recovery_channel;
-        updateData.preferredChannel = data.preferred_recovery_channel;
-        updateData.onboardingCompletedAt = new Date();
-        onboardingStatus = 'completed';
-        break;
-      default:
-        return res.status(400).json({ error: 'Invalid step' });
-    }
-
-    updateData.onboardingStatus = onboardingStatus;
-
-    await prisma.$transaction([
-      prisma.tenantProfile.update({
-        where: { tenantId: tenant_id },
-        data: updateData
-      }),
-      prisma.user.update({
-        where: { id: user_id },
-        data: { onboardingStatus }
-      }),
-      prisma.tenant.update({
-        where: { id: tenant_id },
-        data: { onboardingStatus }
-      })
-    ]);
-
-    logger.info('Onboarding step completed', { tenant_id, user_id, step });
-
-    res.status(200).json({
-      message: `Step ${step} completed successfully`,
-      step,
-      onboarding_status: step === 5 ? 'completed' : `step${step}`
-    });
-  } catch (err) {
-    logger.error('Onboarding update failed', { error: err.message, tenant_id, step });
-    res.status(500).json({ error: 'Failed to update onboarding data' });
   }
 });
 
@@ -334,7 +417,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, tenant_id: user.tenantId },
+      { id: user.id, email: user.email, tenant_id: user.tenantId, emailVerified: user.emailVerified },
       process.env.JWT_SECRET,
       { expiresIn: '7d', algorithm: 'HS256' }
     );
@@ -409,7 +492,7 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
   }
 
   const sanitizedEmail = String(email).trim().toLowerCase();
-  
+
   if (!sanitizedEmail.includes('@')) {
     return res.status(400).json({ error: 'Invalid email format' });
   }
@@ -494,7 +577,7 @@ router.post('/verify-reset-code', verifyResetLimiter, async (req, res) => {
     }
 
     const codeValid = await bcrypt.compare(code, reset.code);
-    
+
     if (!codeValid) {
       logger.warn('Invalid reset code attempt', { userId: reset.userId, token });
       return res.status(400).json({ error: 'Invalid code' });
@@ -566,7 +649,7 @@ router.post('/reset-password', resetPasswordLimiter, async (req, res) => {
       // Update password
       prisma.user.update({
         where: { id: reset.userId },
-        data: { 
+        data: {
           passwordHash: await bcrypt.hash(newPassword, 12),
           updatedAt: new Date()
         }

@@ -71,6 +71,26 @@ model User {
   @@map("users")
 }
 
+model PendingRegistration {
+  id                    String   @id @default(uuid())
+  email                 String   @unique
+  firstName             String
+  lastName              String
+  passwordHash          String
+  verificationCodeHash  String
+  emailVerified         Boolean  @default(false)
+  emailVerifiedAt       DateTime?
+  verificationExpiresAt DateTime
+  onboardingData        Json     @default("{}")
+  step                  Int      @default(1)
+  expiresAt             DateTime
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([expiresAt])
+  @@map("pending_registrations")
+}
+
 // ============================================================
 // TENANT PROFILE (Business Configuration)
 // ============================================================
