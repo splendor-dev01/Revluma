@@ -198,7 +198,15 @@ router.post('/register', async (req, res) => {
     });
 
     logger.info('Step 6: Sending verification email', { email: normalizedEmail, pendingId: pendingRegistration.id });
-    await sendVerificationEmail(normalizedEmail, otp, resolvedFirstName);
+    
+    try {
+      await sendVerificationEmail(normalizedEmail, otp, resolvedFirstName);
+    } catch (emailErr) {
+      logger.error('Failed to send verification email, but registration continues', { 
+        error: emailErr.message, 
+        email: normalizedEmail 
+      });
+    }
 
     const pendingToken = createPendingToken(pendingRegistration.id, normalizedEmail);
 
