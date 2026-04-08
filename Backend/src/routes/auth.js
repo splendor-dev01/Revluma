@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { v4: uuidv4 } = require('uuid');
 const { prisma } = require('../services/prisma');
 const logger = require('../utils/logger');
 const authenticate = require('../middleware/auth');
@@ -62,13 +63,23 @@ async function cleanupUnverifiedUser(email) {
 
 // REGISTER - Step 1: Deferred account creation in pending registration
 router.post('/register', async (req, res) => {
-  const { email, password, first_name, last_name, full_name } = req.body;
+  const {
+    email,
+    password,
+    first_name,
+    last_name,
+    firstName,
+    lastName,
+    full_name,
+    fullName
+  } = req.body;
 
-  let resolvedFirstName = first_name;
-  let resolvedLastName = last_name;
+  let resolvedFirstName = first_name || firstName;
+  let resolvedLastName = last_name || lastName;
+  const fullNameValue = full_name || fullName;
 
-  if ((!resolvedFirstName || !resolvedLastName) && typeof full_name === 'string') {
-    const nameParts = full_name.trim().split(/\s+/);
+  if ((!resolvedFirstName || !resolvedLastName) && typeof fullNameValue === 'string') {
+    const nameParts = fullNameValue.trim().split(/\s+/);
     if (nameParts.length >= 2) {
       resolvedFirstName = resolvedFirstName || nameParts[0];
       resolvedLastName = resolvedLastName || nameParts.slice(1).join(' ');
@@ -158,8 +169,24 @@ router.post('/register', async (req, res) => {
       expiresAt: pendingRegistration.expiresAt
     });
   } catch (err) {
-    logger.error('Pending registration failed', { error: err.message, email: normalizedEmail });
-    res.status(500).json({ error: 'Registration failed' });
+    const correlationId = req.headers['x-correlation-id'] || uuidv4().slice(0, 8);
+    const errorContext = {
+      error: err.message,
+      stack: err.stack,
+      email: normalizedEmail,
+      correlationId
+    };
+
+    if (err.code === 'P2002' || err.code === '23505') {
+      logger.warn('Pending registration email conflict', errorContext);
+      return res.status(409).json({ error: 'Email already in use', correlationId });
+    }
+
+    logger.error('Pending registration failed', errorContext);
+    res.status(500).json({
+      error: 'Registration failed. Please try again later.',
+      correlationId
+    });
   }
 });
 
