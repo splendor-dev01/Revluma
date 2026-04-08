@@ -88,4 +88,5 @@ module.exports = {
   NewsletterSubscriber: prisma.newsletterSubscriber,
   NewsletterSend: prisma.newsletterSend,
   NewsletterSendEvent: prisma.newsletterSendEvent,
+  PendingRegistration: prisma.pendingRegistration,
 };
