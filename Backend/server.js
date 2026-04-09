@@ -41,7 +41,7 @@ app.use(cors({
   origin: isProduction
     ? ['https://revluma.vercel.app', 'https://revluma.onrender.com']
     : true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
