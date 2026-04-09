@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="../assets/images/Revluma-icon.png">
-  </link>
   <title>Revluma - Create Your Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +16,7 @@
     :root {
       --bg: #060608;
       --surface: rgba(255, 255, 255, 0.028);
+      --surface-hover: rgba(255, 255, 255, 0.048);
       --border: rgba(255, 255, 255, 0.07);
       --border-focus: rgba(255, 255, 255, 0.22);
       --text: #f0f0f5;
@@ -27,16 +27,13 @@
       --green: #34d399;
     }
 
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html,
-    body {
+    html, body {
       height: 100%;
       font-family: 'DM Sans', system-ui, sans-serif;
       background: var(--bg);
@@ -45,203 +42,13 @@
       overflow-x: hidden;
     }
 
-    @media (max-width: 480px) {
-      .form-container {
-        padding: 1rem !important;
-        width: 100% !important;
-        max-width: 100% !important;
-      }
-
-      .verification-section {
-        transform: scale(0.85);
-        transform-origin: top center;
-      }
-    }
-
     /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
 
-    ::-webkit-scrollbar-track {
-      background: #0a0a0a;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 3px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-
-    /* Smooth transitions */
-    .step-container {
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    .slide-in {
-      animation: slideIn 0.3s ease-out;
-    }
-
-    /* Input focus effects */
-    .input-field {
-      transition: all 0.2s ease;
-    }
-
-    .input-field:focus {
-      transform: translateY(-1px);
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-      border-color: var(--border-focus);
-    }
-
-    .input-field.valid {
-      border-color: var(--green);
-    }
-
-    .input-field.error {
-      border-color: var(--red);
-    }
-
-    /* Password match indicator animation */
-    #passwordMatch {
-      animation: fadeInScale 0.3s ease-out;
-    }
-
-    @keyframes fadeInScale {
-      from {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    /* Password toggle button hover */
-    #togglePassword:hover,
-    #toggleConfirmPassword:hover {
-      color: var(--text) !important;
-    }
-
-    /* Password strength indicator */
-    .password-strength {
-      height: 4px;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-
-    .password-strength.weak {
-      background: linear-gradient(90deg, #f87171, #ef4444);
-      width: 33%;
-    }
-
-    .password-strength.medium {
-      background: linear-gradient(90deg, #fbbf24, #f59e0b);
-      width: 66%;
-    }
-
-    .password-strength.strong {
-      background: linear-gradient(90deg, #34d399, #10b981);
-      width: 100%;
-    }
-
-    /* Card hover effects */
-    .selection-card {
-      transition: all 0.2s ease;
-    }
-
-    .selection-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .selection-card.selected {
-      border-color: rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-    }
-
-    /* Button effects */
-    .btn-primary {
-      transition: all 0.2s ease;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
-    }
-
-    .btn-primary:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Progress bar animation - Ocean wave effect */
-    .progress-bar {
-      position: relative;
-      overflow: hidden;
-      border-radius: 2px;
-    }
-
-    .progress-bar::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 300%;
-      height: 100%;
-      background: linear-gradient(90deg,
-          transparent 0%,
-          rgba(255, 255, 255, 0.3) 25%,
-          rgba(255, 255, 255, 0.5) 50%,
-          rgba(255, 255, 255, 0.3) 75%,
-          transparent 100%);
-      animation: oceanWave 3s linear infinite;
-    }
-
-    @keyframes oceanWave {
-      0% {
-        transform: translateX(0);
-      }
-
-      100% {
-        transform: translateX(33.33%);
-      }
-    }
-
-    /* Add subtle grain and glow like login page */
+    /* Ambient glows */
     body::before {
       content: '';
       position: fixed;
@@ -254,194 +61,259 @@
     }
 
     .glow-1 {
-      position: fixed;
-      width: 500px;
-      height: 500px;
-      top: -160px;
-      left: -160px;
+      position: fixed; width: 500px; height: 500px; top: -160px; left: -160px;
       background: radial-gradient(circle, rgba(124, 111, 255, 0.055) 0%, transparent 70%);
-      border-radius: 50%;
-      filter: blur(100px);
-      pointer-events: none;
-      z-index: 0;
+      border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0;
     }
-
     .glow-2 {
-      position: fixed;
-      width: 400px;
-      height: 400px;
-      bottom: -100px;
-      right: -100px;
+      position: fixed; width: 400px; height: 400px; bottom: -100px; right: -100px;
       background: radial-gradient(circle, rgba(255, 255, 255, 0.025) 0%, transparent 70%);
-      border-radius: 50%;
-      filter: blur(100px);
-      pointer-events: none;
-      z-index: 0;
+      border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0;
     }
 
-    /* Loading spinner */
-    .spinner {
-      animation: spin 1s linear infinite;
+    /* Step animations */
+    .step-container { animation: fadeSlideIn 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
+    .slide-in { animation: fadeSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 
-      to {
-        transform: rotate(360deg);
-      }
+    /* Input field */
+    .input-field {
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
     }
-
-    /* Error shake */
-    @keyframes shake {
-
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-5px);
-      }
-
-      75% {
-        transform: translateX(5px);
-      }
+    .input-field:focus {
+      border-color: var(--border-focus) !important;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+      outline: none;
     }
+    .input-field.error { border-color: var(--red) !important; }
+    .input-field.valid { border-color: var(--green) !important; }
 
-    .shake {
-      animation: shake 0.3s ease;
-    }
-
-    /* Glow effect for selected cards */
-    .glow {
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
-    }
-
-    /* Verification code input */
-    .code-input {
-      letter-spacing: 0.5em;
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    /* Countdown timer */
-    .countdown {
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Logo animation */
-    .logo-container {
-      transition: all 0.3s ease;
-    }
-
-    .logo-container:hover {
-      transform: scale(1.05);
-    }
-
-    .logo-name {
-      display: inline-block;
-      opacity: 0;
-      transform: translateX(-10px);
-      animation: slideNameIn 0.6s ease forwards;
-      animation-delay: 0.2s;
-    }
-
-    @keyframes slideNameIn {
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    /* Checkbox custom style */
-    .checkbox-custom {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.05);
+    /* Selection cards */
+    .sel-card {
+      transition: all 0.18s ease;
       cursor: pointer;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
-    }
-
-    .checkbox-custom:checked {
-      background: rgba(255, 255, 255, 0.9);
-      border-color: rgba(255, 255, 255, 0.9);
-    }
-
-    .checkbox-custom:checked::after {
-      content: '\2713';
-      display: block;
-      text-align: center;
-      color: #0a0a0a;
-      font-size: 12px;
-      font-weight: bold;
-      line-height: 16px;
-    }
-
-    /* Logo mark styling */
-    .logo-mark {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 56px;
-      height: 56px;
-      flex-shrink: 0;
-      animation: logoFloat 5s ease-in-out infinite;
-    }
-
-    .logo-mark img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      display: block;
+    }
+    .sel-card:hover {
+      border-color: rgba(255,255,255,0.18);
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+    }
+    .sel-card.selected {
+      border-color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.055);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 4px 20px rgba(255,255,255,0.06);
     }
 
-    @keyframes logoFloat {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-3px);
-      }
-    }
-
-    .logo-name-wrap {
-      overflow: hidden;
-      display: inline-flex;
+    /* Platform cards - compact grid style */
+    .platform-card {
+      transition: all 0.18s ease;
+      cursor: pointer;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
       align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+    .platform-card:hover {
+      border-color: rgba(255,255,255,0.18);
+      background: var(--surface-hover);
+      transform: translateY(-2px);
+    }
+    .platform-card.selected {
+      border-color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.055);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 4px 20px rgba(255,255,255,0.06);
     }
 
+    /* Pill-style selector for small options */
+    .pill-btn {
+      transition: all 0.18s ease;
+      cursor: pointer;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      text-align: center;
+    }
+    .pill-btn:hover {
+      border-color: rgba(255,255,255,0.2);
+      background: var(--surface-hover);
+    }
+    .pill-btn.selected {
+      border-color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+    }
+
+    /* Primary button */
+    .btn-primary {
+      transition: all 0.2s ease;
+      background: var(--text);
+      color: var(--bg);
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(255,255,255,0.14);
+    }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Secondary button */
+    .btn-secondary {
+      transition: all 0.2s ease;
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 600;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.15); background: var(--surface-hover); }
+
+    /* Progress bar */
+    .progress-bar {
+      position: relative;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 300%; height: 100%;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+      animation: shimmer 2.5s linear infinite;
+    }
+    @keyframes shimmer {
+      from { transform: translateX(0); }
+      to   { transform: translateX(33.33%); }
+    }
+
+    /* Step indicators */
+    .step-dot {
+      transition: all 0.25s ease;
+    }
+
+    /* Logo */
+    .logo-mark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; flex-shrink: 0;
+    }
+    .logo-mark img {
+      width: 100%; height: 100%; object-fit: contain; border-radius: 10px; display: block;
+    }
+    .logo-name-wrap { overflow: hidden; display: inline-flex; align-items: center; }
     .logo-name {
-      display: inline-block;
-      opacity: 0;
-      transform: translateX(-24px);
-      animation: slideNameIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-      animation-delay: 0.5s;
+      display: inline-block; opacity: 0; transform: translateX(-20px);
+      animation: slideNameIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards;
     }
-
     @keyframes slideNameIn {
-      0% {
-        opacity: 0;
-        transform: translateX(-24px);
-      }
-
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
+      to { opacity: 1; transform: translateX(0); }
     }
+
+    /* Checkbox */
+    .checkbox-custom {
+      appearance: none; -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
+      background: rgba(255,255,255,0.05); cursor: pointer;
+      transition: all 0.2s ease; flex-shrink: 0;
+    }
+    .checkbox-custom:checked {
+      background: rgba(255,255,255,0.9); border-color: rgba(255,255,255,0.9);
+    }
+    .checkbox-custom:checked::after {
+      content: '\2713'; display: block; text-align: center;
+      color: #0a0a0a; font-size: 12px; font-weight: bold; line-height: 16px;
+    }
+
+    /* Password strength */
+    .strength-bar {
+      height: 3px; border-radius: 2px; transition: all 0.35s ease;
+      background: var(--border);
+    }
+    .strength-bar.weak   { background: #f87171; width: 33% !important; }
+    .strength-bar.medium { background: #fbbf24; width: 66% !important; }
+    .strength-bar.strong { background: var(--green); width: 100% !important; }
+
+    /* Spinner */
+    .spinner {
+      animation: spin 0.9s linear infinite;
+      border-radius: 50%;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Shake */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .shake { animation: shake 0.3s ease; }
+
+    /* Code input */
+    .code-input {
+      letter-spacing: 0.4em; text-align: center;
+      font-size: 1.5rem; font-weight: 600;
+    }
+    .countdown { font-variant-numeric: tabular-nums; }
+
+    /* Check circle for goals */
+    .check-ring {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.18s ease;
+    }
+    .sel-card.selected .check-ring {
+      border-color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Tooltip hint */
+    .hint-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 99px;
+      background: rgba(124,111,255,0.12);
+      border: 1px solid rgba(124,111,255,0.2);
+      font-size: 0.7rem; font-weight: 500; color: #a89fff;
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      .form-container { padding: 1rem !important; }
+    }
+
+    /* Success ring */
+    @keyframes ringPop {
+      0%   { transform: scale(0.7); opacity: 0; }
+      60%  { transform: scale(1.12); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .ring-pop { animation: ringPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
   </style>
   <script>
     tailwind.config = {
@@ -449,11 +321,8 @@
         extend: {
           colors: {
             dark: {
-              900: '#0a0a0a',
-              800: '#111111',
-              700: '#1a1a1a',
-              600: '#222222',
-              500: '#2a2a2a',
+              900: '#0a0a0a', 800: '#111111', 700: '#161618',
+              600: '#1e1e22', 500: '#26262c',
             }
           }
         }
@@ -463,617 +332,563 @@
 </head>
 
 <body class="min-h-screen" style="background: var(--bg); color: var(--text);">
-  <!-- Glow effects -->
   <div class="glow-1"></div>
   <div class="glow-2"></div>
-  <!-- Main Container -->
+
   <div class="min-h-screen flex flex-col" style="position: relative; z-index: 1;">
-    <!-- Progress Bar -->
-    <div class="w-full h-1" style="background: rgba(255,255,255,0.1);">
+
+    <!-- Top Progress Bar -->
+    <div class="w-full h-0.5" style="background: rgba(255,255,255,0.07);">
       <div id="progressBar" class="progress-bar h-full"
-        style="width: 20%; background: linear-gradient(90deg, #f0f0f5, #ffffff);"></div>
+        style="width: 20%; background: linear-gradient(90deg, #d0ccff, #ffffff); transition: width 0.45s cubic-bezier(0.4,0,0.2,1);"></div>
     </div>
 
-    <!-- Logo & Branding -->
-    <div class="flex justify-center items-center py-6 px-4">
-      <a href="../index.html" class="logo-container flex items-center gap-3">
+    <!-- Header -->
+    <div class="flex justify-between items-center py-5 px-6 sm:px-8">
+      <a href="../index.html" class="flex items-center gap-2.5" style="text-decoration:none;">
         <div class="logo-mark">
           <img src="../assets/images/Revluma-logo.png" alt="Revluma Logo">
         </div>
         <div class="logo-name-wrap">
-          <span
-            class="logo-name text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Revluma</span>
+          <span class="logo-name text-lg font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Revluma</span>
         </div>
       </a>
+      <!-- Step counter label -->
+      <div id="stepCounter" class="text-sm" style="color: var(--muted);">Step 1 of 5</div>
     </div>
 
-    <!-- Step Indicators -->
-    <div class="flex justify-center items-center gap-2 pb-6 px-4">
-      <div class="step-indicator flex items-center gap-2">
-        <div id="step1Indicator"
-          class="w-8 h-8 rounded-full bg-white text-dark-900 flex items-center justify-center text-sm font-semibold">1
-        </div>
-        <span class="text-sm text-gray-400 hidden sm:inline">Account</span>
-      </div>
-      <div class="w-8 h-px bg-dark-600"></div>
-      <div class="step-indicator flex items-center gap-2">
-        <div id="step2Indicator"
-          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
-          2</div>
-        <span class="text-sm text-gray-400 hidden sm:inline">Business</span>
-      </div>
-      <div class="w-8 h-px bg-dark-600"></div>
-      <div class="step-indicator flex items-center gap-2">
-        <div id="step3Indicator"
-          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
-          3</div>
-        <span class="text-sm text-gray-400 hidden sm:inline">Goals</span>
-      </div>
-      <div class="w-8 h-px bg-dark-600"></div>
-      <div class="step-indicator flex items-center gap-2">
-        <div id="step4Indicator"
-          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
-          4</div>
-        <span class="text-sm text-gray-400 hidden sm:inline">Revenue</span>
-      </div>
-      <div class="w-8 h-px bg-dark-600"></div>
-      <div class="step-indicator flex items-center gap-2">
-        <div id="step5Indicator"
-          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
-          5</div>
-        <span class="text-sm text-gray-400 hidden sm:inline">Recovery</span>
-      </div>
-      <div class="w-8 h-px bg-dark-600"></div>
-      <div class="step-indicator flex items-center gap-2">
-        <div id="step6Indicator"
-          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
-          6</div>
-        <span class="text-sm text-gray-400 hidden sm:inline">Verify</span>
-      </div>
+    <!-- Step Dots -->
+    <div class="flex justify-center items-center gap-2.5 pb-8 px-4">
+      <div id="dot1" class="step-dot w-2 h-2 rounded-full bg-white"></div>
+      <div id="dot2" class="step-dot w-2 h-2 rounded-full" style="background: var(--border);"></div>
+      <div id="dot3" class="step-dot w-2 h-2 rounded-full" style="background: var(--border);"></div>
+      <div id="dot4" class="step-dot w-2 h-2 rounded-full" style="background: var(--border);"></div>
+      <div id="dot5" class="step-dot w-2 h-2 rounded-full" style="background: var(--border);"></div>
     </div>
 
     <!-- Content Area -->
-    <div class="flex-1 flex items-center justify-center px-2 sm:px-4 py-8">
-      <div class="w-full max-w-lg px-2 sm:px-0">
-        <!-- Step 1: Basic Account Setup -->
+    <div class="flex-1 flex items-start justify-center px-4 pb-16">
+      <div class="w-full max-w-[520px]">
+
+        <!-- ======================== STEP 1: Account ======================== -->
         <div id="step1" class="step-container">
-          <div class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold mb-3">Create your account</h1>
-            <p class="text-gray-400 text-lg">Takes less than 60 seconds</p>
+          <div class="mb-8">
+            <h1 class="text-3xl sm:text-[2.1rem] font-bold mb-2 leading-tight">Create your account</h1>
+            <p style="color: var(--muted);">Takes under 60 seconds. No credit card required.</p>
           </div>
 
-          <form id="step1Form" class="space-y-5">
-            <!-- First Name & Last Name -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <form id="step1Form" class="space-y-4">
+            <!-- Name Row -->
+            <div class="grid grid-cols-2 gap-3">
               <div>
-                <label for="firstName" class="block text-sm font-medium mb-2" style="color: var(--muted);">First
-                  Name</label>
+                <label for="firstName" class="block text-sm font-medium mb-1.5" style="color: var(--muted);">First Name</label>
                 <input type="text" id="firstName" name="firstName"
-                  class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
-                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="John" required>
-                <p id="firstNameError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+                  class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-600 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border); font-size:0.95rem;"
+                  placeholder="Alex" autocomplete="given-name" required>
+                <p id="firstNameError" class="text-xs mt-1 hidden" style="color: var(--red);"></p>
               </div>
               <div>
-                <label for="lastName" class="block text-sm font-medium mb-2" style="color: var(--muted);">Last
-                  Name</label>
+                <label for="lastName" class="block text-sm font-medium mb-1.5" style="color: var(--muted);">Last Name</label>
                 <input type="text" id="lastName" name="lastName"
-                  class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
-                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="Doe" required>
-                <p id="lastNameError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+                  class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-600 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border); font-size:0.95rem;"
+                  placeholder="Chen" autocomplete="family-name" required>
+                <p id="lastNameError" class="text-xs mt-1 hidden" style="color: var(--red);"></p>
               </div>
             </div>
 
             <!-- Email -->
             <div>
-              <label for="email" class="block text-sm font-medium mb-2" style="color: var(--muted);">Email
-                Address</label>
+              <label for="email" class="block text-sm font-medium mb-1.5" style="color: var(--muted);">Work / Business Email</label>
               <input type="email" id="email" name="email"
-                class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
-                style="background: var(--surface); border: 1px solid var(--border);" placeholder="john@example.com"
-                required>
-              <p id="emailError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
+                class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-600 focus:outline-none"
+                style="background: var(--surface); border: 1px solid var(--border); font-size:0.95rem;"
+                placeholder="you@yourstore.com" autocomplete="email" required>
+              <p id="emailError" class="text-xs mt-1 hidden" style="color: var(--red);"></p>
             </div>
 
             <!-- Password -->
             <div>
-              <label for="password" class="block text-sm font-medium mb-2" style="color: var(--muted);">Password</label>
+              <label for="password" class="block text-sm font-medium mb-1.5" style="color: var(--muted);">Password</label>
               <div class="relative">
                 <input type="password" id="password" name="password"
-                  class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none pr-12"
-                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="••••••••" required>
+                  class="input-field w-full px-4 py-3 pr-11 rounded-xl text-white placeholder-gray-600 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border); font-size:0.95rem;"
+                  placeholder="Min. 8 characters" autocomplete="new-password" required>
                 <button type="button" id="togglePassword"
                   class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--muted2);">
                   <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                   </svg>
                   <svg id="eyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
-                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
                   </svg>
                 </button>
               </div>
-              <p id="passwordError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
-              <p class="text-xs mt-1" style="color: var(--muted2);">Must be at least 8 characters</p>
+              <!-- Strength bar -->
+              <div class="flex gap-1.5 mt-2">
+                <div id="strengthBar1" class="strength-bar flex-1"></div>
+                <div id="strengthBar2" class="strength-bar flex-1"></div>
+                <div id="strengthBar3" class="strength-bar flex-1"></div>
+              </div>
+              <p id="passwordError" class="text-xs mt-1 hidden" style="color: var(--red);"></p>
             </div>
 
             <!-- Confirm Password -->
             <div>
-              <label for="confirmPassword" class="block text-sm font-medium mb-2" style="color: var(--muted);">Confirm
-                Password</label>
+              <label for="confirmPassword" class="block text-sm font-medium mb-1.5" style="color: var(--muted);">Confirm Password</label>
               <div class="relative">
                 <input type="password" id="confirmPassword" name="confirmPassword"
-                  class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none pr-12"
-                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="••••••••" required>
+                  class="input-field w-full px-4 py-3 pr-11 rounded-xl text-white placeholder-gray-600 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border); font-size:0.95rem;"
+                  placeholder="Re-enter password" autocomplete="new-password" required>
                 <button type="button" id="toggleConfirmPassword"
                   class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--muted2);">
                   <svg id="confirmEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                   </svg>
-                  <svg id="confirmEyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
-                    </path>
+                  <svg id="confirmEyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
                   </svg>
                 </button>
               </div>
-              <p id="confirmPasswordError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
-              <div id="passwordMatch" class="flex items-center gap-2 mt-2 opacity-0 transition-opacity duration-300">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style="color: var(--green);">
-                  <path fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clip-rule="evenodd"></path>
+              <div id="passwordMatch" class="flex items-center gap-1.5 mt-1.5 opacity-0 transition-opacity duration-300">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" style="color: var(--green);">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
                 <span class="text-xs" style="color: var(--green);">Passwords match</span>
               </div>
+              <p id="confirmPasswordError" class="text-xs mt-1 hidden" style="color: var(--red);"></p>
             </div>
 
-            <!-- Newsletter Opt-in -->
-            <label class="flex items-center gap-2.5 cursor-pointer select-none">
-              <input type="checkbox" id="newsletterOptIn" checked class="checkbox-custom">
-              <span class="text-sm" style="color: var(--muted);">Send me product updates, feature releases & e-commerce
-                tips</span>
+            <!-- Newsletter opt-in -->
+            <label class="flex items-start gap-3 cursor-pointer select-none pt-1">
+              <input type="checkbox" id="newsletterOptIn" checked class="checkbox-custom mt-0.5">
+              <span class="text-sm leading-snug" style="color: var(--muted);">Send me product updates and e-commerce growth tips — no spam, unsubscribe any time.</span>
             </label>
 
-            <!-- Submit Button -->
-            <button type="submit" id="step1Submit"
-              class="btn-primary w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
-              style="background: var(--text); color: var(--bg);">
+            <!-- Terms -->
+            <label class="flex items-start gap-3 cursor-pointer select-none">
+              <input type="checkbox" id="termsAccept" class="checkbox-custom mt-0.5" required>
+              <span class="text-sm leading-snug" style="color: var(--muted);">
+                I agree to Revluma's
+                <a href="#" class="text-white hover:underline">Terms of Service</a> and
+                <a href="#" class="text-white hover:underline">Privacy Policy</a>
+              </span>
+            </label>
+            <p id="termsError" class="text-xs hidden" style="color: var(--red);">You must accept the terms to continue</p>
+
+            <button type="submit" id="step1Submit" class="btn-primary w-full py-3.5 flex items-center justify-center gap-2 mt-2">
               <span>Continue</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
               </svg>
             </button>
           </form>
 
-          <p class="text-center text-gray-500 text-sm mt-6">
+          <p class="text-center text-sm mt-5" style="color: var(--muted);">
             Already have an account?
-            <a href="loginIn.html" class="text-white hover:underline">Sign in</a>
+            <a href="loginIn.html" class="text-white font-medium hover:underline">Sign in</a>
           </p>
         </div>
 
-        <!-- Step 2: Business Context -->
+        <!-- ======================== STEP 2: Store Setup ======================== -->
         <div id="step2" class="step-container hidden">
-          <div class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold mb-3">Tell us about your business</h1>
-            <p class="text-gray-400 text-lg">Help us personalize your experience</p>
+          <div class="mb-7">
+            <h1 class="text-3xl sm:text-[2.1rem] font-bold mb-2 leading-tight">Set up your store</h1>
+            <p style="color: var(--muted);">This helps Revluma personalize your experience and recovery flows.</p>
           </div>
 
           <form id="step2Form" class="space-y-6">
-            <!-- Platform Selection -->
+
+            <!-- Platform -->
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3">Which platform are you using?</label>
-              <div class="grid grid-cols-3 gap-3">
-                <button type="button" data-platform="shopify"
-                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600">
-                  <img src="../assets/images/shopifyLoog.png" alt="Shopify" style="width:48px;height:48px;object-fit:contain;">                  <span class="text-sm font-medium">Shopify</span>
+              <p class="section-label mb-3">Your platform</p>
+              <div class="grid grid-cols-4 gap-2.5">
+                <button type="button" data-platform="shopify" class="platform-card">
+                  <img src="../assets/images/shopifyLoog.png" alt="Shopify" style="width:36px;height:36px;object-fit:contain;">
+                  <span class="text-xs font-medium">Shopify</span>
+                </button>
+                <button type="button" data-platform="woocommerce" class="platform-card">
+                  <img src="../assets/images/woocomrceLogo.webp" alt="WooCommerce" style="width:36px;height:36px;object-fit:contain;">
+                  <span class="text-xs font-medium">WooCommerce</span>
                 </button>
 
-                <button type="button" data-platform="woocommerce"
-                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600">
-                <img src="../assets/images/woocomrceLogo.webp" alt="WooCommerce" style="width:48px;height:48px;object-fit:contain;">                  <span class="text-sm font-medium">WooCommerce</span>
+                <button type="button" data-platform="bigcommerce" class="platform-card">
+                  <img src="../assets/images/bigCommerce-icon.png" alt="BigCommerce" style="width:36px;height:36px;object-fit:contain;">
+                  <span class="text-xs font-medium">BigCommerce</span>
                 </button>
-
-                <button type="button" data-platform="other"
-                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600">
-                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                    </path>
+                <button type="button" data-platform="other" class="platform-card">
+                  <svg class="w-7 h-7" style="color: var(--muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path>
                   </svg>
-                  <span class="text-sm font-medium">Other</span>
+                  <span class="text-xs font-medium">Other</span>
                 </button>
               </div>
               <input type="hidden" id="platform" name="platform" required>
-              <p id="platformError" class="text-red-400 text-sm mt-1 hidden"></p>
+              <p id="platformError" class="text-xs mt-1.5 hidden" style="color: var(--red);"></p>
             </div>
 
             <!-- Store URL -->
             <div>
-              <label for="storeUrl" class="block text-sm font-medium text-gray-300 mb-2">Store URL</label>
+              <label for="storeUrl" class="section-label block mb-2">Store URL</label>
               <input type="url" id="storeUrl" name="storeUrl"
-                class="input-field w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-white"
-                placeholder="https://yourstore.com" required>
-              <p id="storeUrlError" class="text-red-400 text-sm mt-1 hidden"></p>
+                class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-600 focus:outline-none"
+                style="background: var(--surface); border: 1px solid var(--border); font-size:0.95rem;"
+                placeholder="https://yourstore.com" autocomplete="url" required>
+              <p class="text-xs mt-1" style="color: var(--muted2);">Used to connect your store and detect cart events</p>
+              <p id="storeUrlError" class="text-xs mt-1 hidden" style="color: var(--red);"></p>
+            </div>
+
+            <!-- Store Category -->
+            <div>
+              <p class="section-label mb-3">Store category <span class="normal-case font-normal" style="color: var(--muted2);">— pick your closest niche</span></p>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" data-category="fashion"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>👗</span><span>Fashion</span>
+                </button>
+                <button type="button" data-category="beauty"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>✨</span><span>Beauty</span>
+                </button>
+                <button type="button" data-category="electronics"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>💻</span><span>Electronics</span>
+                </button>
+                <button type="button" data-category="home_living"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>🏠</span><span>Home & Living</span>
+                </button>
+                <button type="button" data-category="health_wellness"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>💊</span><span>Health</span>
+                </button>
+                <button type="button" data-category="sports"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>🏃</span><span>Sports</span>
+                </button>
+                <button type="button" data-category="food_beverage"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>🍽️</span><span>Food & Drink</span>
+                </button>
+                <button type="button" data-category="pets"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>🐾</span><span>Pets</span>
+                </button>
+                <button type="button" data-category="other_niche"
+                  class="pill-btn flex items-center gap-1.5">
+                  <span>📦</span><span>Other</span>
+                </button>
+              </div>
+              <input type="hidden" id="storeCategory" name="storeCategory" required>
+              <p id="categoryError" class="text-xs mt-1.5 hidden" style="color: var(--red);"></p>
             </div>
 
             <!-- Monthly Traffic -->
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3">Monthly traffic</label>
-              <div class="grid grid-cols-2 gap-3">
-                <button type="button" data-traffic="0-1k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
-                  0–1K
-                </button>
-                <button type="button" data-traffic="1k-10k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
-                  1K–10K
-                </button>
-                <button type="button" data-traffic="10k-50k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
-                  10K–50K
-                </button>
-                <button type="button" data-traffic="50k+"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
-                  50K+
-                </button>
+              <p class="section-label mb-3">Monthly website visitors</p>
+              <div class="grid grid-cols-4 gap-2">
+                <button type="button" data-traffic="0-1k" class="pill-btn">0–1K</button>
+                <button type="button" data-traffic="1k-10k" class="pill-btn">1K–10K</button>
+                <button type="button" data-traffic="10k-50k" class="pill-btn">10K–50K</button>
+                <button type="button" data-traffic="50k+" class="pill-btn">50K+</button>
               </div>
               <input type="hidden" id="monthlyTraffic" name="monthlyTraffic" required>
-              <p id="trafficError" class="text-red-400 text-sm mt-1 hidden"></p>
+              <p id="trafficError" class="text-xs mt-1.5 hidden" style="color: var(--red);"></p>
             </div>
 
-            <!-- Navigation Buttons -->
-            <div class="flex gap-3 pt-4">
-              <button type="button" id="step2Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
-                Back
+            <div class="flex gap-3 pt-2">
+              <button type="button" id="step2Back" class="btn-secondary flex-none px-5 py-3.5 text-sm">
+                ← Back
               </button>
-              <button type="submit" id="step2Submit"
-                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2">
+              <button type="submit" id="step2Submit" class="btn-primary flex-1 py-3.5 flex items-center justify-center gap-2">
                 <span>Continue</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                 </svg>
               </button>
             </div>
           </form>
         </div>
 
-        <!-- Step 3: Goals Selection -->
+        <!-- ======================== STEP 3: Goals ======================== -->
         <div id="step3" class="step-container hidden">
-          <div class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold mb-3">What do you want to improve the most?</h1>
-            <p class="text-gray-400 text-lg">Select all that apply</p>
+          <div class="mb-7">
+            <h1 class="text-3xl sm:text-[2.1rem] font-bold mb-2 leading-tight">What do you want to improve?</h1>
+            <p style="color: var(--muted);">Select all that apply — we'll prioritize these in your setup.</p>
           </div>
 
           <form id="step3Form" class="space-y-6">
-            <!-- Goals Selection -->
-            <div class="space-y-3">
+            <div class="space-y-2.5">
+
               <button type="button" data-goal="recover_carts"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
-                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
-                    </path>
+                class="sel-card w-full p-4 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(96,165,250,0.12);">
+                  <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
-                  <div class="font-semibold">Recover abandoned carts</div>
-                  <div class="text-sm text-gray-400">Bring back lost sales automatically</div>
+                  <div class="font-semibold text-sm">Recover abandoned carts</div>
+                  <div class="text-xs mt-0.5" style="color: var(--muted);">Win back lost sales with automated follow-ups</div>
                 </div>
-                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
-                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"></path>
+                <div class="check-ring">
+                  <svg class="w-3.5 h-3.5 text-white hidden goal-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
 
               <button type="button" data-goal="increase_conversion"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
-                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                class="sel-card w-full p-4 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(52,211,153,0.12);">
+                  <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
-                  <div class="font-semibold">Increase conversion rate</div>
-                  <div class="text-sm text-gray-400">Turn more visitors into customers</div>
+                  <div class="font-semibold text-sm">Increase conversion rate</div>
+                  <div class="text-xs mt-0.5" style="color: var(--muted);">Turn more product-page visitors into buyers</div>
                 </div>
-                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
-                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"></path>
+                <div class="check-ring">
+                  <svg class="w-3.5 h-3.5 text-white hidden goal-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
 
-              <button type="button" data-goal="find_products"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
-                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              <button type="button" data-goal="retain_customers"
+                class="sel-card w-full p-4 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(251,191,36,0.12);">
+                  <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
-                  <div class="font-semibold">Find winning products</div>
-                  <div class="text-sm text-gray-400">Discover trending products to sell</div>
+                  <div class="font-semibold text-sm">Retain & re-engage customers</div>
+                  <div class="text-xs mt-0.5" style="color: var(--muted);">Boost repeat purchases and customer LTV</div>
                 </div>
-                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
-                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"></path>
+                <div class="check-ring">
+                  <svg class="w-3.5 h-3.5 text-white hidden goal-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
 
               <button type="button" data-goal="scale_revenue"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
-                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                    </path>
+                class="sel-card w-full p-4 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(167,139,250,0.12);">
+                  <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
-                  <div class="font-semibold">Scale revenue</div>
-                  <div class="text-sm text-gray-400">Grow your business faster</div>
+                  <div class="font-semibold text-sm">Scale revenue</div>
+                  <div class="text-xs mt-0.5" style="color: var(--muted);">Grow AOV, revenue per session, and total GMV</div>
                 </div>
-                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
-                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"></path>
+                <div class="check-ring">
+                  <svg class="w-3.5 h-3.5 text-white hidden goal-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
+
+              <button type="button" data-goal="reduce_refunds"
+                class="sel-card w-full p-4 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(248,113,113,0.1);">
+                  <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <div class="font-semibold text-sm">Reduce refunds & disputes</div>
+                  <div class="text-xs mt-0.5" style="color: var(--muted);">Improve post-purchase experience and proactive support</div>
+                </div>
+                <div class="check-ring">
+                  <svg class="w-3.5 h-3.5 text-white hidden goal-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+
             </div>
 
             <input type="hidden" id="goals" name="goals">
-            <p id="goalsError" class="text-red-400 text-sm mt-1 hidden"></p>
+            <p id="goalsError" class="text-xs hidden" style="color: var(--red);">Please select at least one goal</p>
 
-            <!-- Navigation Buttons -->
-            <div class="flex gap-3 pt-4">
-              <button type="button" id="step3Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
-                Back
-              </button>
-              <button type="submit" id="step3Submit"
-                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2">
+            <div class="flex gap-3 pt-2">
+              <button type="button" id="step3Back" class="btn-secondary flex-none px-5 py-3.5 text-sm">← Back</button>
+              <button type="submit" id="step3Submit" class="btn-primary flex-1 py-3.5 flex items-center justify-center gap-2">
                 <span>Continue</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                 </svg>
               </button>
             </div>
           </form>
         </div>
 
-        <!-- Step 4: Revenue Stage (Optional) -->
+        <!-- ======================== STEP 4: Revenue + Recovery Channel ======================== -->
         <div id="step4" class="step-container hidden">
-          <div class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold mb-3">What's your monthly revenue?</h1>
-            <p class="text-gray-400 text-lg">This helps us tailor recommendations</p>
+          <div class="mb-7">
+            <h1 class="text-3xl sm:text-[2.1rem] font-bold mb-2 leading-tight">Almost there!</h1>
+            <p style="color: var(--muted);">Two quick questions to finish setting up your account.</p>
           </div>
 
-          <form id="step4Form" class="space-y-6">
+          <form id="step4Form" class="space-y-7">
+
             <!-- Monthly Revenue -->
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3">Monthly revenue (optional)</label>
-              <div class="grid grid-cols-2 gap-3">
-                <button type="button" data-revenue="0-1k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
-                  $0–$1K
-                </button>
-                <button type="button" data-revenue="1k-10k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
-                  $1K–$10K
-                </button>
-                <button type="button" data-revenue="10k-50k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
-                  $10K–$50K
-                </button>
-                <button type="button" data-revenue="50k+"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
-                  $50K+
-                </button>
+              <p class="section-label mb-1">Monthly revenue <span class="normal-case font-normal" style="color: var(--muted2);">— optional, helps tailor recommendations</span></p>
+              <div class="grid grid-cols-4 gap-2 mt-3">
+                <button type="button" data-revenue="0-1k" class="pill-btn">$0–$1K</button>
+                <button type="button" data-revenue="1k-10k" class="pill-btn">$1K–$10K</button>
+                <button type="button" data-revenue="10k-50k" class="pill-btn">$10K–$50K</button>
+                <button type="button" data-revenue="50k+" class="pill-btn">$50K+</button>
               </div>
               <input type="hidden" id="monthlyRevenue" name="monthlyRevenue">
             </div>
 
-            <!-- Navigation Buttons -->
-            <div class="flex gap-3 pt-4">
-              <button type="button" id="step4Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
-                Back
-              </button>
-              <button type="button" id="step4Skip"
-                class="flex-1 py-3 text-gray-400 font-semibold rounded-lg hover:text-white transition-colors">
-                Skip for now
-              </button>
-              <button type="submit" id="step4Submit"
-                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2">
-                <span>Continue</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </button>
-            </div>
-          </form>
-        </div>
+            <!-- Recovery Channel -->
+            <div>
+              <p class="section-label mb-3">Preferred recovery channel</p>
+              <p class="text-sm mb-4" style="color: var(--muted);">How should we reach your customers when they abandon a cart?</p>
+              <div class="space-y-2.5">
 
-        <!-- Step 5: Recovery Channel Setup -->
-        <div id="step5" class="step-container hidden">
-          <div class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold mb-3">How should we recover your abandoned carts?</h1>
-            <p class="text-gray-400 text-lg">Choose your preferred recovery channel</p>
-          </div>
+                <button type="button" data-channel="email"
+                  class="sel-card w-full p-4 flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(96,165,250,0.12);">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-left">
+                    <div class="font-semibold text-sm">Email</div>
+                    <div class="text-xs mt-0.5" style="color: var(--muted);">Automated email sequences — avg. 15% recovery rate</div>
+                  </div>
+                  <div class="check-ring channel-check-ring">
+                    <svg class="w-3.5 h-3.5 text-white hidden channel-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                  </div>
+                </button>
 
-          <form id="step5Form" class="space-y-6">
-            <!-- Recovery Channel Selection -->
-            <div class="space-y-3">
-              <button type="button" data-channel="email"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
-                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                    </path>
-                  </svg>
-                </div>
-                <div class="flex-1 text-left">
-                  <div class="font-semibold">Email</div>
-                  <div class="text-sm text-gray-400">Automated email sequences</div>
-                </div>
-                <div
-                  class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
-                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                </div>
-              </button>
+                <button type="button" data-channel="whatsapp"
+                  class="sel-card w-full p-4 flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(52,211,153,0.12);">
+                    <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-left">
+                    <div class="font-semibold text-sm">WhatsApp</div>
+                    <div class="text-xs mt-0.5" style="color: var(--muted);">Direct messaging — higher open rates, up to 45% recovery</div>
+                  </div>
+                  <div class="check-ring channel-check-ring">
+                    <svg class="w-3.5 h-3.5 text-white hidden channel-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                  </div>
+                </button>
 
-              <button type="button" data-channel="whatsapp"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
-                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                  </svg>
-                </div>
-                <div class="flex-1 text-left">
-                  <div class="font-semibold">WhatsApp</div>
-                  <div class="text-sm text-gray-400">Direct messaging recovery</div>
-                </div>
-                <div
-                  class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
-                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                </div>
-              </button>
+                <button type="button" data-channel="both"
+                  class="sel-card w-full p-4 flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(167,139,250,0.12);">
+                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-left">
+                    <div class="font-semibold text-sm flex items-center gap-2">
+                      Both channels
+                      <span class="hint-tag">Recommended</span>
+                    </div>
+                    <div class="text-xs mt-0.5" style="color: var(--muted);">Email + WhatsApp for maximum recovery coverage</div>
+                  </div>
+                  <div class="check-ring channel-check-ring">
+                    <svg class="w-3.5 h-3.5 text-white hidden channel-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                  </div>
+                </button>
 
-              <button type="button" data-channel="both"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
-                <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                    </path>
-                  </svg>
-                </div>
-                <div class="flex-1 text-left">
-                  <div class="font-semibold">Both</div>
-                  <div class="text-sm text-gray-400">Email + WhatsApp combined</div>
-                </div>
-                <div
-                  class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
-                  <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                </div>
-              </button>
+              </div>
+              <input type="hidden" id="recoveryChannel" name="recoveryChannel" required>
+              <p id="channelError" class="text-xs mt-1.5 hidden" style="color: var(--red);"></p>
             </div>
 
-            <input type="hidden" id="recoveryChannel" name="recoveryChannel" required>
-            <p id="channelError" class="text-red-400 text-sm mt-1 hidden"></p>
-
-            <!-- Navigation Buttons -->
-            <div class="flex gap-3 pt-4">
-              <button type="button" id="step5Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
-                Back
-              </button>
-              <button type="submit" id="step5Submit"
-                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2">
+            <div class="flex gap-3 pt-1">
+              <button type="button" id="step4Back" class="btn-secondary flex-none px-5 py-3.5 text-sm">← Back</button>
+              <button type="submit" id="step4Submit" class="btn-primary flex-1 py-3.5 flex items-center justify-center gap-2">
                 <span>Complete Setup</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
               </button>
             </div>
-            </form>
+          </form>
         </div>
 
-        <!-- Step 6: Email Verification -->
-        <div id="step6" class="step-container hidden">
-          <div class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold mb-3">Verify your email</h1>
-            <p class="text-gray-400 text-lg">We've sent a verification code to your email</p>
+        <!-- ======================== STEP 5: Email Verification ======================== -->
+        <div id="step5" class="step-container hidden">
+          <div class="mb-8">
+            <div class="w-14 h-14 mb-5 rounded-2xl flex items-center justify-center" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border);">
+              <svg class="w-7 h-7" style="color: var(--text);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <h1 class="text-3xl sm:text-[2.1rem] font-bold mb-2 leading-tight">Check your inbox</h1>
+            <p style="color: var(--muted);">We've sent a 6-digit code to <span id="emailDisplay" class="text-white font-medium"></span></p>
           </div>
 
-          <form id="step6Form" class="space-y-5">
-            <!-- Email Verification Code -->
+          <form id="step5Form" class="space-y-5">
             <div>
               <label for="verificationCode" class="block text-sm font-medium mb-2" style="color: var(--muted);">Verification Code</label>
-              <div class="flex gap-2 flex-wrap sm:flex-nowrap">
-                <input type="text" id="verificationCode" name="verificationCode" maxlength="6"
-                  class="input-field code-input flex-1 px-3 py-2.5 rounded-lg text-white placeholder-gray-500 focus:outline-none text-center text-lg tracking-widest"
-                  style="background: var(--surface); border: 1px solid var(--border); min-width: 120px;"
+              <div class="flex gap-2.5">
+                <input type="text" id="verificationCode" name="verificationCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+                  class="input-field code-input flex-1 px-4 py-3.5 rounded-xl text-white placeholder-gray-600 focus:outline-none"
+                  style="background: var(--surface); border: 1px solid var(--border);"
                   placeholder="000000">
                 <button type="button" id="submitCodeBtn"
-                  class="px-3 py-2.5 rounded-lg font-semibold whitespace-nowrap text-sm"
-                  style="background: var(--text); color: var(--bg);">
+                  class="btn-primary px-5 py-3 text-sm font-semibold rounded-xl whitespace-nowrap">
                   Verify
                 </button>
               </div>
-              <p id="codeError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
-              <div class="flex items-center justify-between mt-2 gap-2 flex-wrap">
-                <p class="text-xs" style="color: var(--muted2);">Expires in 15 min</p>
+              <p id="codeError" class="text-xs mt-1.5 hidden" style="color: var(--red);"></p>
+              <div class="flex items-center justify-between mt-2.5">
+                <p class="text-xs" style="color: var(--muted2);">Code expires in 15 min</p>
                 <button type="button" id="resendCodeBtn"
-                  class="text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   style="color: var(--muted);" disabled>
-                  Resend code (<span id="countdown" class="countdown">60</span>s)
+                  Resend (<span id="countdown" class="countdown">60</span>s)
                 </button>
               </div>
             </div>
 
-            <!-- Navigation Buttons -->
-            <div class="flex gap-3 pt-4">
-              <button type="button" id="step6Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
-                Back
-              </button>
+            <div class="flex gap-3 pt-2">
+              <button type="button" id="step5Back" class="btn-secondary flex-none px-5 py-3.5 text-sm">← Back</button>
             </div>
           </form>
         </div>
 
-        <!-- Success Screen -->
-        <div id="successScreen" class="step-container hidden text-center">
+        <!-- ======================== SUCCESS ======================== -->
+        <div id="successScreen" class="step-container hidden text-center py-8">
           <div class="mb-8">
-            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/20 flex items-center justify-center">
-              <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full ring-pop flex items-center justify-center" style="background: rgba(52,211,153,0.12); border: 1.5px solid rgba(52,211,153,0.35);">
+              <svg class="w-10 h-10" style="color: var(--green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
             </div>
-            <h1 class="text-3xl sm:text-4xl font-bold mb-3">You're all set!</h1>
-            <p class="text-gray-400 text-lg">Your account is ready. Let's start recovering those carts.</p>
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3">You're all set 🎉</h1>
+            <p class="text-lg" style="color: var(--muted);">Your account is ready. Let's start recovering those carts.</p>
           </div>
-
           <a href="../Dashboard/overview.html"
-            class="inline-flex items-center gap-2 px-8 py-3 bg-white text-dark-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+            class="btn-primary inline-flex items-center gap-2 px-8 py-3.5 text-base rounded-xl"
+            style="text-decoration: none;">
             Go to Dashboard
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -1081,43 +896,42 @@
           </a>
         </div>
 
-        <!-- Loading Overlay -->
+        <!-- ======================== LOADING OVERLAY ======================== -->
         <div id="loadingOverlay"
-          class="fixed inset-0 bg-dark-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+          class="fixed inset-0 flex items-center justify-center z-50 hidden"
+          style="background: rgba(6,6,8,0.85); backdrop-filter: blur(6px);">
           <div class="text-center">
-            <div class="spinner w-12 h-12 border-4 border-dark-600 border-t-white rounded-full mx-auto mb-4"></div>
-            <p id="loadingMessage" class="text-gray-400">Creating your account...</p>
+            <div class="spinner w-10 h-10 border-[3px] mx-auto mb-4 rounded-full" style="border-color: var(--border); border-top-color: var(--text);"></div>
+            <p id="loadingMessage" class="text-sm" style="color: var(--muted);">Creating your account...</p>
           </div>
         </div>
 
-        <!-- Error Toast -->
+        <!-- ======================== TOAST: ERROR ======================== -->
         <div id="errorToast"
-          class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-500/90 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
-          <div class="flex items-center gap-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span id="errorMessage">An error occurred</span>
-          </div>
+          class="fixed bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3"
+          style="background: rgba(239,68,68,0.9); color: #fff; backdrop-filter: blur(8px);">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span id="errorMessage" class="text-sm font-medium">An error occurred</span>
         </div>
 
-        <!-- Success Toast -->
+        <!-- ======================== TOAST: SUCCESS ======================== -->
         <div id="successToast"
-          class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-green-500/90 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
-          <div class="flex items-center gap-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span id="successMessage">Success!</span>
-          </div>
+          class="fixed bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3"
+          style="background: rgba(16,185,129,0.9); color: #fff; backdrop-filter: blur(8px);">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span id="successMessage" class="text-sm font-medium">Success!</span>
         </div>
+
       </div>
     </div>
   </div>
 
   <script>
-    // ====================== STATE MANAGEMENT ======================
+    // ====================== STATE ======================
     const state = {
       currentStep: 1,
       token: null,
@@ -1126,56 +940,34 @@
       emailVerified: false,
       countdownInterval: null,
       formData: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        platform: '',
-        storeUrl: '',
-        monthlyTraffic: '',
-        goals: [],
-        monthlyRevenue: '',
-        recoveryChannel: ''
+        firstName: '', lastName: '', email: '', password: '',
+        platform: '', storeUrl: '', storeCategory: '', monthlyTraffic: '',
+        goals: [], monthlyRevenue: '', recoveryChannel: ''
       }
     };
 
-    // ====================== DOM ELEMENTS ======================
-    const elements = {
-      steps: {
-        1: document.getElementById('step1'),
-        2: document.getElementById('step2'),
-        3: document.getElementById('step3'),
-        4: document.getElementById('step4'),
-        5: document.getElementById('step5'),
-        6: document.getElementById('step6')
-      },
-      indicators: {
-        1: document.getElementById('step1Indicator'),
-        2: document.getElementById('step2Indicator'),
-        3: document.getElementById('step3Indicator'),
-        4: document.getElementById('step4Indicator'),
-        5: document.getElementById('step5Indicator'),
-        6: document.getElementById('step6Indicator')
-      },
-      progressBar: document.getElementById('progressBar'),
-      successScreen: document.getElementById('successScreen'),
-      loadingOverlay: document.getElementById('loadingOverlay'),
-      loadingMessage: document.getElementById('loadingMessage'),
-      errorToast: document.getElementById('errorToast'),
-      errorMessage: document.getElementById('errorMessage'),
-      successToast: document.getElementById('successToast'),
-      successMessage: document.getElementById('successMessage'),
-      verifyEmailBtn: document.getElementById('verifyEmailBtn'),
-      verificationSection: document.getElementById('verificationSection'),
-      verificationCode: document.getElementById('verificationCode'),
-      submitCodeBtn: document.getElementById('submitCodeBtn'),
-      resendCodeBtn: document.getElementById('resendCodeBtn'),
-      countdown: document.getElementById('countdown'),
-      emailStatus: document.getElementById('emailStatus'),
-      step1Submit: document.getElementById('step1Submit')
-    };
+    const TOTAL_STEPS = 5;
 
-    // ====================== API CONFIGURATION ======================
+    // ====================== DOM REFS ======================
+    const steps = {
+      1: document.getElementById('step1'),
+      2: document.getElementById('step2'),
+      3: document.getElementById('step3'),
+      4: document.getElementById('step4'),
+      5: document.getElementById('step5'),
+    };
+    const dots = [1,2,3,4,5].map(i => document.getElementById('dot'+i));
+    const progressBar = document.getElementById('progressBar');
+    const successScreen = document.getElementById('successScreen');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const errorToast = document.getElementById('errorToast');
+    const errorMessage = document.getElementById('errorMessage');
+    const successToast = document.getElementById('successToast');
+    const successMessage = document.getElementById('successMessage');
+    const stepCounter = document.getElementById('stepCounter');
+
+    // ====================== API ======================
     const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
     const API_BASE = isLocalDev
       ? 'http://localhost:5000/api'
@@ -1183,397 +975,237 @@
 
     state.pendingToken = localStorage.getItem('revluma_pending_token');
 
-    // ====================== UTILITY FUNCTIONS ======================
-    function showLoading(message = 'Creating your account...') {
-      elements.loadingMessage.textContent = message;
-      elements.loadingOverlay.classList.remove('hidden');
+    // ====================== UI HELPERS ======================
+    function showLoading(msg = 'Loading...') {
+      loadingMessage.textContent = msg;
+      loadingOverlay.classList.remove('hidden');
+    }
+    function hideLoading() { loadingOverlay.classList.add('hidden'); }
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorToast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => errorToast.classList.add('translate-y-20', 'opacity-0'), 4500);
+    }
+    function showSuccess(msg) {
+      successMessage.textContent = msg;
+      successToast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => successToast.classList.add('translate-y-20', 'opacity-0'), 3000);
     }
 
-    function hideLoading() {
-      elements.loadingOverlay.classList.add('hidden');
-    }
-
-    function showError(message) {
-      elements.errorMessage.textContent = message;
-      elements.errorToast.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => {
-        elements.errorToast.classList.add('translate-y-20', 'opacity-0');
-      }, 4000);
-    }
-
-    function showSuccess(message) {
-      elements.successMessage.textContent = message;
-      elements.successToast.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => {
-        elements.successToast.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
-    }
-
-    function showFieldError(fieldId, message) {
-      const errorEl = document.getElementById(fieldId + 'Error');
-      if (errorEl) {
-        errorEl.textContent = message;
-        errorEl.classList.remove('hidden');
-        const input = document.getElementById(fieldId);
-        if (input) {
-          input.style.borderColor = 'var(--red)';
-          input.classList.add('shake');
-          setTimeout(() => input.classList.remove('shake'), 300);
-        }
+    function showFieldError(fieldId, msg) {
+      const err = document.getElementById(fieldId + 'Error');
+      const inp = document.getElementById(fieldId);
+      if (err) { err.textContent = msg; err.classList.remove('hidden'); }
+      if (inp) {
+        inp.classList.add('error');
+        inp.classList.add('shake');
+        setTimeout(() => inp.classList.remove('shake'), 350);
       }
     }
-
     function clearFieldError(fieldId) {
-      const errorEl = document.getElementById(fieldId + 'Error');
-      if (errorEl) {
-        errorEl.classList.add('hidden');
-        const input = document.getElementById(fieldId);
-        if (input) {
-          input.style.borderColor = '';
-        }
-      }
+      const err = document.getElementById(fieldId + 'Error');
+      const inp = document.getElementById(fieldId);
+      if (err) err.classList.add('hidden');
+      if (inp) inp.classList.remove('error');
     }
 
-    function updateProgressBar() {
-      const progress = (state.currentStep / 5) * 100;
-      elements.progressBar.style.width = `${progress}%`;
-    }
+    function showStep(n) {
+      Object.values(steps).forEach(el => el.classList.add('hidden'));
+      successScreen.classList.add('hidden');
 
-    function updateStepIndicators() {
-      for (let i = 1; i <= 5; i++) {
-        const indicator = elements.indicators[i];
-        if (i < state.currentStep) {
-          indicator.className = 'w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-semibold';
-          indicator.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
-        } else if (i === state.currentStep) {
-          indicator.className = 'w-8 h-8 rounded-full bg-white text-dark-900 flex items-center justify-center text-sm font-semibold';
-          indicator.textContent = i;
-        } else {
-          indicator.className = 'w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold';
-          indicator.textContent = i;
-        }
-      }
-    }
-
-    function showStep(step) {
-      // Hide all steps
-      Object.values(elements.steps).forEach(el => el.classList.add('hidden'));
-      elements.successScreen.classList.add('hidden');
-
-      // Show current step
-      if (step <= 6) {
-        elements.steps[step].classList.remove('hidden');
-        elements.steps[step].classList.add('slide-in');
+      if (n <= TOTAL_STEPS) {
+        steps[n].classList.remove('hidden');
+        steps[n].classList.add('slide-in');
       } else {
-        elements.successScreen.classList.remove('hidden');
+        successScreen.classList.remove('hidden');
       }
 
-      state.currentStep = step;
-      updateProgressBar();
-      updateStepIndicators();
+      state.currentStep = Math.min(n, TOTAL_STEPS);
+
+      // Update progress
+      const pct = (state.currentStep / TOTAL_STEPS) * 100;
+      progressBar.style.width = pct + '%';
+
+      // Update dots
+      dots.forEach((dot, i) => {
+        const stepNum = i + 1;
+        if (stepNum < state.currentStep) {
+          dot.style.background = 'var(--green)';
+          dot.style.width = '8px';
+          dot.style.height = '8px';
+        } else if (stepNum === state.currentStep) {
+          dot.style.background = 'white';
+          dot.style.width = '20px';
+          dot.style.borderRadius = '4px';
+        } else {
+          dot.style.background = 'var(--border)';
+          dot.style.width = '8px';
+          dot.style.height = '8px';
+          dot.style.borderRadius = '50%';
+        }
+      });
+
+      // Update step counter
+      if (n <= TOTAL_STEPS) {
+        stepCounter.textContent = `Step ${n} of ${TOTAL_STEPS}`;
+        stepCounter.style.display = '';
+      } else {
+        stepCounter.style.display = 'none';
+      }
     }
 
     function startCountdown() {
-      let seconds = 60;
-      elements.countdown.textContent = seconds;
-      elements.resendCodeBtn.disabled = true;
+      clearInterval(state.countdownInterval);
+      let secs = 60;
+      const resendBtn = document.getElementById('resendCodeBtn');
+      const countdown = document.getElementById('countdown');
+      resendBtn.disabled = true;
+      countdown.textContent = secs;
 
       state.countdownInterval = setInterval(() => {
-        seconds--;
-        elements.countdown.textContent = seconds;
-
-        if (seconds <= 0) {
+        secs--;
+        countdown.textContent = secs;
+        if (secs <= 0) {
           clearInterval(state.countdownInterval);
-          elements.resendCodeBtn.disabled = false;
-          elements.resendCodeBtn.innerHTML = 'Resend code';
+          resendBtn.disabled = false;
+          resendBtn.innerHTML = 'Resend code';
         }
       }, 1000);
     }
 
-    function updateEmailStatus(verified) {
-      state.emailVerified = verified;
-      const emailInput = document.getElementById('email');
-
-      if (verified) {
-        elements.emailStatus.innerHTML = '<span class="text-green-400 flex items-center gap-1"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Email verified</span>';
-        elements.emailStatus.classList.remove('hidden');
-        elements.verifyEmailBtn.textContent = 'Verified';
-        elements.verifyEmailBtn.disabled = true;
-        elements.verifyEmailBtn.classList.add('bg-green-600', 'hover:bg-green-600');
-        elements.verifyEmailBtn.classList.remove('bg-dark-600', 'hover:bg-dark-500');
-        elements.verificationSection.classList.add('hidden');
-        emailInput.disabled = true;
-        emailInput.classList.add('bg-dark-600');
-      } else {
-        elements.emailStatus.classList.add('hidden');
-        elements.verifyEmailBtn.textContent = 'Verify Email';
-        elements.verifyEmailBtn.disabled = false;
-        elements.verifyEmailBtn.classList.remove('bg-green-600', 'hover:bg-green-600');
-        elements.verifyEmailBtn.classList.add('bg-dark-600', 'hover:bg-dark-500');
-        emailInput.disabled = false;
-        emailInput.classList.remove('bg-dark-600');
-      }
+    // ====================== PASSWORD STRENGTH ======================
+    function getPasswordStrength(pwd) {
+      if (!pwd) return 0;
+      let score = 0;
+      if (pwd.length >= 8) score++;
+      if (pwd.length >= 12) score++;
+      if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++;
+      if (/\d/.test(pwd)) score++;
+      if (/[^A-Za-z0-9]/.test(pwd)) score++;
+      if (score <= 2) return 1;
+      if (score <= 3) return 2;
+      return 3;
     }
 
-    // ====================== API CALLS ======================
-    async function registerUser() {
-      const firstName = document.getElementById('firstName').value.trim();
-      const lastName = document.getElementById('lastName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      console.log('Registering with:', { firstName, lastName, email, hasPassword: !!password });
-
-      if (!firstName || !lastName || !email || !password) {
-        throw new Error('Please fill in all fields: first name, last name, email, and password');
-      }
-
-      try {
-        const response = await fetch(`${API_BASE}/auth/register`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            full_name: `${firstName} ${lastName}`.trim(),
-            email: email,
-            password: password
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.error('Registration error:', response.status, data);
-          throw new Error(data.details || data.error || `Registration failed (${response.status})`);
-        }
-
-        state.pendingToken = data.pendingToken;
-        state.formData = { firstName, lastName, email, password };
-
-        // Store pending registration token for verification flow
-        if (data.pendingToken) {
-          localStorage.setItem('revluma_pending_token', data.pendingToken);
-        }
-
-        return data;
-      } catch (error) {
-        throw error;
-      }
-    }
-
-    async function sendVerificationCode() {
-      try {
-        const response = await fetch(`${API_BASE}/auth/send-verification`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email: state.formData.email })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to send verification code');
-        }
-
-        // Start countdown for resend button
-        startCountdown();
-
-        return data;
-      } catch (error) {
-        throw error;
-      }
-    }
-
-    async function verifyEmailCode(code) {
-      try {
-        if (!state.pendingToken) {
-          throw new Error('Missing pending registration token. Please refresh and try again.');
-        }
-
-        const response = await fetch(`${API_BASE}/auth/verify-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${state.pendingToken}`
-          },
-          body: JSON.stringify({ code })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Verification failed');
-        }
-
-        return data;
-      } catch (error) {
-        throw error;
-      }
-    }
-
-    async function updateOnboarding(step, data) {
-      try {
-        const response = await fetch(`${API_BASE}/auth/pending-registration`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${state.pendingToken}`
-          },
-          body: JSON.stringify({ step, data })
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to update onboarding');
-        }
-
-        return result;
-      } catch (error) {
-        throw error;
-      }
-    }
-
-    // ====================== VALIDATION ======================
-    function validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(email);
-    }
-
-    function validateUrl(url) {
-      try {
-        new URL(url);
-        return true;
-      } catch {
-        return false;
-      }
-    }
-
-    function validateStep1() {
-      let isValid = true;
-
-      // First Name
-      const firstName = document.getElementById('firstName').value.trim();
-      if (!firstName) {
-        showFieldError('firstName', 'First name is required');
-        isValid = false;
-      } else if (firstName.length < 1) {
-        showFieldError('firstName', 'First name is required');
-        isValid = false;
-      } else {
-        clearFieldError('firstName');
-        state.formData.firstName = firstName;
-      }
-
-      // Last Name
-      const lastName = document.getElementById('lastName').value.trim();
-      if (!lastName) {
-        showFieldError('lastName', 'Last name is required');
-        isValid = false;
-      } else if (lastName.length < 1) {
-        showFieldError('lastName', 'Last name is required');
-        isValid = false;
-      } else {
-        clearFieldError('lastName');
-        state.formData.lastName = lastName;
-      }
-
-      // Email
-      const email = document.getElementById('email').value.trim();
-      if (!email) {
-        showFieldError('email', 'Email is required');
-        isValid = false;
-      } else if (!validateEmail(email)) {
-        showFieldError('email', 'Please enter a valid email');
-        isValid = false;
-      } else {
-        clearFieldError('email');
-        state.formData.email = email;
-      }
-
-      // Password
-      const password = document.getElementById('password').value;
-      if (!password) {
-        showFieldError('password', 'Password is required');
-        isValid = false;
-      } else if (password.length < 8) {
+    document.getElementById('password').addEventListener('input', function() {
+      const strength = getPasswordStrength(this.value);
+      const bars = [
+        document.getElementById('strengthBar1'),
+        document.getElementById('strengthBar2'),
+        document.getElementById('strengthBar3')
+      ];
+      const classes = ['weak', 'medium', 'strong'];
+      bars.forEach((bar, i) => {
+        bar.className = 'strength-bar flex-1';
+        if (i < strength) bar.classList.add(classes[strength - 1]);
+      });
+      if (this.value && this.value.length < 8) {
         showFieldError('password', 'Password must be at least 8 characters');
-        isValid = false;
       } else {
         clearFieldError('password');
-        state.formData.password = password;
       }
+    });
 
-      // Confirm Password
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const passwordMatch = document.getElementById('passwordMatch');
-      if (!confirmPassword) {
-        showFieldError('confirmPassword', 'Please confirm your password');
-        isValid = false;
-        passwordMatch.classList.remove('opacity-100');
-        passwordMatch.classList.add('opacity-0');
-      } else if (confirmPassword !== password) {
-        showFieldError('confirmPassword', 'Passwords do not match');
-        isValid = false;
-        passwordMatch.classList.remove('opacity-100');
-        passwordMatch.classList.add('opacity-0');
+    // ====================== PASSWORD TOGGLE ======================
+    document.getElementById('togglePassword').addEventListener('click', () => {
+      const inp = document.getElementById('password');
+      const on = document.getElementById('eyeIcon');
+      const off = document.getElementById('eyeOffIcon');
+      if (inp.type === 'password') { inp.type = 'text'; on.classList.add('hidden'); off.classList.remove('hidden'); }
+      else { inp.type = 'password'; on.classList.remove('hidden'); off.classList.add('hidden'); }
+    });
+
+    document.getElementById('toggleConfirmPassword').addEventListener('click', () => {
+      const inp = document.getElementById('confirmPassword');
+      const on = document.getElementById('confirmEyeIcon');
+      const off = document.getElementById('confirmEyeOffIcon');
+      if (inp.type === 'password') { inp.type = 'text'; on.classList.add('hidden'); off.classList.remove('hidden'); }
+      else { inp.type = 'password'; on.classList.remove('hidden'); off.classList.add('hidden'); }
+    });
+
+    // ====================== CONFIRM PASSWORD ======================
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+      const pwd = document.getElementById('password').value;
+      const match = document.getElementById('passwordMatch');
+      if (this.value.length > 0) {
+        if (this.value === pwd && pwd.length >= 8) {
+          match.classList.remove('opacity-0'); match.classList.add('opacity-100');
+          this.classList.add('valid'); this.classList.remove('error');
+          clearFieldError('confirmPassword');
+        } else {
+          match.classList.remove('opacity-100'); match.classList.add('opacity-0');
+          this.classList.remove('valid');
+        }
       } else {
-        clearFieldError('confirmPassword');
-        passwordMatch.classList.remove('opacity-0');
-        passwordMatch.classList.add('opacity-100');
+        match.classList.add('opacity-0');
+        this.classList.remove('valid');
+      }
+    });
+
+    // ====================== VALIDATION ======================
+    function validateEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+    function validateUrl(url) { try { new URL(url); return true; } catch { return false; } }
+
+    function validateStep1() {
+      let ok = true;
+      const fn = document.getElementById('firstName').value.trim();
+      const ln = document.getElementById('lastName').value.trim();
+      const em = document.getElementById('email').value.trim();
+      const pw = document.getElementById('password').value;
+      const cpw = document.getElementById('confirmPassword').value;
+
+      if (!fn) { showFieldError('firstName', 'First name is required'); ok = false; } else clearFieldError('firstName');
+      if (!ln) { showFieldError('lastName', 'Last name is required'); ok = false; } else clearFieldError('lastName');
+      if (!em) { showFieldError('email', 'Email is required'); ok = false; }
+      else if (!validateEmail(em)) { showFieldError('email', 'Please enter a valid email'); ok = false; }
+      else clearFieldError('email');
+
+      if (!pw) { showFieldError('password', 'Password is required'); ok = false; }
+      else if (pw.length < 8) { showFieldError('password', 'Password must be at least 8 characters'); ok = false; }
+      else clearFieldError('password');
+
+      if (!cpw) { showFieldError('confirmPassword', 'Please confirm your password'); ok = false; }
+      else if (cpw !== pw) { showFieldError('confirmPassword', 'Passwords do not match'); ok = false; }
+      else clearFieldError('confirmPassword');
+
+      if (!document.getElementById('termsAccept').checked) {
+        document.getElementById('termsError').classList.remove('hidden');
+        ok = false;
+      } else {
+        document.getElementById('termsError').classList.add('hidden');
       }
 
-      return isValid;
+      if (ok) { state.formData = { ...state.formData, firstName: fn, lastName: ln, email: em, password: pw }; }
+      return ok;
     }
 
     function validateStep2() {
-      let isValid = true;
-
-      // Platform
+      let ok = true;
       const platform = document.getElementById('platform').value;
-      if (!platform) {
-        document.getElementById('platformError').textContent = 'Please select a platform';
-        document.getElementById('platformError').classList.remove('hidden');
-        isValid = false;
-      } else {
-        document.getElementById('platformError').classList.add('hidden');
-        state.formData.platform = platform;
-      }
-
-      // Store URL
       const storeUrl = document.getElementById('storeUrl').value.trim();
-      if (!storeUrl) {
-        showFieldError('storeUrl', 'Store URL is required');
-        isValid = false;
-      } else if (!validateUrl(storeUrl)) {
-        showFieldError('storeUrl', 'Please enter a valid URL');
-        isValid = false;
-      } else {
-        clearFieldError('storeUrl');
-        state.formData.storeUrl = storeUrl;
-      }
+      const category = document.getElementById('storeCategory').value;
+      const traffic = document.getElementById('monthlyTraffic').value;
 
-      // Monthly Traffic
-      const monthlyTraffic = document.getElementById('monthlyTraffic').value;
-      if (!monthlyTraffic) {
-        document.getElementById('trafficError').textContent = 'Please select your monthly traffic';
-        document.getElementById('trafficError').classList.remove('hidden');
-        isValid = false;
-      } else {
-        document.getElementById('trafficError').classList.add('hidden');
-        state.formData.monthlyTraffic = monthlyTraffic;
-      }
+      if (!platform) { document.getElementById('platformError').textContent = 'Please select your platform'; document.getElementById('platformError').classList.remove('hidden'); ok = false; }
+      else document.getElementById('platformError').classList.add('hidden');
 
-      return isValid;
+      if (!storeUrl) { showFieldError('storeUrl', 'Store URL is required'); ok = false; }
+      else if (!validateUrl(storeUrl)) { showFieldError('storeUrl', 'Please enter a valid URL (include https://)'); ok = false; }
+      else clearFieldError('storeUrl');
+
+      if (!category) { document.getElementById('categoryError').textContent = 'Please select a category'; document.getElementById('categoryError').classList.remove('hidden'); ok = false; }
+      else document.getElementById('categoryError').classList.add('hidden');
+
+      if (!traffic) { document.getElementById('trafficError').textContent = 'Please select your monthly traffic'; document.getElementById('trafficError').classList.remove('hidden'); ok = false; }
+      else document.getElementById('trafficError').classList.add('hidden');
+
+      if (ok) { state.formData.platform = platform; state.formData.storeUrl = storeUrl; state.formData.storeCategory = category; state.formData.monthlyTraffic = traffic; }
+      return ok;
     }
 
     function validateStep3() {
-      const goals = state.formData.goals;
-      if (goals.length === 0) {
-        document.getElementById('goalsError').textContent = 'Please select at least one goal';
+      if (state.formData.goals.length === 0) {
         document.getElementById('goalsError').classList.remove('hidden');
         return false;
       }
@@ -1581,7 +1213,7 @@
       return true;
     }
 
-    function validateStep5() {
+    function validateStep4() {
       const channel = document.getElementById('recoveryChannel').value;
       if (!channel) {
         document.getElementById('channelError').textContent = 'Please select a recovery channel';
@@ -1590,178 +1222,82 @@
       }
       document.getElementById('channelError').classList.add('hidden');
       state.formData.recoveryChannel = channel;
+      state.formData.monthlyRevenue = document.getElementById('monthlyRevenue').value;
       return true;
     }
 
-    // ====================== EVENT HANDLERS ======================
-    // Password toggle
-    document.getElementById('togglePassword').addEventListener('click', () => {
-      const passwordInput = document.getElementById('password');
-      const eyeIcon = document.getElementById('eyeIcon');
-      const eyeOffIcon = document.getElementById('eyeOffIcon');
-
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeIcon.classList.add('hidden');
-        eyeOffIcon.classList.remove('hidden');
-      } else {
-        passwordInput.type = 'password';
-        eyeIcon.classList.remove('hidden');
-        eyeOffIcon.classList.add('hidden');
-      }
-    });
-
-    // Confirm Password toggle
-    document.getElementById('toggleConfirmPassword').addEventListener('click', () => {
-      const confirmPasswordInput = document.getElementById('confirmPassword');
-      const eyeIcon = document.getElementById('confirmEyeIcon');
-      const eyeOffIcon = document.getElementById('confirmEyeOffIcon');
-
-      if (confirmPasswordInput.type === 'password') {
-        confirmPasswordInput.type = 'text';
-        eyeIcon.classList.add('hidden');
-        eyeOffIcon.classList.remove('hidden');
-      } else {
-        confirmPasswordInput.type = 'password';
-        eyeIcon.classList.remove('hidden');
-        eyeOffIcon.classList.add('hidden');
-      }
-    });
-
-    // Real-time password match validation
-    document.getElementById('confirmPassword').addEventListener('input', () => {
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const confirmPasswordInput = document.getElementById('confirmPassword');
-      const confirmPasswordError = document.getElementById('confirmPasswordError');
-      const passwordMatch = document.getElementById('passwordMatch');
-
-      if (confirmPassword.length > 0) {
-        if (confirmPassword === password && password.length >= 8) {
-          confirmPasswordError.classList.add('hidden');
-          passwordMatch.classList.remove('opacity-0');
-          passwordMatch.classList.add('opacity-100');
-          confirmPasswordInput.style.borderColor = 'var(--green)';
-        } else {
-          passwordMatch.classList.remove('opacity-100');
-          passwordMatch.classList.add('opacity-0');
-          confirmPasswordInput.style.borderColor = '';
-        }
-      } else {
-        passwordMatch.classList.remove('opacity-100');
-        passwordMatch.classList.add('opacity-0');
-        confirmPasswordInput.style.borderColor = '';
-      }
-    });
-
-    // Verify email button - No longer used (verification moved to step 6)
-    if (elements.verifyEmailBtn) {
-      elements.verifyEmailBtn.addEventListener('click', async () => {
-        const email = document.getElementById('email').value.trim();
-
-        if (!email) {
-          showFieldError('email', 'Please enter your email first');
-          return;
-        }
-
-        if (!validateEmail(email)) {
-          showFieldError('email', 'Please enter a valid email');
-          return;
-        }
-
-        // First, register the user if not already registered
-        if (!state.token) {
-          showLoading('Creating your account...');
-          try {
-            await registerUser();
-            hideLoading();
-
-            // Subscribe to newsletter if opted in
-            const newsletterCheckbox = document.getElementById('newsletterOptIn');
-            if (newsletterCheckbox && newsletterCheckbox.checked) {
-              fetch(`${API_BASE}/newsletter/subscribe`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: state.formData.email })
-              }).catch(() => { }); // Fire-and-forget; newsletter is optional
-            }
-          } catch (error) {
-            hideLoading();
-            showError(error.message);
-            return;
-          }
-        }
-
-        // Show verification section
-        elements.verificationSection.classList.remove('hidden');
-        elements.verifyEmailBtn.textContent = 'Code sent';
-        elements.verifyEmailBtn.disabled = true;
-
-        // Start countdown
-        startCountdown();
-
-        showSuccess('Verification code sent to your email');
+    // ====================== API CALLS ======================
+    async function registerUser() {
+      const { firstName, lastName, email, password } = state.formData;
+      const response = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: `${firstName} ${lastName}`.trim(), email, password })
       });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.details || data.error || `Registration failed (${response.status})`);
+      state.pendingToken = data.pendingToken;
+      if (data.pendingToken) localStorage.setItem('revluma_pending_token', data.pendingToken);
+      return data;
     }
 
-    // Submit verification code
-    elements.submitCodeBtn.addEventListener('click', async () => {
-      const code = elements.verificationCode.value.trim();
+    async function sendVerificationCode() {
+      const response = await fetch(`${API_BASE}/auth/send-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: state.formData.email })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to send verification code');
+      startCountdown();
+      return data;
+    }
 
-      if (!code) {
-        document.getElementById('codeError').textContent = 'Please enter the verification code';
-        document.getElementById('codeError').classList.remove('hidden');
-        return;
-      }
+    async function verifyEmailCode(code) {
+      if (!state.pendingToken) throw new Error('Missing token. Please refresh and try again.');
+      const response = await fetch(`${API_BASE}/auth/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.pendingToken}` },
+        body: JSON.stringify({ code })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Verification failed');
+      return data;
+    }
 
-      if (code.length !== 6) {
-        document.getElementById('codeError').textContent = 'Code must be 6 digits';
-        document.getElementById('codeError').classList.remove('hidden');
-        return;
-      }
+    async function updateOnboarding(step, payload) {
+      const response = await fetch(`${API_BASE}/auth/pending-registration`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.pendingToken}` },
+        body: JSON.stringify({ step, data: payload })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Failed to update onboarding');
+      return result;
+    }
 
-      showLoading('Verifying code...');
-      try {
-        await verifyEmailCode(code);
-        hideLoading();
-        state.emailVerified = true;
-        showSuccess('Email verified successfully!');
-        // Show success screen after successful verification
-        showStep(7);
-      } catch (error) {
-        hideLoading();
-        document.getElementById('codeError').textContent = error.message;
-        document.getElementById('codeError').classList.remove('hidden');
-      }
-    });
-
-    // Resend code button
-    elements.resendCodeBtn.addEventListener('click', async () => {
-      if (elements.resendCodeBtn.disabled) return;
-
-      showLoading('Sending new code...');
-      try {
-        const result = await sendVerificationCode();
-        hideLoading();
-        startCountdown();
-        showSuccess('New verification code sent');
-      } catch (error) {
-        hideLoading();
-        showError(error.message);
-      }
-    });
-
-    // Platform selection
+    // ====================== SELECTION HANDLERS ======================
+    // Platform
     document.querySelectorAll('[data-platform]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-platform]').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         document.getElementById('platform').value = btn.dataset.platform;
-        clearFieldError('platform');
+        document.getElementById('platformError').classList.add('hidden');
       });
     });
 
-    // Traffic selection
+    // Store Category
+    document.querySelectorAll('[data-category]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-category]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('storeCategory').value = btn.dataset.category;
+        document.getElementById('categoryError').classList.add('hidden');
+      });
+    });
+
+    // Traffic
     document.querySelectorAll('[data-traffic]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-traffic]').forEach(b => b.classList.remove('selected'));
@@ -1771,26 +1307,21 @@
       });
     });
 
-    // Goals selection (multi-select)
+    // Goals (multi-select)
     document.querySelectorAll('[data-goal]').forEach(btn => {
       btn.addEventListener('click', () => {
         btn.classList.toggle('selected');
-        const checkIcon = btn.querySelector('.goal-check svg');
-        checkIcon.classList.toggle('hidden');
-
+        const icon = btn.querySelector('.goal-check-icon');
+        if (icon) icon.classList.toggle('hidden');
         const goal = btn.dataset.goal;
-        const index = state.formData.goals.indexOf(goal);
-        if (index > -1) {
-          state.formData.goals.splice(index, 1);
-        } else {
-          state.formData.goals.push(goal);
-        }
-
+        const idx = state.formData.goals.indexOf(goal);
+        if (idx > -1) state.formData.goals.splice(idx, 1);
+        else state.formData.goals.push(goal);
         document.getElementById('goalsError').classList.add('hidden');
       });
     });
 
-    // Revenue selection
+    // Revenue
     document.querySelectorAll('[data-revenue]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-revenue]').forEach(b => b.classList.remove('selected'));
@@ -1799,122 +1330,113 @@
       });
     });
 
-    // Recovery channel selection
+    // Recovery Channel
     document.querySelectorAll('[data-channel]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-channel]').forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('[data-channel]').forEach(b => {
+          b.classList.remove('selected');
+          const icon = b.querySelector('.channel-check-icon');
+          if (icon) icon.classList.add('hidden');
+        });
         btn.classList.add('selected');
-        const checkIcon = btn.querySelector('.channel-check svg');
-        checkIcon.classList.remove('hidden');
+        const icon = btn.querySelector('.channel-check-icon');
+        if (icon) icon.classList.remove('hidden');
         document.getElementById('recoveryChannel').value = btn.dataset.channel;
         document.getElementById('channelError').classList.add('hidden');
       });
     });
 
-    // Form submissions
+    // ====================== FORM SUBMISSIONS ======================
     document.getElementById('step1Form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!validateStep1()) return;
-
       showLoading('Creating your account...');
       try {
         await registerUser();
+        // Newsletter fire-and-forget
+        if (document.getElementById('newsletterOptIn').checked) {
+          fetch(`${API_BASE}/newsletter/subscribe`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: state.formData.email })
+          }).catch(() => {});
+        }
         hideLoading();
         showStep(2);
-      } catch (error) {
-        hideLoading();
-        showError(error.message);
-      }
+      } catch (err) { hideLoading(); showError(err.message); }
     });
 
     document.getElementById('step2Form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!validateStep2()) return;
-
-      showLoading('Saving business info...');
+      showLoading('Saving store info...');
       try {
         await updateOnboarding(2, {
           platform: state.formData.platform,
           store_url: state.formData.storeUrl,
+          store_category: state.formData.storeCategory,
           monthly_traffic: state.formData.monthlyTraffic
         });
         hideLoading();
         showStep(3);
-      } catch (error) {
-        hideLoading();
-        showError(error.message);
-      }
+      } catch (err) { hideLoading(); showError(err.message); }
     });
 
     document.getElementById('step3Form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!validateStep3()) return;
-
       showLoading('Saving your goals...');
       try {
-        await updateOnboarding(3, {
-          goals: state.formData.goals
-        });
+        await updateOnboarding(3, { goals: state.formData.goals });
         hideLoading();
         showStep(4);
-      } catch (error) {
-        hideLoading();
-        showError(error.message);
-      }
+      } catch (err) { hideLoading(); showError(err.message); }
     });
 
     document.getElementById('step4Form').addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const revenue = document.getElementById('monthlyRevenue').value;
-      state.formData.monthlyRevenue = revenue;
-
-      showLoading('Saving revenue info...');
-      try {
-        await updateOnboarding(4, {
-          monthly_revenue: revenue || null
-        });
-        hideLoading();
-        showStep(5);
-      } catch (error) {
-        hideLoading();
-        showError(error.message);
-      }
-    });
-
-    document.getElementById('step4Skip').addEventListener('click', async () => {
-      showLoading('Continuing...');
-      try {
-        await updateOnboarding(4, {
-          monthly_revenue: null
-        });
-        hideLoading();
-        showStep(5);
-      } catch (error) {
-        hideLoading();
-        showError(error.message);
-      }
-    });
-
-    document.getElementById('step5Form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!validateStep5()) return;
-
+      if (!validateStep4()) return;
       showLoading('Finalizing setup...');
       try {
-        await updateOnboarding(5, {
+        await updateOnboarding(4, {
+          monthly_revenue: state.formData.monthlyRevenue || null,
           preferred_recovery_channel: state.formData.recoveryChannel
         });
-        
-        // Send verification email after completing setup
         await sendVerificationCode();
-        
         hideLoading();
-        showStep(6); // Go to verification step
-      } catch (error) {
+        // Update email display
+        document.getElementById('emailDisplay').textContent = state.formData.email;
+        showStep(5);
+      } catch (err) { hideLoading(); showError(err.message); }
+    });
+
+    // Verify code
+    document.getElementById('submitCodeBtn').addEventListener('click', async () => {
+      const code = document.getElementById('verificationCode').value.trim();
+      const codeError = document.getElementById('codeError');
+      if (!code) { codeError.textContent = 'Please enter the verification code'; codeError.classList.remove('hidden'); return; }
+      if (code.length !== 6) { codeError.textContent = 'Code must be 6 digits'; codeError.classList.remove('hidden'); return; }
+      showLoading('Verifying...');
+      try {
+        await verifyEmailCode(code);
         hideLoading();
-        showError(error.message);
+        state.emailVerified = true;
+        showStep(6); // success screen
+      } catch (err) {
+        hideLoading();
+        codeError.textContent = err.message;
+        codeError.classList.remove('hidden');
       }
+    });
+
+    // Resend code
+    document.getElementById('resendCodeBtn').addEventListener('click', async () => {
+      if (document.getElementById('resendCodeBtn').disabled) return;
+      showLoading('Sending new code...');
+      try {
+        await sendVerificationCode();
+        hideLoading();
+        showSuccess('New verification code sent');
+      } catch (err) { hideLoading(); showError(err.message); }
     });
 
     // Back buttons
@@ -1922,90 +1444,48 @@
     document.getElementById('step3Back').addEventListener('click', () => showStep(2));
     document.getElementById('step4Back').addEventListener('click', () => showStep(3));
     document.getElementById('step5Back').addEventListener('click', () => showStep(4));
-    document.getElementById('step6Back').addEventListener('click', () => showStep(5));
 
-    // Input focus effects
-    document.querySelectorAll('.input-field').forEach(input => {
-      input.addEventListener('focus', () => {
-        input.parentElement.classList.add('ring-2', 'ring-white/20');
-      });
-      input.addEventListener('blur', () => {
-        input.parentElement.classList.remove('ring-2', 'ring-white/20');
-      });
+    // URL blur validation
+    document.getElementById('storeUrl').addEventListener('blur', function() {
+      if (this.value && !validateUrl(this.value)) showFieldError('storeUrl', 'Please enter a valid URL (include https://)');
+      else if (this.value) clearFieldError('storeUrl');
     });
 
-    // Real-time validation
-    document.getElementById('email').addEventListener('blur', function () {
-      if (this.value && !validateEmail(this.value)) {
-        showFieldError('email', 'Please enter a valid email');
-      } else if (this.value) {
-        clearFieldError('email');
-      }
+    // Email blur validation
+    document.getElementById('email').addEventListener('blur', function() {
+      if (this.value && !validateEmail(this.value)) showFieldError('email', 'Please enter a valid email');
+      else if (this.value) clearFieldError('email');
     });
 
-    document.getElementById('password').addEventListener('input', function () {
-      if (this.value && this.value.length < 8) {
-        showFieldError('password', 'Password must be at least 8 characters');
-      } else if (this.value) {
-        clearFieldError('password');
-      }
-    });
-
-    document.getElementById('storeUrl').addEventListener('blur', function () {
-      if (this.value && !validateUrl(this.value)) {
-        showFieldError('storeUrl', 'Please enter a valid URL');
-      } else if (this.value) {
-        clearFieldError('storeUrl');
-      }
-    });
-
-    // ====================== INITIALIZATION ======================
-    // Check if user is already logged in
+    // ====================== INIT ======================
     const existingToken = localStorage.getItem('revluma_token');
-    const validExistingToken = existingToken && existingToken !== 'undefined' && existingToken !== 'null';
-    if (validExistingToken) {
-      // Verify token and redirect if valid
-      fetch(`${API_BASE}/auth/me`, {
-        headers: { 'Authorization': `Bearer ${existingToken}` }
-      })
-        .then(res => res.json())
+    if (existingToken && existingToken !== 'undefined' && existingToken !== 'null') {
+      fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${existingToken}` } })
+        .then(r => r.json())
         .then(data => {
           if (data.user) {
-            // User exists, check onboarding status
             if (data.user.onboarding_status === 'completed') {
               window.location.href = '../index.html';
             } else {
-              // Resume onboarding
               state.token = existingToken;
               state.user = data.user;
-              state.emailVerified = data.user.email_verified;
-
-              // Update email status UI
-              if (state.emailVerified) {
-                updateEmailStatus(true);
-              }
-
-              // Determine which step to show
-              const status = data.user.onboarding_status;
-              if (status === 'started') showStep(1);
-              else if (status === 'step1') showStep(2);
-              else if (status === 'step2') showStep(3);
-              else if (status === 'step3') showStep(4);
-              else if (status === 'step4') showStep(5);
+              const s = data.user.onboarding_status;
+              if (s === 'started') showStep(1);
+              else if (s === 'step1') showStep(2);
+              else if (s === 'step2') showStep(3);
+              else if (s === 'step3') showStep(4);
+              else if (s === 'step4') showStep(5);
               else showStep(1);
             }
           }
         })
         .catch(() => {
-          // Token invalid, clear it
           localStorage.removeItem('revluma_token');
           localStorage.removeItem('revluma_user');
         });
     }
 
-    // Show initial step
     showStep(1);
   </script>
 </body>
-
 </html>
