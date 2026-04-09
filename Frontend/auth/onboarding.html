@@ -1386,9 +1386,9 @@
         const response = await fetch(`${API_BASE}/auth/send-verification`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${state.token}`
-          }
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: state.formData.email })
         });
 
         const data = await response.json();

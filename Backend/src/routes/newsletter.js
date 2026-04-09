@@ -118,6 +118,7 @@ function renderHTMLPage(title, message, isSuccess) {
  * Public endpoint — subscribe an email with double opt-in
  */
 router.post('/subscribe', subscribeLimiter, async (req, res) => {
+  console.log('newsletter subscribe request body:', req.body);
   try {
     const { email } = req.body;
 
@@ -137,6 +138,7 @@ router.post('/subscribe', subscribeLimiter, async (req, res) => {
     return res.status(result.status).json({ message: result.message });
 
   } catch (err) {
+    console.error('Subscribe route error:', err.message, { error: err.message, stack: err.stack });
     logger.error('Subscribe route error', { error: err.message, stack: err.stack });
     return res.status(500).json({ error: 'An internal error occurred. Please try again.' });
   }
