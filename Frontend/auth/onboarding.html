@@ -646,8 +646,8 @@
 
             <!-- Submit Button -->
             <button type="submit" id="step1Submit"
-              class="btn-primary w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              style="background: var(--text); color: var(--bg);" disabled>
+              class="btn-primary w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
+              style="background: var(--text); color: var(--bg);">
               <span>Continue</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1310,7 +1310,6 @@
         elements.verificationSection.classList.add('hidden');
         emailInput.disabled = true;
         emailInput.classList.add('bg-dark-600');
-        elements.step1Submit.disabled = false;
       } else {
         elements.emailStatus.classList.add('hidden');
         elements.verifyEmailBtn.textContent = 'Verify Email';
@@ -1319,7 +1318,6 @@
         elements.verifyEmailBtn.classList.add('bg-dark-600', 'hover:bg-dark-500');
         emailInput.disabled = false;
         emailInput.classList.remove('bg-dark-600');
-        elements.step1Submit.disabled = true;
       }
     }
 
@@ -1500,12 +1498,6 @@
       } else {
         clearFieldError('email');
         state.formData.email = email;
-      }
-
-      // Email verification
-      if (!state.emailVerified) {
-        showError('Please verify your email address');
-        isValid = false;
       }
 
       // Password
