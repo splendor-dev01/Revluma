@@ -437,6 +437,7 @@ router.post('/register', async (req, res) => {
 
 // SEND EMAIL VERIFICATION CODE - Public endpoint
 router.post('/send-verification', async (req, res) => {
+  console.log('send-verification body:', req.body);
   const { email } = req.body;
 
   if (!email || typeof email !== 'string' || !email.includes('@')) {
