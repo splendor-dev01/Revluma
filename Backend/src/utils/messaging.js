@@ -183,9 +183,9 @@ async function sendWelcomeEmail(toEmail, userName) {
     logger.info('Welcome email sent successfully', { toEmail });
     return true;
   } catch (error) {
-    logger.error('Failed to send welcome email', { 
-      error: error.message, 
-      toEmail 
+    logger.error('Failed to send welcome email', {
+      error: error.message,
+      toEmail
     });
     // Don't throw error for welcome email - it's not critical
     return false;
@@ -216,9 +216,9 @@ async function sendVerificationSMS(phoneNumber, code) {
     logger.info('Verification SMS sent successfully', { phoneNumber });
     return true;
   } catch (error) {
-    logger.error('Failed to send verification SMS', { 
-      error: error.message, 
-      phoneNumber 
+    logger.error('Failed to send verification SMS', {
+      error: error.message,
+      phoneNumber
     });
     throw new Error('Failed to send verification SMS');
   }
@@ -248,9 +248,9 @@ async function sendVerificationWhatsApp(phoneNumber, code) {
     logger.info('Verification WhatsApp sent successfully', { phoneNumber });
     return true;
   } catch (error) {
-    logger.error('Failed to send verification WhatsApp', { 
-      error: error.message, 
-      phoneNumber 
+    logger.error('Failed to send verification WhatsApp', {
+      error: error.message,
+      phoneNumber
     });
     throw new Error('Failed to send verification WhatsApp');
   }
@@ -359,10 +359,10 @@ async function sendRecoveryEmail(toEmail, cartData, touchNumber = 1) {
     logger.info('Recovery email sent successfully', { toEmail, touchNumber });
     return true;
   } catch (error) {
-    logger.error('Failed to send recovery email', { 
-      error: error.message, 
+    logger.error('Failed to send recovery email', {
+      error: error.message,
       toEmail,
-      touchNumber 
+      touchNumber
     });
     throw new Error('Failed to send recovery email');
   }
@@ -400,10 +400,10 @@ async function sendRecoveryWhatsApp(phoneNumber, cartData, touchNumber = 1) {
     logger.info('Recovery WhatsApp sent successfully', { phoneNumber, touchNumber });
     return true;
   } catch (error) {
-    logger.error('Failed to send recovery WhatsApp', { 
-      error: error.message, 
+    logger.error('Failed to send recovery WhatsApp', {
+      error: error.message,
       phoneNumber,
-      touchNumber 
+      touchNumber
     });
     throw new Error('Failed to send recovery WhatsApp');
   }
@@ -485,9 +485,9 @@ ${FROM_NAME} Team`,
     logger.info('Password reset email sent', { toEmail });
     return true;
   } catch (error) {
-    logger.error('Failed to send password reset email', { 
-      error: error.message, 
-      toEmail 
+    logger.error('Failed to send password reset email', {
+      error: error.message,
+      toEmail
     });
     throw new Error('Failed to send password reset email');
   }
