@@ -289,6 +289,11 @@ router.post('/register', async (req, res) => {
           email: normalizedEmail,
           correlationId
         });
+
+        return res.status(502).json({
+          error: 'Unable to send verification email. Please try again later.',
+          correlationId
+        });
       }
     }
 
@@ -350,12 +355,16 @@ router.post('/register', async (req, res) => {
     try {
       await sendVerificationEmail(normalizedEmail, otp, resolvedFirstName);
     } catch (emailErr) {
-      logger.error('Failed to send verification email, but registration continues', {
+      logger.error('Failed to send verification email', {
         error: emailErr.message,
         email: normalizedEmail,
         correlationId
       });
-      // Don't fail registration if email send fails - user can request resend
+
+      return res.status(502).json({
+        error: 'Unable to send verification email. Please try again later.',
+        correlationId
+      });
     }
 
     const pendingToken = createPendingToken(pendingRegistration.id, normalizedEmail);

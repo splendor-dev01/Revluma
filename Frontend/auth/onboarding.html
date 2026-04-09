@@ -1,31 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="../assets/images/Revluma-icon.png"></link>
+  <link rel="icon" href="../assets/images/Revluma-icon.png">
+  </link>
   <title>Revluma - Create Your Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
+    rel="stylesheet">
   <style>
     :root {
-      --bg:       #060608;
-      --surface:  rgba(255,255,255,0.028);
-      --border:   rgba(255,255,255,0.07);
-      --border-focus: rgba(255,255,255,0.22);
-      --text:     #f0f0f5;
-      --muted:    #5a5a72;
-      --muted2:   #3a3a50;
-      --accent:   #7c6fff;
-      --red:      #f87171;
-      --green:    #34d399;
+      --bg: #060608;
+      --surface: rgba(255, 255, 255, 0.028);
+      --border: rgba(255, 255, 255, 0.07);
+      --border-focus: rgba(255, 255, 255, 0.22);
+      --text: #f0f0f5;
+      --muted: #5a5a72;
+      --muted2: #3a3a50;
+      --accent: #7c6fff;
+      --red: #f87171;
+      --green: #34d399;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    html, body {
+    html,
+    body {
       height: 100%;
       font-family: 'DM Sans', system-ui, sans-serif;
       background: var(--bg);
@@ -40,6 +51,7 @@
         width: 100% !important;
         max-width: 100% !important;
       }
+
       .verification-section {
         transform: scale(0.85);
         transform-origin: top center;
@@ -50,13 +62,16 @@
     ::-webkit-scrollbar {
       width: 6px;
     }
+
     ::-webkit-scrollbar-track {
       background: #0a0a0a;
     }
+
     ::-webkit-scrollbar-thumb {
       background: #333;
       border-radius: 3px;
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: #555;
     }
@@ -71,6 +86,7 @@
         opacity: 0;
         transform: translateY(10px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -82,6 +98,7 @@
         opacity: 0;
         transform: translateX(20px);
       }
+
       to {
         opacity: 1;
         transform: translateX(0);
@@ -121,6 +138,7 @@
         opacity: 0;
         transform: scale(0.9);
       }
+
       to {
         opacity: 1;
         transform: scale(1);
@@ -128,7 +146,8 @@
     }
 
     /* Password toggle button hover */
-    #togglePassword:hover, #toggleConfirmPassword:hover {
+    #togglePassword:hover,
+    #toggleConfirmPassword:hover {
       color: var(--text) !important;
     }
 
@@ -203,20 +222,23 @@
       left: -100%;
       width: 300%;
       height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255,255,255,0.3) 25%,
-        rgba(255,255,255,0.5) 50%,
-        rgba(255,255,255,0.3) 75%,
-        transparent 100%
-      );
+      background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.3) 25%,
+          rgba(255, 255, 255, 0.5) 50%,
+          rgba(255, 255, 255, 0.3) 75%,
+          transparent 100%);
       animation: oceanWave 3s linear infinite;
     }
 
     @keyframes oceanWave {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(33.33%); }
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(33.33%);
+      }
     }
 
     /* Add subtle grain and glow like login page */
@@ -237,7 +259,7 @@
       height: 500px;
       top: -160px;
       left: -160px;
-      background: radial-gradient(circle, rgba(124,111,255,0.055) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(124, 111, 255, 0.055) 0%, transparent 70%);
       border-radius: 50%;
       filter: blur(100px);
       pointer-events: none;
@@ -250,7 +272,7 @@
       height: 400px;
       bottom: -100px;
       right: -100px;
-      background: radial-gradient(circle, rgba(255,255,255,0.025) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.025) 0%, transparent 70%);
       border-radius: 50%;
       filter: blur(100px);
       pointer-events: none;
@@ -263,15 +285,30 @@
     }
 
     @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     /* Error shake */
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      75% {
+        transform: translateX(5px);
+      }
     }
 
     .shake {
@@ -351,49 +388,59 @@
 
     /* Logo mark styling */
     .logo-mark {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 56px;
-        height: 56px;
-        flex-shrink: 0;
-        animation: logoFloat 5s ease-in-out infinite;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      animation: logoFloat 5s ease-in-out infinite;
     }
+
     .logo-mark img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        border-radius: 12px;
-        display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+      display: block;
     }
+
     @keyframes logoFloat {
-        0%, 100% { transform: translateY(0); }
-        50%       { transform: translateY(-3px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-3px);
+      }
     }
 
     .logo-name-wrap {
-        overflow: hidden;
-        display: inline-flex;
-        align-items: center;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
     }
 
     .logo-name {
-        display: inline-block;
-        opacity: 0;
-        transform: translateX(-24px);
-        animation: slideNameIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        animation-delay: 0.5s;
+      display: inline-block;
+      opacity: 0;
+      transform: translateX(-24px);
+      animation: slideNameIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      animation-delay: 0.5s;
     }
 
     @keyframes slideNameIn {
-        0% {
-            opacity: 0;
-            transform: translateX(-24px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateX(0);
-        }
+      0% {
+        opacity: 0;
+        transform: translateX(-24px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
   </style>
   <script>
@@ -414,6 +461,7 @@
     }
   </script>
 </head>
+
 <body class="min-h-screen" style="background: var(--bg); color: var(--text);">
   <!-- Glow effects -->
   <div class="glow-1"></div>
@@ -422,20 +470,19 @@
   <div class="min-h-screen flex flex-col" style="position: relative; z-index: 1;">
     <!-- Progress Bar -->
     <div class="w-full h-1" style="background: rgba(255,255,255,0.1);">
-      <div id="progressBar" class="progress-bar h-full" style="width: 20%; background: linear-gradient(90deg, #f0f0f5, #ffffff);"></div>
+      <div id="progressBar" class="progress-bar h-full"
+        style="width: 20%; background: linear-gradient(90deg, #f0f0f5, #ffffff);"></div>
     </div>
 
     <!-- Logo & Branding -->
     <div class="flex justify-center items-center py-6 px-4">
       <a href="../index.html" class="logo-container flex items-center gap-3">
         <div class="logo-mark">
-          <img 
-            src="../assets/images/Revluma-logo.png" 
-            alt="Revluma Logo" 
-          >
+          <img src="../assets/images/Revluma-logo.png" alt="Revluma Logo">
         </div>
         <div class="logo-name-wrap">
-          <span class="logo-name text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Revluma</span>
+          <span
+            class="logo-name text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Revluma</span>
         </div>
       </a>
     </div>
@@ -443,27 +490,37 @@
     <!-- Step Indicators -->
     <div class="flex justify-center items-center gap-2 pb-6 px-4">
       <div class="step-indicator flex items-center gap-2">
-        <div id="step1Indicator" class="w-8 h-8 rounded-full bg-white text-dark-900 flex items-center justify-center text-sm font-semibold">1</div>
+        <div id="step1Indicator"
+          class="w-8 h-8 rounded-full bg-white text-dark-900 flex items-center justify-center text-sm font-semibold">1
+        </div>
         <span class="text-sm text-gray-400 hidden sm:inline">Account</span>
       </div>
       <div class="w-8 h-px bg-dark-600"></div>
       <div class="step-indicator flex items-center gap-2">
-        <div id="step2Indicator" class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">2</div>
+        <div id="step2Indicator"
+          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
+          2</div>
         <span class="text-sm text-gray-400 hidden sm:inline">Business</span>
       </div>
       <div class="w-8 h-px bg-dark-600"></div>
       <div class="step-indicator flex items-center gap-2">
-        <div id="step3Indicator" class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">3</div>
+        <div id="step3Indicator"
+          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
+          3</div>
         <span class="text-sm text-gray-400 hidden sm:inline">Goals</span>
       </div>
       <div class="w-8 h-px bg-dark-600"></div>
       <div class="step-indicator flex items-center gap-2">
-        <div id="step4Indicator" class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">4</div>
+        <div id="step4Indicator"
+          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
+          4</div>
         <span class="text-sm text-gray-400 hidden sm:inline">Revenue</span>
       </div>
       <div class="w-8 h-px bg-dark-600"></div>
       <div class="step-indicator flex items-center gap-2">
-        <div id="step5Indicator" class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">5</div>
+        <div id="step5Indicator"
+          class="w-8 h-8 rounded-full bg-dark-600 text-gray-400 flex items-center justify-center text-sm font-semibold">
+          5</div>
         <span class="text-sm text-gray-400 hidden sm:inline">Recovery</span>
       </div>
     </div>
@@ -482,52 +539,35 @@
             <!-- First Name & Last Name -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label for="firstName" class="block text-sm font-medium mb-2" style="color: var(--muted);">First Name</label>
-                <input 
-                  type="text" 
-                  id="firstName" 
-                  name="firstName"
+                <label for="firstName" class="block text-sm font-medium mb-2" style="color: var(--muted);">First
+                  Name</label>
+                <input type="text" id="firstName" name="firstName"
                   class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
-                  style="background: var(--surface); border: 1px solid var(--border);"
-                  placeholder="John"
-                  required
-                >
+                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="John" required>
                 <p id="firstNameError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
               </div>
               <div>
-                <label for="lastName" class="block text-sm font-medium mb-2" style="color: var(--muted);">Last Name</label>
-                <input 
-                  type="text" 
-                  id="lastName" 
-                  name="lastName"
+                <label for="lastName" class="block text-sm font-medium mb-2" style="color: var(--muted);">Last
+                  Name</label>
+                <input type="text" id="lastName" name="lastName"
                   class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
-                  style="background: var(--surface); border: 1px solid var(--border);"
-                  placeholder="Doe"
-                  required
-                >
+                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="Doe" required>
                 <p id="lastNameError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
               </div>
             </div>
 
             <!-- Email -->
             <div>
-              <label for="email" class="block text-sm font-medium mb-2" style="color: var(--muted);">Email Address</label>
+              <label for="email" class="block text-sm font-medium mb-2" style="color: var(--muted);">Email
+                Address</label>
               <div class="flex gap-2">
-                <input 
-                  type="email" 
-                  id="email" 
-                  name="email"
+                <input type="email" id="email" name="email"
                   class="input-field flex-1 px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none"
-                  style="background: var(--surface); border: 1px solid var(--border);"
-                  placeholder="john@example.com"
-                  required
-                >
-                <button 
-                  type="button" 
-                  id="verifyEmailBtn"
+                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="john@example.com"
+                  required>
+                <button type="button" id="verifyEmailBtn"
                   class="px-4 py-3 rounded-lg font-semibold whitespace-nowrap transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  style="background: var(--surface); border: 1px solid var(--border); color: var(--text);"
-                >
+                  style="background: var(--surface); border: 1px solid var(--border); color: var(--text);">
                   Verify Email
                 </button>
               </div>
@@ -537,36 +577,25 @@
 
             <!-- Email Verification Code (Hidden by default) -->
             <div id="verificationSection" class="hidden verification-section">
-              <label for="verificationCode" class="block text-sm font-medium mb-2" style="color: var(--muted);">Verification Code</label>
+              <label for="verificationCode" class="block text-sm font-medium mb-2"
+                style="color: var(--muted);">Verification Code</label>
               <div class="flex gap-2 flex-wrap sm:flex-nowrap">
-                <input 
-                  type="text" 
-                  id="verificationCode" 
-                  name="verificationCode"
-                  maxlength="6"
+                <input type="text" id="verificationCode" name="verificationCode" maxlength="6"
                   class="input-field code-input flex-1 px-3 py-2.5 rounded-lg text-white placeholder-gray-500 focus:outline-none text-center text-lg tracking-widest"
                   style="background: var(--surface); border: 1px solid var(--border); min-width: 120px;"
-                  placeholder="000000"
-                >
-                <button 
-                  type="button" 
-                  id="submitCodeBtn"
+                  placeholder="000000">
+                <button type="button" id="submitCodeBtn"
                   class="px-3 py-2.5 rounded-lg font-semibold whitespace-nowrap text-sm"
-                  style="background: var(--text); color: var(--bg);"
-                >
+                  style="background: var(--text); color: var(--bg);">
                   Verify
                 </button>
               </div>
               <p id="codeError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
               <div class="flex items-center justify-between mt-2 gap-2 flex-wrap">
                 <p class="text-xs" style="color: var(--muted2);">Expires in 15 min</p>
-                <button 
-                  type="button" 
-                  id="resendCodeBtn"
+                <button type="button" id="resendCodeBtn"
                   class="text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  style="color: var(--muted);"
-                  disabled
-                >
+                  style="color: var(--muted);" disabled>
                   Resend code (<span id="countdown" class="countdown">60</span>s)
                 </button>
               </div>
@@ -576,27 +605,22 @@
             <div>
               <label for="password" class="block text-sm font-medium mb-2" style="color: var(--muted);">Password</label>
               <div class="relative">
-                <input 
-                  type="password" 
-                  id="password" 
-                  name="password"
+                <input type="password" id="password" name="password"
                   class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none pr-12"
-                  style="background: var(--surface); border: 1px solid var(--border);"
-                  placeholder="••••••••"
-                  required
-                >
-                <button 
-                  type="button" 
-                  id="togglePassword"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style="color: var(--muted2);"
-                >
+                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="••••••••" required>
+                <button type="button" id="togglePassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--muted2);">
                   <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                    </path>
                   </svg>
                   <svg id="eyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                    </path>
                   </svg>
                 </button>
               </div>
@@ -606,36 +630,35 @@
 
             <!-- Confirm Password -->
             <div>
-              <label for="confirmPassword" class="block text-sm font-medium mb-2" style="color: var(--muted);">Confirm Password</label>
+              <label for="confirmPassword" class="block text-sm font-medium mb-2" style="color: var(--muted);">Confirm
+                Password</label>
               <div class="relative">
-                <input 
-                  type="password" 
-                  id="confirmPassword" 
-                  name="confirmPassword"
+                <input type="password" id="confirmPassword" name="confirmPassword"
                   class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none pr-12"
-                  style="background: var(--surface); border: 1px solid var(--border);"
-                  placeholder="••••••••"
-                  required
-                >
-                <button 
-                  type="button" 
-                  id="toggleConfirmPassword"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style="color: var(--muted2);"
-                >
+                  style="background: var(--surface); border: 1px solid var(--border);" placeholder="••••••••" required>
+                <button type="button" id="toggleConfirmPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--muted2);">
                   <svg id="confirmEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                    </path>
                   </svg>
-                  <svg id="confirmEyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                  <svg id="confirmEyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                    </path>
                   </svg>
                 </button>
               </div>
               <p id="confirmPasswordError" class="text-sm mt-1 hidden" style="color: var(--red);"></p>
               <div id="passwordMatch" class="flex items-center gap-2 mt-2 opacity-0 transition-opacity duration-300">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style="color: var(--green);">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"></path>
                 </svg>
                 <span class="text-xs" style="color: var(--green);">Passwords match</span>
               </div>
@@ -644,17 +667,14 @@
             <!-- Newsletter Opt-in -->
             <label class="flex items-center gap-2.5 cursor-pointer select-none">
               <input type="checkbox" id="newsletterOptIn" checked class="checkbox-custom">
-              <span class="text-sm" style="color: var(--muted);">Send me product updates, feature releases & e-commerce tips</span>
+              <span class="text-sm" style="color: var(--muted);">Send me product updates, feature releases & e-commerce
+                tips</span>
             </label>
 
             <!-- Submit Button -->
-            <button 
-              type="submit" 
-              id="step1Submit"
+            <button type="submit" id="step1Submit"
               class="btn-primary w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              style="background: var(--text); color: var(--bg);"
-              disabled
-            >
+              style="background: var(--text); color: var(--bg);" disabled>
               <span>Continue</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -663,7 +683,7 @@
           </form>
 
           <p class="text-center text-gray-500 text-sm mt-6">
-            Already have an account? 
+            Already have an account?
             <a href="loginIn.html" class="text-white hover:underline">Sign in</a>
           </p>
         </div>
@@ -680,33 +700,28 @@
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-3">Which platform are you using?</label>
               <div class="grid grid-cols-3 gap-3">
-                <button 
-                  type="button" 
-                  data-platform="shopify"
-                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600"
-                >
+                <button type="button" data-platform="shopify"
+                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600">
                   <svg class="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M15.337 2.094c-.318-.066-.647-.108-.985-.108-2.593 0-4.697 2.104-4.697 4.697 0 .338.042.667.108.985l-4.697 1.691v10.641c0 1.381 1.119 2.5 2.5 2.5h10.641c1.381 0 2.5-1.119 2.5-2.5v-10.641l-1.691-4.697c-.066-.318-.108-.647-.108-.985 0-2.593-2.104-4.697-4.697-4.697z"/>
+                    <path
+                      d="M15.337 2.094c-.318-.066-.647-.108-.985-.108-2.593 0-4.697 2.104-4.697 4.697 0 .338.042.667.108.985l-4.697 1.691v10.641c0 1.381 1.119 2.5 2.5 2.5h10.641c1.381 0 2.5-1.119 2.5-2.5v-10.641l-1.691-4.697c-.066-.318-.108-.647-.108-.985 0-2.593-2.104-4.697-4.697-4.697z" />
                   </svg>
                   <span class="text-sm font-medium">Shopify</span>
                 </button>
-                <button 
-                  type="button" 
-                  data-platform="woocommerce"
-                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600"
-                >
+                <button type="button" data-platform="woocommerce"
+                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600">
                   <svg class="w-8 h-8 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
                   </svg>
                   <span class="text-sm font-medium">WooCommerce</span>
                 </button>
-                <button 
-                  type="button" 
-                  data-platform="other"
-                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600"
-                >
+                <button type="button" data-platform="other"
+                  class="selection-card p-4 bg-dark-700 border border-dark-600 rounded-lg flex flex-col items-center gap-2 hover:bg-dark-600">
                   <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                    </path>
                   </svg>
                   <span class="text-sm font-medium">Other</span>
                 </button>
@@ -718,14 +733,9 @@
             <!-- Store URL -->
             <div>
               <label for="storeUrl" class="block text-sm font-medium text-gray-300 mb-2">Store URL</label>
-              <input 
-                type="url" 
-                id="storeUrl" 
-                name="storeUrl"
+              <input type="url" id="storeUrl" name="storeUrl"
                 class="input-field w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-white"
-                placeholder="https://yourstore.com"
-                required
-              >
+                placeholder="https://yourstore.com" required>
               <p id="storeUrlError" class="text-red-400 text-sm mt-1 hidden"></p>
             </div>
 
@@ -733,32 +743,20 @@
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-3">Monthly traffic</label>
               <div class="grid grid-cols-2 gap-3">
-                <button 
-                  type="button" 
-                  data-traffic="0-1k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
-                >
+                <button type="button" data-traffic="0-1k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
                   0–1K
                 </button>
-                <button 
-                  type="button" 
-                  data-traffic="1k-10k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
-                >
+                <button type="button" data-traffic="1k-10k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
                   1K–10K
                 </button>
-                <button 
-                  type="button" 
-                  data-traffic="10k-50k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
-                >
+                <button type="button" data-traffic="10k-50k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
                   10K–50K
                 </button>
-                <button 
-                  type="button" 
-                  data-traffic="50k+"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
-                >
+                <button type="button" data-traffic="50k+"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
                   50K+
                 </button>
               </div>
@@ -768,18 +766,12 @@
 
             <!-- Navigation Buttons -->
             <div class="flex gap-3 pt-4">
-              <button 
-                type="button" 
-                id="step2Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors"
-              >
+              <button type="button" id="step2Back"
+                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
                 Back
               </button>
-              <button 
-                type="submit" 
-                id="step2Submit"
-                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2"
-              >
+              <button type="submit" id="step2Submit"
+                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2">
                 <span>Continue</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -799,14 +791,13 @@
           <form id="step3Form" class="space-y-6">
             <!-- Goals Selection -->
             <div class="space-y-3">
-              <button 
-                type="button" 
-                data-goal="recover_carts"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
-              >
+              <button type="button" data-goal="recover_carts"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
                 <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
                   <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
@@ -815,19 +806,19 @@
                 </div>
                 <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
                   <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
 
-              <button 
-                type="button" 
-                data-goal="increase_conversion"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
-              >
+              <button type="button" data-goal="increase_conversion"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
                 <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
                   <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
@@ -836,19 +827,19 @@
                 </div>
                 <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
                   <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
 
-              <button 
-                type="button" 
-                data-goal="find_products"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
-              >
+              <button type="button" data-goal="find_products"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
                 <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
                   <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
@@ -857,19 +848,20 @@
                 </div>
                 <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
                   <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
 
-              <button 
-                type="button" 
-                data-goal="scale_revenue"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
-              >
+              <button type="button" data-goal="scale_revenue"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
                 <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
                   <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    </path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
@@ -878,7 +870,9 @@
                 </div>
                 <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center goal-check">
                   <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
@@ -889,18 +883,12 @@
 
             <!-- Navigation Buttons -->
             <div class="flex gap-3 pt-4">
-              <button 
-                type="button" 
-                id="step3Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors"
-              >
+              <button type="button" id="step3Back"
+                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
                 Back
               </button>
-              <button 
-                type="submit" 
-                id="step3Submit"
-                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2"
-              >
+              <button type="submit" id="step3Submit"
+                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2">
                 <span>Continue</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -922,32 +910,20 @@
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-3">Monthly revenue (optional)</label>
               <div class="grid grid-cols-2 gap-3">
-                <button 
-                  type="button" 
-                  data-revenue="0-1k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
-                >
+                <button type="button" data-revenue="0-1k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
                   $0–$1K
                 </button>
-                <button 
-                  type="button" 
-                  data-revenue="1k-10k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
-                >
+                <button type="button" data-revenue="1k-10k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
                   $1K–$10K
                 </button>
-                <button 
-                  type="button" 
-                  data-revenue="10k-50k"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
-                >
+                <button type="button" data-revenue="10k-50k"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
                   $10K–$50K
                 </button>
-                <button 
-                  type="button" 
-                  data-revenue="50k+"
-                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600"
-                >
+                <button type="button" data-revenue="50k+"
+                  class="selection-card py-3 px-4 bg-dark-700 border border-dark-600 rounded-lg text-sm font-medium hover:bg-dark-600">
                   $50K+
                 </button>
               </div>
@@ -956,25 +932,16 @@
 
             <!-- Navigation Buttons -->
             <div class="flex gap-3 pt-4">
-              <button 
-                type="button" 
-                id="step4Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors"
-              >
+              <button type="button" id="step4Back"
+                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
                 Back
               </button>
-              <button 
-                type="button" 
-                id="step4Skip"
-                class="flex-1 py-3 text-gray-400 font-semibold rounded-lg hover:text-white transition-colors"
-              >
+              <button type="button" id="step4Skip"
+                class="flex-1 py-3 text-gray-400 font-semibold rounded-lg hover:text-white transition-colors">
                 Skip for now
               </button>
-              <button 
-                type="submit" 
-                id="step4Submit"
-                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2"
-              >
+              <button type="submit" id="step4Submit"
+                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2">
                 <span>Continue</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -994,65 +961,70 @@
           <form id="step5Form" class="space-y-6">
             <!-- Recovery Channel Selection -->
             <div class="space-y-3">
-              <button 
-                type="button" 
-                data-channel="email"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
-              >
+              <button type="button" data-channel="email"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
                 <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
                   <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                    </path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
                   <div class="font-semibold">Email</div>
                   <div class="text-sm text-gray-400">Automated email sequences</div>
                 </div>
-                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
+                <div
+                  class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
                   <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
 
-              <button 
-                type="button" 
-                data-channel="whatsapp"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
-              >
+              <button type="button" data-channel="whatsapp"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
                 <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
                   <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    <path
+                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
                   <div class="font-semibold">WhatsApp</div>
                   <div class="text-sm text-gray-400">Direct messaging recovery</div>
                 </div>
-                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
+                <div
+                  class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
                   <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
 
-              <button 
-                type="button" 
-                data-channel="both"
-                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600"
-              >
+              <button type="button" data-channel="both"
+                class="selection-card w-full p-4 bg-dark-700 border border-dark-600 rounded-lg flex items-center gap-4 hover:bg-dark-600">
                 <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center">
                   <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                    </path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
                   <div class="font-semibold">Both</div>
                   <div class="text-sm text-gray-400">Email + WhatsApp combined</div>
                 </div>
-                <div class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
+                <div
+                  class="w-6 h-6 rounded-full border-2 border-dark-500 flex items-center justify-center channel-check">
                   <svg class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </button>
@@ -1063,18 +1035,12 @@
 
             <!-- Navigation Buttons -->
             <div class="flex gap-3 pt-4">
-              <button 
-                type="button" 
-                id="step5Back"
-                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors"
-              >
+              <button type="button" id="step5Back"
+                class="flex-1 py-3 bg-dark-700 text-white font-semibold rounded-lg border border-dark-600 hover:bg-dark-600 transition-colors">
                 Back
               </button>
-              <button 
-                type="submit" 
-                id="step5Submit"
-                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2"
-              >
+              <button type="submit" id="step5Submit"
+                class="flex-1 btn-primary py-3 bg-white text-dark-900 font-semibold rounded-lg flex items-center justify-center gap-2">
                 <span>Complete Setup</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -1096,10 +1062,8 @@
             <p class="text-gray-400 text-lg">Your account is ready. Let's start recovering those carts.</p>
           </div>
 
-          <a 
-            href="../index.html" 
-            class="inline-flex items-center gap-2 px-8 py-3 bg-white text-dark-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
-          >
+          <a href="../index.html"
+            class="inline-flex items-center gap-2 px-8 py-3 bg-white text-dark-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
             Go to Dashboard
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -1108,7 +1072,8 @@
         </div>
 
         <!-- Loading Overlay -->
-        <div id="loadingOverlay" class="fixed inset-0 bg-dark-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div id="loadingOverlay"
+          class="fixed inset-0 bg-dark-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
           <div class="text-center">
             <div class="spinner w-12 h-12 border-4 border-dark-600 border-t-white rounded-full mx-auto mb-4"></div>
             <p id="loadingMessage" class="text-gray-400">Creating your account...</p>
@@ -1116,17 +1081,20 @@
         </div>
 
         <!-- Error Toast -->
-        <div id="errorToast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-500/90 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <div id="errorToast"
+          class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-500/90 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
           <div class="flex items-center gap-3">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <span id="errorMessage">An error occurred</span>
           </div>
         </div>
 
         <!-- Success Toast -->
-        <div id="successToast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-green-500/90 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <div id="successToast"
+          class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-green-500/90 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
           <div class="flex items-center gap-3">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -1143,6 +1111,7 @@
     const state = {
       currentStep: 1,
       token: null,
+      pendingToken: null,
       user: null,
       emailVerified: false,
       countdownInterval: null,
@@ -1199,6 +1168,8 @@
     const API_BASE = isLocalDev
       ? 'http://localhost:5000/api'
       : 'https://revluma.onrender.com/api';
+
+    state.pendingToken = localStorage.getItem('revluma_pending_token');
 
     // ====================== UTILITY FUNCTIONS ======================
     function showLoading(message = 'Creating your account...') {
@@ -1310,7 +1281,7 @@
     function updateEmailStatus(verified) {
       state.emailVerified = verified;
       const emailInput = document.getElementById('email');
-      
+
       if (verified) {
         elements.emailStatus.innerHTML = '<span class="text-green-400 flex items-center gap-1"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Email verified</span>';
         elements.emailStatus.classList.remove('hidden');
@@ -1367,13 +1338,13 @@
           throw new Error(data.details || data.error || `Registration failed (${response.status})`);
         }
 
-        state.token = data.token;
-        state.user = data.user;
+        state.pendingToken = data.pendingToken;
         state.formData = { firstName, lastName, email, password };
 
-        // Store token securely
-        localStorage.setItem('revluma_token', data.token);
-        localStorage.setItem('revluma_user', JSON.stringify(data.user));
+        // Store pending registration token for verification flow
+        if (data.pendingToken) {
+          localStorage.setItem('revluma_pending_token', data.pendingToken);
+        }
 
         return data;
       } catch (error) {
@@ -1405,11 +1376,15 @@
 
     async function verifyEmailCode(code) {
       try {
+        if (!state.pendingToken) {
+          throw new Error('Missing pending registration token. Please refresh and try again.');
+        }
+
         const response = await fetch(`${API_BASE}/auth/verify-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${state.token}`
+            'Authorization': `Bearer ${state.pendingToken}`
           },
           body: JSON.stringify({ code })
         });
@@ -1675,7 +1650,7 @@
     // Verify email button
     elements.verifyEmailBtn.addEventListener('click', async () => {
       const email = document.getElementById('email').value.trim();
-      
+
       if (!email) {
         showFieldError('email', 'Please enter your email first');
         return;
@@ -1700,7 +1675,7 @@
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email: state.formData.email })
-            }).catch(() => {}); // Fire-and-forget; newsletter is optional
+            }).catch(() => { }); // Fire-and-forget; newsletter is optional
           }
         } catch (error) {
           hideLoading();
@@ -1714,12 +1689,12 @@
       try {
         const result = await sendVerificationCode();
         hideLoading();
-        
+
         // Show verification section
         elements.verificationSection.classList.remove('hidden');
         elements.verifyEmailBtn.textContent = 'Code sent';
         elements.verifyEmailBtn.disabled = true;
-        
+
         // Start countdown
         startCountdown();
 
@@ -1733,7 +1708,7 @@
     // Submit verification code
     elements.submitCodeBtn.addEventListener('click', async () => {
       const code = elements.verificationCode.value.trim();
-      
+
       if (!code) {
         document.getElementById('codeError').textContent = 'Please enter the verification code';
         document.getElementById('codeError').classList.remove('hidden');
@@ -1954,7 +1929,7 @@
     });
 
     // Real-time validation
-    document.getElementById('email').addEventListener('blur', function() {
+    document.getElementById('email').addEventListener('blur', function () {
       if (this.value && !validateEmail(this.value)) {
         showFieldError('email', 'Please enter a valid email');
       } else if (this.value) {
@@ -1962,7 +1937,7 @@
       }
     });
 
-    document.getElementById('password').addEventListener('input', function() {
+    document.getElementById('password').addEventListener('input', function () {
       if (this.value && this.value.length < 8) {
         showFieldError('password', 'Password must be at least 8 characters');
       } else if (this.value) {
@@ -1970,7 +1945,7 @@
       }
     });
 
-    document.getElementById('storeUrl').addEventListener('blur', function() {
+    document.getElementById('storeUrl').addEventListener('blur', function () {
       if (this.value && !validateUrl(this.value)) {
         showFieldError('storeUrl', 'Please enter a valid URL');
       } else if (this.value) {
@@ -1981,48 +1956,50 @@
     // ====================== INITIALIZATION ======================
     // Check if user is already logged in
     const existingToken = localStorage.getItem('revluma_token');
-    if (existingToken) {
+    const validExistingToken = existingToken && existingToken !== 'undefined' && existingToken !== 'null';
+    if (validExistingToken) {
       // Verify token and redirect if valid
       fetch(`${API_BASE}/auth/me`, {
         headers: { 'Authorization': `Bearer ${existingToken}` }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.user) {
-          // User exists, check onboarding status
-          if (data.user.onboarding_status === 'completed') {
-            window.location.href = '../index.html';
-          } else {
-            // Resume onboarding
-            state.token = existingToken;
-            state.user = data.user;
-            state.emailVerified = data.user.email_verified;
-            
-            // Update email status UI
-            if (state.emailVerified) {
-              updateEmailStatus(true);
-            }
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) {
+            // User exists, check onboarding status
+            if (data.user.onboarding_status === 'completed') {
+              window.location.href = '../index.html';
+            } else {
+              // Resume onboarding
+              state.token = existingToken;
+              state.user = data.user;
+              state.emailVerified = data.user.email_verified;
 
-            // Determine which step to show
-            const status = data.user.onboarding_status;
-            if (status === 'started') showStep(1);
-            else if (status === 'step1') showStep(2);
-            else if (status === 'step2') showStep(3);
-            else if (status === 'step3') showStep(4);
-            else if (status === 'step4') showStep(5);
-            else showStep(1);
+              // Update email status UI
+              if (state.emailVerified) {
+                updateEmailStatus(true);
+              }
+
+              // Determine which step to show
+              const status = data.user.onboarding_status;
+              if (status === 'started') showStep(1);
+              else if (status === 'step1') showStep(2);
+              else if (status === 'step2') showStep(3);
+              else if (status === 'step3') showStep(4);
+              else if (status === 'step4') showStep(5);
+              else showStep(1);
+            }
           }
-        }
-      })
-      .catch(() => {
-        // Token invalid, clear it
-        localStorage.removeItem('revluma_token');
-        localStorage.removeItem('revluma_user');
-      });
+        })
+        .catch(() => {
+          // Token invalid, clear it
+          localStorage.removeItem('revluma_token');
+          localStorage.removeItem('revluma_user');
+        });
     }
 
     // Show initial step
     showStep(1);
   </script>
 </body>
+
 </html>
