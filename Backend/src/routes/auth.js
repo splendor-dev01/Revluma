@@ -120,6 +120,7 @@ async function cleanupUnverifiedUser(email) {
 
 // REGISTER - Step 1: Deferred account creation in pending registration
 router.post('/register', async (req, res) => {
+  console.log('[DEBUG] Register endpoint hit');
   const correlationId = req.headers['x-correlation-id'] || uuidv4().slice(0, 8);
 
   // Set correlation ID in response headers for tracing
