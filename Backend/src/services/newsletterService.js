@@ -511,6 +511,62 @@ async function getStats() {
   return result.rows[0];
 }
 
+/**
+ * Unsubscribe from newsletter using token
+ * @param {string} token - Unsubscribe token
+ * @returns {object} Result with status, message, and optional html
+ */
+async function unsubscribe(token) {
+  if (!token || typeof token !== 'string' || token.length < 10) {
+    return { status: 400, message: 'Invalid or missing unsubscribe token' };
+  }
+
+  try {
+    // Find subscriber with valid unsubscribe token
+    const subscriber = await prisma.newsletterSubscriber.findFirst({
+      where: {
+        unsubToken: token
+      }
+    });
+
+    if (!subscriber) {
+      return { status: 400, message: 'Invalid unsubscribe token' };
+    }
+
+    // Check if already unsubscribed
+    if (subscriber.status === 'unsubscribed') {
+      return {
+        status: 200,
+        message: 'You have already been unsubscribed from our newsletter.',
+        html: buildUnsubscribeConfirmationHTML(subscriber.email)
+      };
+    }
+
+    // Mark as unsubscribed
+    await prisma.newsletterSubscriber.update({
+      where: { id: subscriber.id },
+      data: {
+        status: 'unsubscribed',
+        verifyToken: null,
+        verifyExpires: null,
+        updatedAt: new Date()
+      }
+    });
+
+    logger.info('Email unsubscribed from newsletter', { email: subscriber.email, id: subscriber.id });
+
+    return {
+      status: 200,
+      message: 'You have been unsubscribed from our newsletter.',
+      html: buildUnsubscribeConfirmationHTML(subscriber.email)
+    };
+
+  } catch (err) {
+    logger.error('Unsubscribe failed', { error: err.message, stack: err.stack });
+    return { status: 500, message: 'Unsubscribe failed. Please try again.' };
+  }
+}
+
 module.exports = {
   subscribe,
   verify,
