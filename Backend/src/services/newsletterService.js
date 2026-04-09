@@ -10,7 +10,7 @@
 
 const crypto = require('crypto');
 const sgMail = require('@sendgrid/mail');
-const db = require('../config/db');
+const { prisma } = require('../services/prisma');
 const logger = require('../utils/logger');
 
 // Initialize SendGrid
@@ -192,38 +192,37 @@ async function subscribe(email, meta = {}) {
   }
 
   try {
-    // Check if already subscribed
-    const existing = await db.query(
-      'SELECT id, is_verified, is_unsubscribed, verify_token, verify_expires FROM newsletter_subscribers WHERE LOWER(email) = $1',
-      [sanitizedEmail],
-      'system'
-    );
+    // Check if already subscribed - use Prisma
+    const existing = await prisma.newsletterSubscriber.findFirst({
+      where: {
+        email: sanitizedEmail,
+        tenantId: 'system' // Use system tenant for global newsletter
+      }
+    });
 
-    if (existing.rowCount > 0) {
-      const sub = existing.rows[0];
-
-      // Already verified and not unsubscribed
-      if (sub.is_verified && !sub.is_unsubscribed) {
+    if (existing) {
+      // Already verified and active
+      if (existing.verified && existing.status === 'active') {
         return { status: 200, message: 'Email already subscribed' };
       }
 
       // Unsubscribed — allow resubscription
-      if (sub.is_unsubscribed) {
+      if (existing.status === 'unsubscribed') {
         const token = generateToken();
         const expires = new Date(Date.now() + VERIFICATION_EXPIRY_HOURS * 60 * 60 * 1000);
 
-        await db.query(
-          `UPDATE newsletter_subscribers
-           SET is_unsubscribed = FALSE,
-               is_verified = FALSE,
-               verify_token = $1,
-               verify_expires = $2,
-               unsub_token = encode(gen_random_bytes(32), 'hex'),
-               unsubscribed_at = NULL
-           WHERE id = $3`,
-          [token, expires, sub.id],
-          'system'
-        );
+        await prisma.newsletterSubscriber.update({
+          where: { id: existing.id },
+          data: {
+            status: 'active',
+            verified: false,
+            verifiedAt: null,
+            verifyToken: token,
+            verifyExpires: expires,
+            unsubToken: generateToken(16), // Generate new unsub token
+            updatedAt: new Date()
+          }
+        });
 
         await sendVerificationEmail(sanitizedEmail, token);
         logger.info('Resubscription verification sent', { email: sanitizedEmail });
@@ -231,22 +230,58 @@ async function subscribe(email, meta = {}) {
       }
 
       // Not verified — resend verification if token expired
-      if (!sub.is_verified) {
-        const tokenExpired = !sub.verify_expires || new Date(sub.verify_expires) < new Date();
+      if (!existing.verified) {
+        const tokenExpired = !existing.verifyExpires || new Date(existing.verifyExpires) < new Date();
         if (tokenExpired) {
           const token = generateToken();
           const expires = new Date(Date.now() + VERIFICATION_EXPIRY_HOURS * 60 * 60 * 1000);
 
-          await db.query(
-            'UPDATE newsletter_subscribers SET verify_token = $1, verify_expires = $2 WHERE id = $3',
-            [token, expires, sub.id],
-            'system'
-          );
+          await prisma.newsletterSubscriber.update({
+            where: { id: existing.id },
+            data: {
+              verifyToken: token,
+              verifyExpires: expires,
+              updatedAt: new Date()
+            }
+          });
 
           await sendVerificationEmail(sanitizedEmail, token);
           logger.info('Verification re-sent', { email: sanitizedEmail });
           return { status: 200, message: 'Check your email to confirm your subscription' };
+        } else {
+          // Token still valid
+          return { status: 200, message: 'Check your email to confirm your subscription' };
         }
+      }
+    }
+
+    // Create new subscriber
+    const token = generateToken();
+    const expires = new Date(Date.now() + VERIFICATION_EXPIRY_HOURS * 60 * 60 * 1000);
+
+    await prisma.newsletterSubscriber.create({
+      data: {
+        tenantId: 'system',
+        email: sanitizedEmail,
+        name: meta.name || null,
+        status: 'active',
+        source: meta.source || 'website',
+        verified: false,
+        verifyToken: token,
+        verifyExpires: expires,
+        unsubToken: generateToken(16)
+      }
+    });
+
+    await sendVerificationEmail(sanitizedEmail, token);
+    logger.info('New subscription created', { email: sanitizedEmail, source: meta.source });
+
+    return { status: 200, message: 'Check your email to confirm your subscription' };
+
+  } catch (err) {
+    logger.error('Newsletter subscription error', { error: err.message, email: sanitizedEmail });
+    return { status: 500, message: 'Failed to process subscription. Please try again.' };
+  }
 
         return { status: 200, message: 'Verification email already sent. Check your inbox.' };
       }
@@ -291,36 +326,46 @@ async function verify(token) {
   }
 
   try {
-    const result = await db.query(
-      `UPDATE newsletter_subscribers
-       SET is_verified = TRUE,
-           verified_at = NOW(),
-           verify_token = NULL,
-           verify_expires = NULL
-       WHERE verify_token = $1
-         AND is_verified = FALSE
-         AND (verify_expires IS NULL OR verify_expires > NOW())
-       RETURNING id, email`,
-      [token],
-      'system'
-    );
+    // Find subscriber with valid token
+    const subscriber = await prisma.newsletterSubscriber.findFirst({
+      where: {
+        verifyToken: token,
+        verified: false,
+        OR: [
+          { verifyExpires: null },
+          { verifyExpires: { gt: new Date() } }
+        ]
+      }
+    });
 
-    if (result.rowCount === 0) {
-      // Check if token was already used or expired
-      const check = await db.query(
-        'SELECT id, is_verified FROM newsletter_subscribers WHERE verify_token = $1 OR (verify_token IS NULL AND is_verified = TRUE)',
-        [token],
-        'system'
-      );
+    if (!subscriber) {
+      // Check if token was already used
+      const usedSubscriber = await prisma.newsletterSubscriber.findFirst({
+        where: {
+          verifyToken: token,
+          verified: true
+        }
+      });
 
-      if (check.rowCount > 0 && check.rows[0].is_verified) {
+      if (usedSubscriber) {
         return { status: 200, message: 'Email already verified' };
       }
 
       return { status: 400, message: 'Invalid or expired verification token' };
     }
 
-    const subscriber = result.rows[0];
+    // Update subscriber as verified
+    await prisma.newsletterSubscriber.update({
+      where: { id: subscriber.id },
+      data: {
+        verified: true,
+        verifiedAt: new Date(),
+        verifyToken: null,
+        verifyExpires: null,
+        updatedAt: new Date()
+      }
+    });
+
     logger.info('Email verified successfully', { email: subscriber.email, id: subscriber.id });
     return { status: 200, message: 'Email verified successfully. You are now subscribed.' };
 

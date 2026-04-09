@@ -397,6 +397,8 @@ model NewsletterSubscriber {
   source      String? // website, import, checkout
   verified    Boolean  @default(false)
   verifiedAt  DateTime?
+  verifyToken String?  @unique
+  verifyExpires DateTime?
   unsubToken  String?  @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

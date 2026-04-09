@@ -459,7 +459,7 @@ router.post('/send-verification', authenticate, async (req, res) => {
     });
 
     const user = await prisma.user.findUnique({ where: { id: user_id } });
-    const userName = user?.full_name || 'there';
+    const userName = user?.fullName || 'there';
 
     await sendVerificationEmail(email, code, userName);
 
@@ -704,7 +704,7 @@ router.post('/login', async (req, res) => {
       where: { email }
     });
 
-    if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       logger.warn('Login attempt failed – invalid credentials', { email });
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -745,7 +745,14 @@ router.get('/me', authenticate, async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      logger.warn('User not found in database', { userId: id, email, tenantId: tenant_id });
+      return res.status(404).json({ error: 'User account not found' });
+    }
+
+    // Ensure tenant exists
+    if (!user.tenant) {
+      logger.error('User exists but tenant is missing', { userId: id, tenantId: tenant_id });
+      return res.status(500).json({ error: 'Account configuration error. Please contact support.' });
     }
 
     res.status(200).json({
@@ -762,7 +769,18 @@ router.get('/me', authenticate, async (req, res) => {
       }
     });
   } catch (err) {
-    logger.error('Failed to get user', { error: err.message, userId: id });
+    logger.error('Failed to get user data', {
+      error: err.message,
+      userId: id,
+      tenantId: tenant_id,
+      stack: err.stack
+    });
+
+    // Handle specific database errors
+    if (err.code === 'P1001' || err.message.includes('connect')) {
+      return res.status(503).json({ error: 'Service temporarily unavailable' });
+    }
+
     res.status(500).json({ error: 'Failed to retrieve user data' });
   }
 });
