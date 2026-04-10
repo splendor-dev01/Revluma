@@ -795,13 +795,13 @@
                 </a>
             </div>
 
-            <div class="hidden md:flex items-center gap-2">
-                <a href="./auth/loginIn.html" target="_blank"
-                    class="text-[11px] font-semibold text-[#A1A1AA] hover:text-white transition-colors">Login</a>
-                <a href="./auth/onboarding.html" target="_blank" >
-                    <button
-                        class="bg-white text-black px-3 py-1.5 rounded-full text-[11px] font-bold hover:-translate-y-0.5 transition-transform">Get
-                        Started</button>
+            <div class="hidden md:flex items-center gap-2" id="auth-nav">
+                <a href="./Dashboard/overview.html" id="dashboard-link" class="hidden text-[11px] font-semibold text-[#A1A1AA] hover:text-white transition-colors">
+                    Go to Dashboard
+                </a>
+                <a href="./auth/loginIn.html" target="_blank" id="login-link" class="text-[11px] font-semibold text-[#A1A1AA] hover:text-white transition-colors">Login</a>
+                <a href="./auth/onboarding.html" target="_blank" id="signup-link">
+                    <button class="bg-white text-black px-3 py-1.5 rounded-full text-[11px] font-bold hover:-translate-y-0.5 transition-transform">Get Started</button>
                 </a>
             </div>
 
@@ -827,13 +827,11 @@
             <a href="#pricing" @click="mobileMenu=false" class="hover:text-[#A1A1AA] transition-colors">Pricing</a>
             <a href="#integrations" @click="mobileMenu=false"
                 class="hover:text-[#A1A1AA] transition-colors">Integrations</a>
-            <a href="./auth/loginIn.html" @click="mobileMenu=false" class="hover:text-[#A1A1AA] transition-colors">Login</a>
-            <button
-                <a href="./auth/signUp.html" target="_blank">
-                class="mt-2 bg-white text-black py-4 rounded-2xl font-bold hover:-translate-y-0.5 transition-transform">Get
-                Started
-                </a>
-            </button>
+            <a href="./Dashboard/overview.html" id="mobile-dashboard-link" class="hidden hover:text-[#A1A1AA] transition-colors">Dashboard</a>
+            <a href="./auth/loginIn.html" id="mobile-login-link" @click="mobileMenu=false" class="hover:text-[#A1A1AA] transition-colors">Login</a>
+            <a href="./auth/onboarding.html" id="mobile-signup-link" @click="mobileMenu=false" target="_blank" class="hover:text-[#A1A1AA] transition-colors">
+                <button class="mt-2 bg-white text-black py-4 rounded-2xl font-bold hover:-translate-y-0.5 transition-transform block w-full text-left p-0">Get Started</button>
+            </a>
         </div>
     </div>
 
@@ -2909,6 +2907,57 @@
     </footer>
 
     <script>
+        // Auth check function (shared from loginIn.html)
+        const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        const API_BASE = isLocalDev ? 'http://localhost:5000/api' : 'https://revluma.onrender.com/api';
+
+        function getStoredToken() {
+            return localStorage.getItem('revluma_token') || sessionStorage.getItem('revluma_token') || null;
+        }
+
+        async function checkAuthStatus() {
+            const token = getStoredToken();
+            if (!token || token === 'undefined' || token === 'null') return false;
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    signal: AbortSignal.timeout(5000)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    return data.user && data.user.onboarding_status === 'completed';
+                }
+            } catch (e) {
+                console.log('Auth check failed:', e);
+            }
+            return false;
+        }
+
+        // Update nav on auth status
+        async function updateAuthNav() {
+            const isLoggedIn = await checkAuthStatus();
+
+            // Desktop nav
+            const dashboardLink = document.getElementById('dashboard-link');
+            const loginLink = document.getElementById('login-link');
+            const signupLink = document.getElementById('signup-link');
+            if (dashboardLink) dashboardLink.classList.toggle('hidden', !isLoggedIn);
+            if (loginLink) loginLink.classList.toggle('hidden', isLoggedIn);
+            if (signupLink) signupLink.style.display = isLoggedIn ? 'none' : 'block';
+
+            // Mobile nav
+            const mobileDashboardLink = document.getElementById('mobile-dashboard-link');
+            const mobileLoginLink = document.getElementById('mobile-login-link');
+            const mobileSignupLink = document.getElementById('mobile-signup-link');
+            if (mobileDashboardLink) mobileDashboardLink.classList.toggle('hidden', !isLoggedIn);
+            if (mobileLoginLink) mobileLoginLink.classList.toggle('hidden', isLoggedIn);
+            if (mobileSignupLink) mobileSignupLink.style.display = isLoggedIn ? 'none' : 'block';
+        }
+
+        // Run auth check on load
+        window.addEventListener('load', updateAuthNav);
+
         // Laptop + promo items scatter animation on scroll
         const laptop = document.querySelector('.laptop-container');
         const promoItems = document.querySelectorAll('.promo-item');
