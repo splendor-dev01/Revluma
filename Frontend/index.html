@@ -796,9 +796,9 @@
             </div>
 
             <div class="hidden md:flex items-center gap-2">
-                <a href="./auth/loginIn.html" target="_blank"
+                <a href="./auth/loginIn.html"
                     class="text-[11px] font-semibold text-[#A1A1AA] hover:text-white transition-colors">Login</a>
-                <a href="./auth/signUp.html" target="_blank">
+                <a href="./auth/onboarding.html">
                     <button
                         class="bg-white text-black px-3 py-1.5 rounded-full text-[11px] font-bold hover:-translate-y-0.5 transition-transform">Get
                         Started</button>
@@ -870,14 +870,14 @@
             </p>
 
             <div class="flex flex-row items-center justify-center gap-6">
-                <a href="./auth/signUp.html" target="_blank">
+                <a href="./auth/onboarding.html">
                     <div
                         class="glass-btn text-sm font-bold uppercase tracking-wide text-white hover:scale-[1.02] transition-all duration-300">
                         Get Started Free
                     </div>
                 </a>
                 <div class="glass w-12 h-12 rounded-full flex items-center justify-center hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-                    onclick="window.open('./auth/signUp.html', '_blank')">
+                    onclick="window.location.href='./auth/onboarding.html'">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M7 7h10v10">
                         </path>
@@ -2820,7 +2820,7 @@
             <p class="text-[#A1A1AA] mb-10 max-w-md mx-auto">Join 2,400+ brands already recovering more revenue than
                 they thought possible.</p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="./auth/signUp.html">
+                <a href="./auth/onboarding.html">
                     <button class="glass-btn text-base font-bold hover:scale-[1.05] transition-all">
                         Get Started Free →
                     </button>
@@ -3093,6 +3093,27 @@
                 reader.readAsDataURL(file);
             }
         }
+        
+        // Check for existing session on page load - redirect if logged in
+        (function() {
+            const token = localStorage.getItem('revluma_token') || sessionStorage.getItem('revluma_token');
+            if (token && token !== 'undefined' && token !== 'null') {
+                // Token exists - check if valid and redirect to dashboard
+                const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+                const API_BASE = isLocalDev ? 'http://localhost:5000/api' : 'https://revluma.onrender.com/api';
+                
+                fetch(API_BASE + '/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.user && data.user.onboarding_status === 'completed') {
+                        window.location.href = './Dashboard/overview.html';
+                    }
+                })
+                .catch(() => {});
+            }
+        })();
     </script>
 </body>
 

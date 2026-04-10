@@ -826,30 +826,42 @@
 
     async function checkAutoLogin() {
       const token = getStoredToken();
-      if (!token || token === 'undefined' || token === 'null') return;
+      console.log('Auto-login check, token exists:', !!token);
+      if (!token || token === 'undefined' || token === 'null') {
+        console.log('No token found, showing login form');
+        return;
+      }
       try {
         const res = await fetch(`${API_BASE}/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` },
           signal: AbortSignal.timeout(6000)
         });
+        console.log('Auto-login check response:', res.status);
         if (res.ok) {
           const d = await res.json();
+          console.log('Auto-login user data:', d);
           if (d.user) {
-            redirectAfterLogin(d.user);
-          } else {
-            clearSession();
+            // Store token and redirect
+            localStorage.setItem('revluma_token', token);
+            const dest = (d.user.onboarding_status === 'completed')
+              ? '../Dashboard/overview.html'
+              : 'onboarding.html';
+            console.log('Redirecting to:', dest);
+            window.location.href = dest;
+            return;
           }
-        } else {
-          clearSession();
         }
-      } catch {
+        console.log('Auto-login failed, clearing session');
+        clearSession();
+      } catch (e) {
+        console.log('Auto-login error:', e);
         clearSession();
       }
     }
 
     function redirectAfterLogin(user) {
       const dest = (user.onboarding_status === 'completed')
-        ? '../index.html'
+        ? '../Dashboard/overview.html'
         : 'onboarding.html';
       window.location.replace(dest);
     }
