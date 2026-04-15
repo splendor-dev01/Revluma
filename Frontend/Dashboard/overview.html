@@ -1769,7 +1769,9 @@ document.addEventListener('click',e=>{
 function handleLogout(){
   closeDropdown();
   
-  // Clear all auth tokens
+  // Clear all auth tokens (all variations)
+  localStorage.removeItem('revluma_token');
+  localStorage.removeItem('revluma_user');
   localStorage.removeItem('rvToken');
   localStorage.removeItem('rvRefresh');
   localStorage.removeItem('rvTheme');
@@ -2096,7 +2098,7 @@ document.addEventListener('keydown',e=>{
 
 // Initialize user data from API or session
 async function initializeApp() {
-  const token = localStorage.getItem('rvToken');
+  const token = localStorage.getItem('revluma_token') || localStorage.getItem('rvToken');
   
   console.log('Initializing app, token exists:', !!token);
   
@@ -2105,7 +2107,7 @@ async function initializeApp() {
       // Fetch real user data
       const response = await fetch('/api/auth/me', {
         headers: { 
-          'Authorization': 'Bearer ' + token,
+          'Authorization': 'Bearer ' + localStorage.getItem('revluma_token'),
           'Content-Type': 'application/json'
         }
       });
@@ -2409,7 +2411,7 @@ async function saveProfile() {
     
     const response = await fetch('/api/v1/user/profile', {
       method: 'PUT',
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('rvToken') },
+      headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('revluma_token') || localStorage.getItem('rvToken')) },
       body: formData
     });
     
@@ -2452,54 +2454,25 @@ document.querySelectorAll('.metric-card').forEach(c=>{
 });
 
    
-   // Load API scripts
-   const apiScripts = [
-     'js/api.js',
-     'js/loading-states.js'
-   ];
-   
-   async function loadApiScripts() {
-     for (const src of apiScripts) {
-       const script = document.createElement('script');
-       script.src = src;
-       document.head.appendChild(script);
-       await new Promise(resolve => script.onload = resolve);
-     }
-   }
-   
-   // Initialize API-driven dashboard
-   async function initApiDashboard() {
-     try {
-       // Check authentication
-       if (!RevlumaAPI.isAuthenticated()) {
-         console.log('Not authenticated - using demo mode');
-         return;
-       }
-       
-       // Load real data from API
-       const [dashboard, revenue, insights] = await Promise.all([
-         RevlumaAPI.dashboard.get(window._currentPeriod || '30d'),
-         RevlumaAPI.metrics.revenue(window._currentPeriod || '30d'),
-         RevlumaAPI.insights.get()
-       ]);
-       
-       // Update UI with real data
-       updateDashboardFromApi(dashboard);
-       updateRevenueFromApi(revenue);
-       updateInsightsFromApi(insights);
-       
-       // Connect real-time updates
-       RevlumaAPI.ws.connect();
-       
-       // Listen for real-time events
-       RevlumaAPI.on('order_new', handleNewOrder);
-       RevlumaAPI.on('cart_abandoned', handleCartAbandoned);
-       RevlumaAPI.on('recovery_completed', handleRecovery);
-       
-     } catch (error) {
-       console.error('Failed to load dashboard data:', error);
-     }
-   }
+// Load API scripts first
+    const apiScripts = [
+      'js/api.js',
+      'js/loading-states.js'
+    ];
+    
+    async function loadApiScripts() {
+      for (const src of apiScripts) {
+        const script = document.createElement('script');
+        script.src = src;
+        document.head.appendChild(script);
+        await new Promise(resolve => script.onload = resolve);
+      }
+    }
+    
+    // Initialize API-driven dashboard (legacy - using initializeApp instead)
+    async function initApiDashboard() {
+      // Deprecated - using initializeApp instead
+    }
    
    function updateDashboardFromApi(data) {
      if (!data) return;
