@@ -896,15 +896,6 @@ router.post('/logout', authenticate, async (req, res) => {
   }
 });
 
-    // Handle specific database errors
-    if (err.code === 'P1001' || err.message.includes('connect')) {
-      return res.status(503).json({ error: 'Service temporarily unavailable' });
-    }
-
-    res.status(500).json({ error: 'Failed to retrieve user data' });
-  }
-});
-
 // ====================== FORGOT PASSWORD ======================
 
 const forgotPasswordLimiter = require('express-rate-limit')({
