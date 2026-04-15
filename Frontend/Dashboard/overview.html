@@ -939,7 +939,7 @@ body.has-data .s-active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
 @keyframes rocketBounce{0%,100%{transform:translateY(0)}35%{transform:translateY(-9px)}65%{transform:translateY(-3px)}80%{transform:translateY(-7px)}}
-@keyframes waveHand{0%,100%{transform:rotate(0)}10%{transform:rotate(22deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(8deg)}40%{transform:rotate(-4deg)}50%{transform:rotate(0)}}
+    @keyframes waveHand{0%,100%{transform:rotate(0)}10%{transform:rotate(22deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(8deg)}40%{transform:rotate(-4deg)}50%{transform:rotate(0)}}
 .wave{display:inline-block;animation:waveHand 7s ease-in-out infinite;transform-origin:70% 80%}
 .anim-1{animation:fadeUp 0.32s ease 0.04s both}
 .anim-2{animation:fadeUp 0.32s ease 0.08s both}
@@ -947,6 +947,24 @@ body.has-data .s-active{display:block}
 .anim-4{animation:fadeUp 0.32s ease 0.16s both}
 .anim-5{animation:fadeUp 0.32s ease 0.20s both}
 .anim-6{animation:fadeUp 0.32s ease 0.24s both}
+
+/* Loading Screen */
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  flex-direction: column;
+  gap: 16px;
+}
+.loading-screen .spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
 
 /* ═══════════════════════════════════════════
    RESPONSIVE
@@ -1627,18 +1645,29 @@ const saved=localStorage.getItem('rvTheme');
     let dashboardData = null;
     let metricsData = null;
     let activityPollingInterval = null;
+    let authLoading = true;
+    let isAuthenticated = false;
 
     const api = window.RevlumaAPI;
 
     async function initDashboard() {
+      authLoading = true;
+      showLoadingScreen();
+
       try {
-        if (!api.isAuthenticated()) {
-          window.location.href = '../auth/loginIn.html';
+        const token = localStorage.getItem('revluma_token') || sessionStorage.getItem('revluma_token');
+        
+        if (!token) {
+          redirectToLogin();
           return;
         }
 
         const user = await api.auth.me();
         currentUser = user;
+        isAuthenticated = true;
+        authLoading = false;
+        hideLoadingScreen();
+        
         applyUserData(user);
 
         const hasStoreData = user.onboarding_status === 'completed';
@@ -1653,12 +1682,46 @@ const saved=localStorage.getItem('rvTheme');
         }
       } catch (error) {
         console.error('Dashboard init failed:', error);
-        if (error.message.includes('Session expired') || error.message.includes('401')) {
-          window.location.href = '../auth/loginIn.html';
-        } else {
-          renderErrorState();
+        
+        if (error.message.includes('Session expired') || error.message.includes('401') || error.message.includes('Failed to fetch')) {
+          clearAuthData();
+          redirectToLogin();
+          return;
         }
+        
+        authLoading = false;
+        hideLoadingScreen();
+        renderErrorState();
       }
+    }
+
+    function showLoadingScreen() {
+      const content = document.querySelector('.content');
+      if (content) {
+        content.innerHTML = `
+          <div class="loading-screen">
+            <div class="spinner"></div>
+            <p style="color:var(--t3);font-size:0.85rem">Loading dashboard...</p>
+          </div>
+        `;
+      }
+    }
+
+    function hideLoadingScreen() {
+      // Content will be replaced by render functions
+    }
+
+    function clearAuthData() {
+      localStorage.removeItem('revluma_token');
+      localStorage.removeItem('revluma_user');
+      localStorage.removeItem('revluma_refresh');
+      sessionStorage.removeItem('revluma_token');
+      sessionStorage.removeItem('revluma_user');
+      sessionStorage.removeItem('revluma_refresh');
+    }
+
+    function redirectToLogin() {
+      window.location.href = '../auth/loginIn.html';
     }
 
     function applyUserData(user) {
@@ -2218,7 +2281,8 @@ document.addEventListener('click',e=>{
     function handleLogout(){
       closeDropdown();
       localStorage.removeItem('rvTheme');
-      RevlumaAPI.auth.logout();
+      api.clearTokens();
+      window.location.href = '../auth/loginIn.html';
     }
 
 /* ════════════════════════════════════════

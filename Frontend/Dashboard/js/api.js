@@ -13,15 +13,25 @@ const RevlumaAPI = (function() {
 
   const API_BASE = '/api/v1';
   
-  let authToken = localStorage.getItem('rvToken');
-  let refreshToken = localStorage.getItem('rvRefresh');
+  // Token management - check both localStorage and sessionStorage
+  function getToken() {
+    return localStorage.getItem('revluma_token') || sessionStorage.getItem('revluma_token');
+  }
+  
+  function getRefreshToken() {
+    return localStorage.getItem('revluma_refresh') || sessionStorage.getItem('revluma_refresh');
+  }
+
+  let authToken = getToken();
+  let refreshToken = getRefreshToken();
 
   async function request(endpoint, options = {}) {
+    const token = getToken();
     const url = `${API_BASE}${endpoint}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers
       },
       ...options
@@ -33,7 +43,8 @@ const RevlumaAPI = (function() {
       if (response.status === 401) {
         const refreshed = await refreshAccessToken();
         if (refreshed) {
-          config.headers.Authorization = `Bearer ${authToken}`;
+          const newToken = getToken();
+          config.headers.Authorization = `Bearer ${newToken}`;
           return fetch(url, config);
         }
         handleLogout();
@@ -54,11 +65,12 @@ const RevlumaAPI = (function() {
   }
 
   async function authRequest(endpoint, options = {}) {
+    const token = getToken();
     const url = `${API_BASE}/auth${endpoint}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers
       },
       ...options
@@ -76,23 +88,22 @@ const RevlumaAPI = (function() {
   }
 
   async function refreshAccessToken() {
-    if (!refreshToken) return false;
+    const currentRefresh = getRefreshToken();
+    if (!currentRefresh) return false;
 
     try {
       const response = await fetch(`${API_BASE}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken })
+        body: JSON.stringify({ refreshToken: currentRefresh })
       });
 
       if (!response.ok) return false;
 
       const data = await response.json();
-      authToken = data.token;
-      refreshToken = data.refreshToken;
       
-      localStorage.setItem('rvToken', authToken);
-      localStorage.setItem('rvRefresh', refreshToken);
+      localStorage.setItem('revluma_token', data.token);
+      localStorage.setItem('revluma_refresh', data.refreshToken);
 
       return true;
     } catch (error) {
@@ -102,8 +113,12 @@ const RevlumaAPI = (function() {
   }
 
   function handleLogout() {
-    localStorage.removeItem('rvToken');
-    localStorage.removeItem('rvRefresh');
+    localStorage.removeItem('revluma_token');
+    localStorage.removeItem('revluma_user');
+    localStorage.removeItem('revluma_refresh');
+    sessionStorage.removeItem('revluma_token');
+    sessionStorage.removeItem('revluma_user');
+    sessionStorage.removeItem('revluma_refresh');
     authToken = null;
     refreshToken = null;
     window.location.href = '../auth/loginIn.html';
@@ -124,8 +139,8 @@ const RevlumaAPI = (function() {
       if (data.token) {
         authToken = data.token;
         refreshToken = data.refreshToken;
-        localStorage.setItem('rvToken', authToken);
-        localStorage.setItem('rvRefresh', refreshToken);
+        localStorage.setItem('revluma_token', authToken);
+        localStorage.setItem('revluma_refresh', refreshToken);
       }
       
       return data;
@@ -319,17 +334,21 @@ const RevlumaAPI = (function() {
     setTokens(token, refresh) {
       authToken = token;
       refreshToken = refresh;
-      localStorage.setItem('rvToken', token);
-      localStorage.setItem('rvRefresh', refresh);
+      localStorage.setItem('revluma_token', token);
+      localStorage.setItem('revluma_refresh', refresh);
     },
     clearTokens() {
       authToken = null;
       refreshToken = null;
-      localStorage.removeItem('rvToken');
-      localStorage.removeItem('rvRefresh');
+      localStorage.removeItem('revluma_token');
+      localStorage.removeItem('revluma_user');
+      localStorage.removeItem('revluma_refresh');
+      sessionStorage.removeItem('revluma_token');
+      sessionStorage.removeItem('revluma_user');
+      sessionStorage.removeItem('revluma_refresh');
     },
     isAuthenticated() {
-      return !!authToken;
+      return !!getToken();
     },
     formatCurrency: (value) => {
       return new Intl.NumberFormat('en-US', {

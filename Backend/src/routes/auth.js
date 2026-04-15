@@ -876,6 +876,35 @@ router.get('/me', authenticate, async (req, res) => {
   }
 });
 
+// LOGOUT
+router.post('/logout', authenticate, async (req, res) => {
+  const { id } = req.user;
+
+  try {
+    // Delete all user sessions
+    await prisma.userSession.deleteMany({
+      where: { userId: id }
+    });
+
+    logger.info('User logged out', { userId: id });
+
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (err) {
+    logger.error('Logout failed', { error: err.message, userId: id });
+    // Don't expose internal errors - still return success
+    res.status(200).json({ message: 'Logged out' });
+  }
+});
+
+    // Handle specific database errors
+    if (err.code === 'P1001' || err.message.includes('connect')) {
+      return res.status(503).json({ error: 'Service temporarily unavailable' });
+    }
+
+    res.status(500).json({ error: 'Failed to retrieve user data' });
+  }
+});
+
 // ====================== FORGOT PASSWORD ======================
 
 const forgotPasswordLimiter = require('express-rate-limit')({
