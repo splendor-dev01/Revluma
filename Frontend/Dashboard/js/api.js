@@ -13,14 +13,9 @@ const RevlumaAPI = (function() {
 
   const API_BASE = '/api/v1';
   
-  // Token management
   let authToken = localStorage.getItem('rvToken');
   let refreshToken = localStorage.getItem('rvRefresh');
 
-  // ============================================================
-  // HTTP Client
-  // ============================================================
-  
   async function request(endpoint, options = {}) {
     const url = `${API_BASE}${endpoint}`;
     const config = {
@@ -35,16 +30,12 @@ const RevlumaAPI = (function() {
     try {
       const response = await fetch(url, config);
       
-      // Handle authentication errors
       if (response.status === 401) {
-        // Try to refresh token
         const refreshed = await refreshAccessToken();
         if (refreshed) {
-          // Retry with new token
           config.headers.Authorization = `Bearer ${authToken}`;
           return fetch(url, config);
         }
-        // Refresh failed - redirect to login
         handleLogout();
         throw new Error('Session expired');
       }
@@ -62,10 +53,28 @@ const RevlumaAPI = (function() {
     }
   }
 
-  // ============================================================
-  // Token Management
-  // ============================================================
-  
+  async function authRequest(endpoint, options = {}) {
+    const url = `${API_BASE}/auth${endpoint}`;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...options.headers
+      },
+      ...options
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Auth request failed');
+      return data;
+    } catch (error) {
+      console.error(`Auth API Error [${endpoint}]:`, error);
+      throw error;
+    }
+  }
+
   async function refreshAccessToken() {
     if (!refreshToken) return false;
 
@@ -97,123 +106,119 @@ const RevlumaAPI = (function() {
     localStorage.removeItem('rvRefresh');
     authToken = null;
     refreshToken = null;
-    window.location.href = '/auth/loginIn.html';
+    window.location.href = '../auth/loginIn.html';
   }
 
-  // ============================================================
-  // Dashboard API
-  // ============================================================
-  
+  const auth = {
+    async me() {
+      const data = await authRequest('/me');
+      return data.user;
+    },
+
+    async login(email, password) {
+      const data = await authRequest('/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (data.token) {
+        authToken = data.token;
+        refreshToken = data.refreshToken;
+        localStorage.setItem('rvToken', authToken);
+        localStorage.setItem('rvRefresh', refreshToken);
+      }
+      
+      return data;
+    },
+
+    async logout() {
+      try {
+        await authRequest('/logout', { method: 'POST' });
+      } catch (e) {}
+      handleLogout();
+    },
+
+    async getOnboardingStatus() {
+      const data = await authRequest('/onboarding/status');
+      return data.onboarding;
+    }
+  };
+
+  const notifications = {
+    async list(options = {}) {
+      const params = new URLSearchParams(options).toString();
+      const data = await request(`/notifications?${params}`);
+      return data;
+    },
+
+    async markRead(id) {
+      const data = await request(`/notifications/${id}/read`, {
+        method: 'POST'
+      });
+      return data;
+    },
+
+    async markAllRead() {
+      const data = await request('/notifications/read-all', {
+        method: 'POST'
+      });
+      return data;
+    }
+  };
+
   const dashboard = {
-    /**
-     * Get complete dashboard data
-     * @param {string} range - 7d, 30d, 90d, today
-     * @returns {Promise<Object>}
-     */
     async get(range = '30d') {
       const data = await request(`/dashboard?range=${range}`);
       return data.data;
     },
 
-    /**
-     * Get quick summary for live updates
-     * @returns {Promise<Object>}
-     */
     async summary() {
       const data = await request('/dashboard/summary');
       return data.data;
     }
   };
 
-  // ============================================================
-  // Metrics API
-  // ============================================================
-  
   const metrics = {
-    /**
-     * Get chart data
-     * @param {string} range - 7d, 30d, 90d
-     * @returns {Promise<Object>}
-     */
     async get(range = '30d') {
       const data = await request(`/metrics?range=${range}`);
       return data.data;
     },
 
-    /**
-     * Get revenue metrics
-     * @param {string} range - 7d, 30d, 90d
-     * @returns {Promise<Object>}
-     */
     async revenue(range = '30d') {
       const data = await request(`/metrics/revenue?range=${range}`);
       return data.data;
     },
 
-    /**
-     * Get customer metrics
-     * @returns {Promise<Object>}
-     */
     async customers() {
-      const data = await request('/metrics/customers');
+      const data = await request(`/metrics/customers`);
       return data.data;
     }
   };
 
-  // ============================================================
-  // Customers API
-  // ============================================================
-  
   const customers = {
-    /**
-     * Get customer list
-     * @param {Object} options - page, limit, segment
-     * @returns {Promise<Object>}
-     */
     async list(options = {}) {
       const params = new URLSearchParams(options).toString();
       const data = await request(`/customers?${params}`);
       return data.data;
     },
 
-    /**
-     * Get customer segments
-     * @returns {Promise<Object>}
-     */
     async segments() {
       const data = await request('/customers/segments');
       return data.data;
     },
 
-    /**
-     * Get single customer
-     * @param {string} id
-     * @returns {Promise<Object>}
-     */
     async get(id) {
       const data = await request(`/customers/${id}`);
       return data.data;
     }
   };
 
-  // ============================================================
-  // Insights API
-  // ============================================================
-  
   const insights = {
-    /**
-     * Get AI insights
-     * @returns {Promise<Object>}
-     */
     async get() {
       const data = await request('/insights');
       return data.data;
     },
 
-    /**
-     * Get recommendations
-     * @returns {Promise<Object>}
-     */
     async recommendations() {
       const data = await request('/insights/recommendations');
       return data.data;
@@ -221,9 +226,16 @@ const RevlumaAPI = (function() {
   };
 
   // ============================================================
-  // WebSocket for Real-time Updates
+  // Products API
   // ============================================================
   
+  const products = {
+    async trending(limit = 10) {
+      const data = await request(`/trending?limit=${limit}`);
+      return data.data;
+    }
+  };
+
   let ws = null;
   let wsReconnectAttempts = 0;
   const MAX_RECONNECT_ATTEMPTS = 5;
@@ -241,7 +253,6 @@ const RevlumaAPI = (function() {
         console.log('WebSocket connected');
         wsReconnectAttempts = 0;
         
-        // Authenticate
         if (authToken) {
           ws.send(JSON.stringify({ type: 'auth', token: authToken }));
         }
@@ -259,7 +270,6 @@ const RevlumaAPI = (function() {
       ws.onclose = () => {
         console.log('WebSocket disconnected');
         
-        // Reconnect with exponential backoff
         if (wsReconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
           const delay = Math.min(1000 * Math.pow(2, wsReconnectAttempts), 30000);
           setTimeout(connectWebSocket, delay);
@@ -276,7 +286,7 @@ const RevlumaAPI = (function() {
   }
 
   function handleWebSocketMessage(message) {
-    const event = CustomEvent('api:' + message.type, { detail: message.data });
+    const event = new CustomEvent('api:' + message.type, { detail: message.data });
     document.dispatchEvent(event);
   }
 
@@ -287,58 +297,40 @@ const RevlumaAPI = (function() {
     }
   }
 
-  // ============================================================
-  // Event Dispatcher
-  // ============================================================
-  
   function on(eventType, callback) {
     document.addEventListener('api:' + eventType, callback);
     return () => document.removeEventListener('api:' + eventType, callback);
   }
-
-  // ============================================================
-  // Public API
-  // ============================================================
   
   return {
-    // Core
     request,
-    
-    // Resources
+    auth,
     dashboard,
     metrics,
     customers,
     insights,
-    
-    // WebSocket
+    products,
+    notifications,
     ws: {
       connect: connectWebSocket,
       disconnect: disconnectWebSocket
     },
-    
-    // Events
     on,
-    
-    // Auth helpers
     setTokens(token, refresh) {
       authToken = token;
       refreshToken = refresh;
       localStorage.setItem('rvToken', token);
       localStorage.setItem('rvRefresh', refresh);
     },
-    
     clearTokens() {
       authToken = null;
       refreshToken = null;
       localStorage.removeItem('rvToken');
       localStorage.removeItem('rvRefresh');
     },
-    
     isAuthenticated() {
       return !!authToken;
     },
-
-    // Utility
     formatCurrency: (value) => {
       return new Intl.NumberFormat('en-US', {
         notation: 'compact',
@@ -347,7 +339,6 @@ const RevlumaAPI = (function() {
         currency: 'USD'
       }).format(value);
     },
-
     formatPercent: (value) => {
       return new Intl.NumberFormat('en-US', {
         style: 'percent',
@@ -358,12 +349,10 @@ const RevlumaAPI = (function() {
 
 })();
 
-// Export for use in browsers
 if (typeof window !== 'undefined') {
   window.RevlumaAPI = RevlumaAPI;
 }
 
-// Export for modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = RevlumaAPI;
 }
