@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { prisma } = require('../services/prisma');
-const logger = require('../utils/logger');
+const { prisma } = require('../services/prisma.js');
+const logger = require('../utils/logger.js');
 
 // POST /api/admin/migrate
 // Run database migrations
