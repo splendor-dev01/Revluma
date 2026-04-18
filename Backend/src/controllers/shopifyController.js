@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
 const logger = require('../utils/logger');
+const { encrypt } = require('../integration/encryption');
 
 const prisma = new PrismaClient();
 
@@ -33,7 +34,7 @@ exports.initiateAuth = async (req, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     
-    const redirectUri = `${APP_URL}/api/shopify/auth/callback`;
+    const redirectUri = `${APP_URL}/api/shopify/auth/callback?tenant_id=${tenantId}`;
     const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SCOPES}&redirect_uri=${encodeURIComponent(redirectUri)}`;
     
     logger.info('Initiating Shopify OAuth', { shop, tenantId });
@@ -46,7 +47,7 @@ exports.initiateAuth = async (req, res) => {
 };
 
 exports.authCallback = async (req, res) => {
-  const { shop, hmac, code } = req.query;
+  const { shop, hmac, code, tenant_id } = req.query;
   
   if (!shop || !hmac || !code) {
     return res.status(400).json({ error: 'Missing required parameters' });
@@ -66,6 +67,23 @@ exports.authCallback = async (req, res) => {
     return res.status(400).json({ error: 'HMAC validation failed' });
   }
   
+  let tenantId = tenant_id;
+  
+  if (!tenantId) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const jwt = require('jsonwebtoken');
+      try {
+        const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+        tenantId = decoded.tenant_id;
+      } catch (e) {}
+    }
+  }
+  
+  if (!tenantId) {
+    return res.redirect(`${APP_URL}/Dashboard/overview.html?error=no_tenant`);
+  }
+  
   try {
     const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
       method: 'POST',
@@ -82,22 +100,75 @@ exports.authCallback = async (req, res) => {
     
     if (!accessToken) {
       logger.error('Failed to get access token', { shop, data });
-      return res.status(500).json({ error: 'Failed to get access token' });
+      return res.redirect(`${APP_URL}/Dashboard/overview.html?error=connection_failed`);
     }
     
-    // Get shop info
     const shopResponse = await fetch(`https://${shop}/admin/api/2024-01/shop.json`, {
       headers: { 'X-Shopify-Access-Token': accessToken },
     });
     const shopData = await shopResponse.json();
     const storeName = shopData.shop?.name || shop;
+    const storeUrl = `https://${shop}`;
     
-    // Find tenant from callback (in production, use session or lookup)
-    // For now, redirect to frontend with success
-    logger.info('Shopify store connected', { shop, storeName });
+    const credentials = {
+      shopDomain: shop,
+      accessToken,
+    };
     
-    // Return success - frontend will handle the redirect
-    res.redirect(`${APP_URL}/Dashboard/overview.html?connected=shopify&shop=${shop}`);
+    const credentialsJson = JSON.stringify(credentials);
+    const credentialsEncrypted = encrypt(credentialsJson);
+    
+    const storeConfig = await prisma.storeConfig.upsert({
+      where: {
+        tenantId_platform_storeUrl: {
+          tenantId,
+          platform: 'SHOPIFY',
+          storeUrl,
+        },
+      },
+      create: {
+        tenantId,
+        platform: 'SHOPIFY',
+        storeName,
+        storeUrl,
+        credentialsEncrypted,
+        status: 'connected',
+        callbackUrl: APP_URL,
+      },
+      update: {
+        storeName,
+        credentialsEncrypted,
+        status: 'connected',
+      },
+    });
+    
+    const iv = crypto.randomBytes(16).toString('hex');
+    const authTag = crypto.randomBytes(16).toString('hex');
+    
+    await prisma.platformCredential.upsert({
+      where: { storeId: storeConfig.id },
+      create: {
+        storeId: storeConfig.id,
+        platform: 'SHOPIFY',
+        encryptedPayload: credentialsEncrypted,
+        iv,
+        authTag,
+        status: 'ACTIVE',
+        lastVerifiedAt: new Date(),
+      },
+      update: {
+        encryptedPayload: credentialsEncrypted,
+        iv,
+        authTag,
+        status: 'ACTIVE',
+        lastVerifiedAt: new Date(),
+        failureReason: null,
+      },
+    });
+    
+    logger.info('Shopify store connected via OAuth', { shop, storeName, tenantId, storeId: storeConfig.id });
+    
+    res.redirect(`${APP_URL}/Dashboard/overview.html?connected=shopify&storeId=${storeConfig.id}`);
     
   } catch (err) {
     logger.error('Shopify auth callback failed', { shop, error: err.message });

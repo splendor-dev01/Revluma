@@ -1,14 +1,23 @@
 const express = require('express');
+const crypto = require('crypto');
 const { createAdapter } = require('../integration');
 const { encrypt } = require('../integration/encryption');
 const logger = require('../utils/logger');
+
+let addSyncJob = null;
+try {
+  const queue = require('../queue');
+  addSyncJob = queue.addSyncJob;
+} catch (e) {
+  logger.warn('Queue module not available');
+}
 
 function createStoreRoutes(prisma) {
   const router = express.Router();
 
   router.post('/connect', async (req, res) => {
     try {
-      const { tenantId, platform, credentials, callbackUrl } = req.body;
+      const { tenantId, platform, credentials, callbackUrl, enableWebhooks = true, triggerSync = true } = req.body;
 
       if (!tenantId || !platform || !credentials) {
         return res.status(400).json({ 
@@ -16,7 +25,8 @@ function createStoreRoutes(prisma) {
         });
       }
 
-      const adapter = createAdapter(platform, prisma);
+      const normalizedPlatform = platform.toUpperCase();
+      const adapter = createAdapter(platform.toLowerCase(), prisma);
 
       const result = await adapter.connect(credentials);
 
@@ -38,13 +48,13 @@ function createStoreRoutes(prisma) {
         where: {
           tenantId_platform_storeUrl: {
             tenantId,
-            platform,
+            platform: normalizedPlatform,
             storeUrl,
           },
         },
         create: {
           tenantId,
-          platform,
+          platform: normalizedPlatform,
           storeName: result.storeName || storeUrl,
           storeUrl,
           callbackUrl: callbackUrl || null,
@@ -59,7 +69,57 @@ function createStoreRoutes(prisma) {
         },
       });
 
-      logger.info(`Store connected: ${platform} - ${storeUrl}`, { tenantId });
+      const iv = crypto.randomBytes(16).toString('hex');
+      const authTag = crypto.randomBytes(16).toString('hex');
+
+      await prisma.platformCredential.upsert({
+        where: { storeId: storeConfig.id },
+        create: {
+          storeId: storeConfig.id,
+          platform: normalizedPlatform,
+          encryptedPayload: credentialsEncrypted,
+          iv,
+          authTag,
+          status: 'ACTIVE',
+          lastVerifiedAt: new Date(),
+        },
+        update: {
+          encryptedPayload: credentialsEncrypted,
+          iv,
+          authTag,
+          status: 'ACTIVE',
+          lastVerifiedAt: new Date(),
+          failureReason: null,
+        },
+      });
+
+      if (enableWebhooks) {
+        const defaultTopics = [
+          'orders/create',
+          'orders/update',
+          'checkouts/create',
+          'checkouts/update',
+        ];
+        try {
+          await adapter.registerWebhooks(storeConfig.id, defaultTopics);
+        } catch (webhookError) {
+          logger.warn('Failed to register webhooks', { error: webhookError.message, storeId: storeConfig.id });
+        }
+      }
+
+      if (triggerSync && addSyncJob) {
+        try {
+          const resources = ['CHECKOUTS', 'ORDERS', 'CUSTOMERS'];
+          for (const resource of resources) {
+            const syncJob = await addSyncJob(storeConfig.id, normalizedPlatform, resource, { mode: 'full' });
+            logger.info('Initial sync job queued', { storeId: storeConfig.id, resource, jobId: syncJob.id });
+          }
+        } catch (syncError) {
+          logger.warn('Failed to queue initial sync', { error: syncError.message, storeId: storeConfig.id });
+        }
+      }
+
+      logger.info(`Store connected: ${platform} - ${storeUrl}`, { tenantId, storeId: storeConfig.id });
 
       return res.status(201).json({
         storeId: storeConfig.id,

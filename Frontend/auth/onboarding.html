@@ -92,13 +92,39 @@
     .input-field.error { border-color: var(--red) !important; }
     .input-field.valid { border-color: var(--green) !important; }
 
-    /* Selection cards */
+/* Selection cards */
     .sel-card {
       transition: all 0.18s ease;
       cursor: pointer;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .sel-card:hover {
+      border-color: rgba(255,255,255,0.18);
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+    }
+    .sel-card .font-semibold {
+      font-size: 0.75rem;
+    }
+    .sel-card .text-xs {
+      font-size: 0.65rem;
+    }
+
+    /* Pill-style selector for small options */
+    .pill-btn {
+      transition: all 0.18s ease;
+      cursor: pointer;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text);
+      text-align: center;
     }
     .sel-card:hover {
       border-color: rgba(255,255,255,0.18);
@@ -118,12 +144,23 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 14px 10px;
+      padding: 10px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       text-align: center;
+    }
+    .platform-card span {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 500;
+    }
+    .platform-card img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
     }
     .platform-card:hover {
       border-color: rgba(255,255,255,0.18);
@@ -509,23 +546,23 @@
               <p class="section-label mb-3">Your platform</p>
               <div class="grid grid-cols-4 gap-2.5">
                 <button type="button" data-platform="shopify" class="platform-card">
-                  <img src="../assets/images/shopifyLoog.png" alt="Shopify" style="width:36px;height:36px;object-fit:contain;">
-                  <span class="text-xs font-small">Shopify</span>
+                  <img src="../assets/images/shopifyLoog.png" alt="Shopify">
+                  <span>Shopify</span>
                 </button>
                 <button type="button" data-platform="woocommerce" class="platform-card">
-                  <img src="../assets/images/woocomrceLogo.webp" alt="WooCommerce" style="width:36px;height:36px;object-fit:contain;">
-                  <span class="text-xs font-small">WooCommerce</span>
+                  <img src="../assets/images/woocomrceLogo.webp" alt="WooCommerce">
+                  <span>Woo</span>
                 </button>
 
                 <button type="button" data-platform="bigcommerce" class="platform-card">
-                  <img src="../assets/images/bigCommerce-icon.png" alt="BigCommerce" style="width:36px;height:36px;object-fit:contain;">
-                  <span class="text-xs font-small">BigCommerce</span>
+                  <img src="../assets/images/bigCommerce-icon.png" alt="BigCommerce">
+                  <span>BigC</span>
                 </button>
                 <button type="button" data-platform="other" class="platform-card">
-                  <svg class="w-7 h-7" style="color: var(--muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5" style="color: var(--muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path>
                   </svg>
-                  <span class="text-xs font-small">Other</span>
+                  <span>Other</span>
                 </button>
               </div>
               <input type="hidden" id="platform" name="platform" required>
