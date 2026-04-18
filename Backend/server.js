@@ -92,13 +92,15 @@ app.use('/api/webhook', rateLimit({
 app.use('/api/trending', require('./src/routes/trending'));
 app.use('/api/watchlist', require('./src/routes/watchlist'));
 app.use('/api/shopify', require('./src/routes/shopify'));
-app.use('/api/stores', require('./src/routes/stores'));
+
+// Store routes need prisma instance
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const { createStoreRoutes } = require('./src/routes/stores');
+app.use('/api/stores', createStoreRoutes(prisma));
 
 // Webhook endpoints for each platform
 const { createWebhookRouter } = require('./src/routes/webhooks');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-
 app.use('/api/webhooks/shopify', createWebhookRouter('shopify', prisma));
 app.use('/api/webhooks/woocommerce', createWebhookRouter('woocommerce', prisma));
 app.use('/api/webhooks/bigcommerce', createWebhookRouter('bigcommerce', prisma));
