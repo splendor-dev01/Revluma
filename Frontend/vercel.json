@@ -33,6 +33,18 @@
   ],
   "rewrites": [
     {
+      "source": "/dashboard/apiConfig.js",
+      "destination": "/Dashboard/apiConfig.js"
+    },
+    {
+      "source": "/dashboard/src/:path*",
+      "destination": "/Dashboard/src/:path*"
+    },
+    {
+      "source": "/dashboard/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
       "source": "/dashboard/:path*",
       "destination": "/Dashboard/index.html"
     },
