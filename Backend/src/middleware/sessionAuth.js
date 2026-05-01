@@ -19,7 +19,7 @@ const SESSION_VALIDATION_INTERVAL = 15 * 60 * 1000; // 15 minutes
 const getCookieOptions = (isProduction) => {
   const baseOptions = {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: isProduction ? 'none' : 'lax',
     path: '/',
     secure: isProduction,
     maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
@@ -250,8 +250,9 @@ function setSessionCookie(res, sessionToken) {
 function clearSessionCookie(res) {
   res.clearCookie('revluma_session', {
     httpOnly: true,
-    sameSite: 'strict',
-    path: '/'
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
+    secure: process.env.NODE_ENV === 'production'
   });
 }
 
