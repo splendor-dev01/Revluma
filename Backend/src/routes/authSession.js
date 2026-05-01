@@ -19,7 +19,8 @@ const {
   invalidateAllUserSessions,
   clearSessionCookie,
   getSessionId,
-  generateCsrfToken
+  generateCsrfToken,
+  csrfProtection
 } = require('../middleware/sessionAuth');
 
 const router = express.Router();

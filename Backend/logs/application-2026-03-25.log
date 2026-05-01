@@ -1,6 +1,0 @@
-{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-25 00:41:36.038 +01:00","version":"1.0.0"}
-{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-25 00:41:36.047 +01:00","version":"1.0.0"}
-{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-25 00:41:36.067 +01:00","version":"1.0.0"}
-{"level":"info","message":"Redis connected successfully","service":"splendor-ai-backend","timestamp":"2026-03-25 22:38:12.716 +01:00","version":"1.0.0"}
-{"level":"info","message":"Redis ready (authenticated & usable)","service":"splendor-ai-backend","timestamp":"2026-03-25 22:38:12.726 +01:00","version":"1.0.0"}
-{"level":"info","message":"Redis health check passed (PING OK)","service":"splendor-ai-backend","timestamp":"2026-03-25 22:38:12.737 +01:00","version":"1.0.0"}
