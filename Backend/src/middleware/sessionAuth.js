@@ -56,22 +56,22 @@ const authRateLimits = new Map();
 function checkRateLimit(key, max, windowMs) {
   const now = Date.now();
   const record = authRateLimits.get(key);
-  
+
   if (!record) {
     authRateLimits.set(key, { count: 1, windowStart: now });
     return { allowed: true, remaining: max - 1 };
   }
-  
+
   if (now - record.windowStart > windowMs) {
     record.count = 1;
     record.windowStart = now;
     return { allowed: true, remaining: max - 1 };
   }
-  
+
   if (record.count >= max) {
     return { allowed: false, remaining: 0, retryAfter: windowMs - (now - record.windowStart) };
   }
-  
+
   record.count++;
   return { allowed: true, remaining: max - record.count };
 }
@@ -130,7 +130,7 @@ function invalidateUserCsrfTokens(userId) {
 async function createSession(tenantId, userId, userEmail, res) {
   const sessionToken = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
-  
+
   try {
     await prisma.userSession.create({
       data: {
@@ -139,7 +139,7 @@ async function createSession(tenantId, userId, userEmail, res) {
         expiresAt
       }
     });
-    
+
     setSessionCookie(res, sessionToken);
     activeSessions.add(sessionToken);
     logger.debug('Session created', { userId, tenantId });
@@ -171,14 +171,14 @@ async function invalidateAllUserSessions(userId, tenantId) {
     const sessions = await prisma.userSession.findMany({
       where: { userId }
     });
-    
+
     for (const session of sessions) {
       await prisma.userSession.delete({
         where: { token: session.token }
       });
       activeSessions.delete(session.token);
     }
-    
+
     logger.debug('All user sessions invalidated', { userId, tenantId, count: sessions.length });
     return sessions.length;
   } catch (error) {
@@ -190,11 +190,11 @@ async function invalidateAllUserSessions(userId, tenantId) {
 // Validate a session and get user data
 async function validateSession(req, res) {
   const sessionId = getSessionId(req);
-  
+
   if (!sessionId) {
     return null;
   }
-  
+
   try {
     const session = await prisma.userSession.findUnique({
       where: { token: sessionId },
@@ -211,12 +211,12 @@ async function validateSession(req, res) {
         }
       }
     });
-    
+
     if (!session) {
       clearSessionCookie(res);
       return null;
     }
-    
+
     // Check if session is expired
     if (new Date(session.expiresAt) < new Date()) {
       clearSessionCookie(res);
@@ -225,7 +225,7 @@ async function validateSession(req, res) {
       });
       return null;
     }
-    
+
     return {
       token: sessionId,
       user: session.user,
@@ -308,43 +308,43 @@ const csrfProtection = async (req, res, next) => {
 const authenticate = async (req, res, next) => {
   // First try session-based auth
   const sessionAuth = await validateSession(req, res);
-  
+
   if (sessionAuth) {
     if (!sessionAuth.verified) {
       return res.status(403).json({ error: 'Email verification required' });
     }
-    
+
     req.user = sessionAuth.user;
     return next();
   }
-  
+
   // Fall back to JWT header auth (for API clients)
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Authentication required' });
   }
-  
+
   const token = authHeader.split(' ')[1];
-  
+
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }
-  
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: ['HS256'],
       ignoreExpiration: false
     });
-    
+
     if (!decoded.id || !decoded.tenant_id || !decoded.email) {
       throw new Error('Invalid token claims');
     }
-    
+
     if (decoded.emailVerified !== true) {
       return res.status(403).json({ error: 'Email verification required' });
     }
-    
+
     req.user = {
       id: decoded.id,
       email: decoded.email,
@@ -352,18 +352,18 @@ const authenticate = async (req, res, next) => {
       role: decoded.role || 'user',
       email_verified: decoded.emailVerified
     };
-    
+
     next();
   } catch (err) {
     let status = 401;
     let message = 'Invalid or expired token';
-    
+
     if (err.name === 'TokenExpiredError') {
       message = 'Token has expired';
     } else if (err.name === 'JsonWebTokenError') {
       message = 'Malformed token';
     }
-    
+
     return res.status(status).json({ error: message });
   }
 };
@@ -374,24 +374,24 @@ const authenticate = async (req, res, next) => {
 
 const requireOnboarding = async (req, res, next) => {
   const { tenant_id } = req.user;
-  
+
   try {
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenant_id }
     });
-    
+
     if (!tenant) {
       return res.status(404).json({ error: 'Tenant not found' });
     }
-    
+
     if (tenant.onboardingStatus !== 'completed') {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'Onboarding required',
         redirect: '/onboarding',
         status: tenant.onboardingStatus
       });
     }
-    
+
     next();
   } catch (error) {
     logger.error('Onboarding check failed', { error: error.message });
@@ -409,7 +409,6 @@ module.exports = {
   setSessionCookie,
   clearSessionCookie,
   getSessionId,
-  COOKIE_OPTIONS,
   generateCsrfToken,
   validateCsrfToken,
   invalidateCsrfToken,
