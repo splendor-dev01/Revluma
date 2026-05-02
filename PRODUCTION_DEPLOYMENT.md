@@ -1,13 +1,13 @@
 ## REVLUMA PRODUCTION DEPLOYMENT GUIDE
 
 ### Deployment URLs
-- **Frontend**: https://revluman.vercel.app (Vercel)
+- **Frontend**: https://revluma.vercel.app (Vercel)
 - **Backend**: https://revluma.onrender.com (Render)
 
 ### FRONTEND DEPLOYMENT (Vercel)
 
 No additional setup needed. The frontend API configuration (`Frontend/assets/js/apiConfig.js`) automatically detects:
-- Production environment: Uses `https://revluma.onrender.com/api` when hostname is `revluman.vercel.app`
+- Production environment: Uses `https://revluma.onrender.com/api` when hostname is `revluma.vercel.app`
 - Development: Uses same-origin API or local fallback
 
 **Verify in browser DevTools console:**
@@ -30,8 +30,8 @@ window.REVLUMA_CONFIG
    DATABASE_URL=<your-render-postgres-connection-string>
    NODE_ENV=production
    JWT_SECRET=<generate-a-new-secure-random-string>
-   FRONTEND_URL=https://revluman.vercel.app
-   CORS_ORIGINS=https://revluman.vercel.app,https://www.revluman.vercel.app
+   FRONTEND_URL=https://revluma.vercel.app
+   CORS_ORIGINS=https://revluma.vercel.app,https://www.revluma.vercel.app
    SENDGRID_API_KEY=<your-sendgrid-key>
    SENDGRID_FROM_EMAIL=noreply@revluma.com
    SENDGRID_FROM_NAME=Revluma
@@ -47,29 +47,29 @@ window.REVLUMA_CONFIG
 
 3. **Verify CORS Configuration:**
    - Backend will accept requests from:
-     - `https://revluman.vercel.app`
-     - `https://www.revluman.vercel.app`
+     - `https://revluma.vercel.app`
+     - `https://www.revlumn.vercel.app`
    - Falls back to `CORS_ORIGINS` and `FRONTEND_URL` environment variables
 
 ### TESTING PRODUCTION DEPLOYMENT
 
 1. **Test Login Flow:**
    ```
-   1. Go to https://revluman.vercel.app/auth/loginIn.html
+   1. Go to https://revluma.vercel.app/auth/loginIn.html
    2. Check browser DevTools Console for API base
    3. Attempt login - should make requests to https://revluma.onrender.com/api
    ```
 
 2. **Test Registration Flow:**
    ```
-   1. Go to https://revluman.vercel.app/auth/onboarding.html
+   1. Go to https://revluma.vercel.app/auth/onboarding.html
    2. Complete registration form
    3. Verify API calls go to https://revluma.onrender.com/api
    ```
 
 3. **Test Dashboard:**
    ```
-   1. Go to https://revluman.vercel.app/dashboard/
+   1. Go to https://revluma.vercel.app/dashboard/
    2. Check window.REVLUMA_CONFIG in console
    3. Verify authenticated requests reach backend
    ```
