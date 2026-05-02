@@ -2,7 +2,7 @@
     const sanitizeUrl = url => typeof url === 'string' ? url.replace(/\/$/, '') : url;
 
     const prodBackendUrl = 'https://revluma.onrender.com/api';
-    const isProduction = window.location.hostname === 'revluman.vercel.app';
+    const isProduction = window.location.hostname === 'revluma.vercel.app';
 
     const envOverride = window.APP_API_BASE && typeof window.APP_API_BASE === 'string'
         ? sanitizeUrl(window.APP_API_BASE.trim())

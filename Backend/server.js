@@ -52,8 +52,8 @@ const configuredOrigins = new Set([
 ].map(origin => origin.replace(/\/$/, '')));
 
 if (configuredOrigins.size === 0 && isProduction) {
-  configuredOrigins.add('https://revluman.vercel.app');
-  configuredOrigins.add('https://www.revluman.vercel.app');
+  configuredOrigins.add('https://revluma.vercel.app');
+  configuredOrigins.add('https://www.revluma.vercel.app');
   configuredOrigins.add('https://revluma.onrender.com');
 }
 
@@ -179,6 +179,11 @@ app.get('/health', async (req, res) => {
     logger.error('Health check failed', { error: err.message });
     res.status(503).json({ status: 'unhealthy', error: err.message });
   }
+});
+
+// Dashboard SPA fallback - serve for all /dashboard/* routes (safety net if Vercel rewrites don't apply)
+app.get(/^\/dashboard/, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'Frontend', 'Dashboard', 'index.html'));
 });
 
 // 404 handler
