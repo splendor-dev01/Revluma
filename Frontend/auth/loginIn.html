@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,6 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet" />
   <script src="../assets/js/apiConfig.js"></script>
+  <script src="../assets/js/auth-client.js"></script>
 
   <style>
     :root {
@@ -1212,8 +1214,8 @@
     //  SESSION MANAGEMENT
     // ================================================================
     function storeSession(token, user, remember) {
-      console.log('[AUTH STEP 6] Storing session locally', { 
-        remember, 
+      console.log('[AUTH STEP 6] Storing session locally', {
+        remember,
         userId: user?.id,
         userEmail: user?.email,
         hasToken: !!token
@@ -1249,38 +1251,16 @@
     }
 
     async function checkAutoLogin() {
-      const token = getStoredToken();
-      console.log('[AUTH] Auto-login check started', { hasToken: !!token, timestamp: new Date().toISOString() });
-      if (!token || token === 'undefined' || token === 'null') {
-        console.log('[AUTH] No valid token found, showing login form');
-        return;
-      }
       try {
-        console.log('[AUTH] Token found, validating with /auth/me endpoint');
-        const res = await fetch(`${API_BASE}/auth/me`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-          signal: AbortSignal.timeout(15000)
-        });
-        console.log('[AUTH] Auto-login check response:', { status: res.status, statusText: res.statusText });
-        if (res.ok) {
-          const d = await res.json();
-          console.log('[AUTH] Auto-login user data received:', { userId: d.user?.id, email: d.user?.email });
-          if (d.user) {
-            // Store token and redirect
-            localStorage.setItem('revluma_token', token);
-            const dest = (d.user.onboarding_status === 'completed')
-              ? '/dashboard/overview'
-              : 'onboarding.html';
-            console.log('[AUTH] Auto-login successful, redirecting to:', { destination: dest });
-            window.location.href = dest;
-            return;
-          }
+        const user = await revlumaAuth.checkAutoLogin();
+        if (user && user.id) {
+          const dest = (user.onboarding_status === 'completed')
+            ? '/dashboard/overview'
+            : 'onboarding.html';
+          window.location.replace(dest);
         }
-        console.log('[AUTH] Auto-login check failed - no user data or invalid response');
-        clearSession();
-      } catch (e) {
-        console.warn('[AUTH] Auto-login error:', { error: e.message, name: e.name });
-        clearSession();
+      } catch (error) {
+        console.warn('[AUTH] Auto-login failed:', error);
       }
     }
 
@@ -1293,7 +1273,7 @@
       }
 
       const onboarding_status = user.onboarding_status;
-      console.log('[AUTH STEP 9] Determining redirect destination', { 
+      console.log('[AUTH STEP 9] Determining redirect destination', {
         userId: user.id,
         email: user.email,
         onboarding_status,
@@ -1303,7 +1283,7 @@
       const dest = (onboarding_status === 'completed')
         ? '/dashboard/overview'
         : 'onboarding.html';
-      
+
       console.log('[AUTH STEP 10] Redirecting to:', { destination: dest, reason: onboarding_status === 'completed' ? 'onboarding complete' : 'onboarding required' });
       window.location.replace(dest);
     }
@@ -1313,94 +1293,27 @@
     // ================================================================
 
     /**
-     * Primary login — calls /api/session/login with email + password.
-     * Sets session cookie on success.
-     * Returns { success: true } on success.
-     * Throws a structured error object: { code, message, detail }
+     * Primary login — uses revlumaAuth client
      */
     async function apiLogin(email, password) {
-      let res, data;
-      try {
-        console.log('[AUTH STEP 1] Sending login request to /session/login', { email, timestamp: new Date().toISOString() });
-        res = await fetch(`${API_BASE}/session/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
-          credentials: 'include', // Important for cookies
-          signal: AbortSignal.timeout(30000)
-        });
-        console.log('[AUTH STEP 2] Login response received', { status: res.status, statusText: res.statusText });
-        data = await res.json();
-        console.log('[AUTH STEP 3] Login response data parsed', { 
-          hasToken: !!data.token, 
-          hasUser: !!data.user,
-          csrfToken: !!data.csrfToken,
-          sessionEstablished: data.sessionEstablished
-        });
-      } catch (err) {
-        console.error('[AUTH ERROR] Login request failed', { error: err.message, name: err.name });
-        if (err.name === 'TimeoutError' || err.name === 'AbortError') {
-          throw { code: 'TIMEOUT', message: 'Request timed out', detail: 'The server took too long to respond. Please try again.' };
-        }
-        throw { code: 'NETWORK', message: 'Network error', detail: 'Check your internet connection and try again.' };
+      const result = await revlumaAuth.login(email, password);
+
+      if (result.success) {
+        return result;
       }
 
-      if (res.ok) {
-        // Store CSRF token for subsequent requests (logout, etc.)
-        if (data?.csrfToken) {
-          console.log('[AUTH STEP 4] Storing CSRF token in sessionStorage');
-          sessionStorage.setItem('csrf_token', data.csrfToken);
-        }
-        console.log('[AUTH STEP 5] Login API call successful, returning user data');
-        return data;
-      }
+      // Convert auth-client error format to expected format
+      const codeMap = {
+        'INVALID_CREDENTIALS': 'WRONG_PASSWORD',
+        'EMAIL_NOT_VERIFIED': 'EMAIL_NOT_VERIFIED',
+        'ACCOUNT_SUSPENDED': 'ACCOUNT_SUSPENDED'
+      };
 
-      // ── Parse the error response into structured codes ──
-      const raw = (data?.error || data?.message || '').toLowerCase();
-      const status = res.status;
-
-      // Account not found / no user with that email
-      if (status === 404 || raw.includes('not found') || raw.includes('no user') || raw.includes('does not exist')) {
-        throw { code: 'USER_NOT_FOUND', message: 'No account found', detail: `We couldn't find an account for ${email}. Check for typos or create a new account.` };
-      }
-
-      // Wrong password
-      if (status === 401 && (raw.includes('invalid') || raw.includes('password') || raw.includes('credentials') || raw.includes('incorrect'))) {
-        throw { code: 'WRONG_PASSWORD', message: 'Incorrect password', detail: 'The password you entered is wrong. Try again or reset your password.' };
-      }
-
-      // Account exists but email not verified
-      if (raw.includes('not verified') || raw.includes('unverified') || raw.includes('verify') || raw.includes('email_not_verified') || status === 403) {
-        throw { code: 'EMAIL_NOT_VERIFIED', message: 'Email not verified', detail: 'You need to verify your email before signing in.' };
-      }
-
-      // Account is pending (in pending_registrations, not yet finalized)
-      if (raw.includes('pending') || raw.includes('incomplete') || raw.includes('onboarding')) {
-        throw { code: 'PENDING_ACCOUNT', message: 'Account setup incomplete', detail: 'Your account setup isn\'t finished yet. Complete it to sign in.' };
-      }
-
-      // Account suspended / banned
-      if (raw.includes('suspended') || raw.includes('banned') || raw.includes('disabled') || raw.includes('locked') || status === 423) {
-        throw { code: 'ACCOUNT_SUSPENDED', message: 'Account suspended', detail: 'Your account has been suspended. Contact support at support@revluma.com.' };
-      }
-
-      // Rate limited by server
-      if (status === 429 || raw.includes('too many') || raw.includes('rate limit')) {
-        throw { code: 'RATE_LIMITED', message: 'Too many attempts', detail: 'You\'ve made too many login attempts. Please wait a few minutes and try again.' };
-      }
-
-      // Generic 401 fallback (covers the "Invalid email or password" pattern from the existing backend)
-      if (status === 401) {
-        throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password', detail: 'Double-check your email and password and try again.' };
-      }
-
-      // Server error
-      if (status >= 500) {
-        throw { code: 'SERVER_ERROR', message: 'Server error', detail: 'Something went wrong on our end. Please try again in a moment.' };
-      }
-
-      // Unknown
-      throw { code: 'UNKNOWN', message: data?.error || 'Login failed', detail: 'An unexpected error occurred. Please try again.' };
+      throw {
+        code: codeMap[result.code] || result.code || 'UNKNOWN',
+        message: result.error || 'Login failed',
+        detail: 'An error occurred during login. Please try again.'
+      };
     }
 
     /**
@@ -1596,8 +1509,8 @@
         }, 900);
 
       } catch (err) {
-        console.error('[AUTH] Login failed', { 
-          code: err.code, 
+        console.error('[AUTH] Login failed', {
+          code: err.code,
           message: err.message,
           detail: err.detail
         });
@@ -1618,7 +1531,7 @@
               err.message,
               err.detail,
               'Create a free account',
-              () => window.location.href = 'onboarding.html'
+() => window.location.href = 'onboarding.html'
             );
             break;
 
@@ -1632,7 +1545,7 @@
               err.message,
               err.detail,
               'Reset password',
-              () => window.location.href = 'forgottenPassword.html'
+() => window.location.replace('forgottenPassword.html')
             );
             break;
 

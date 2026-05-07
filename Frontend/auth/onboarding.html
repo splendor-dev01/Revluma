@@ -1820,7 +1820,7 @@
     // ====================== INIT ======================
     const existingToken = localStorage.getItem('revluma_token');
     if (existingToken && existingToken !== 'undefined' && existingToken !== 'null') {
-      fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${existingToken}` } })
+      fetch(`${API_BASE}/session/me`, { headers: { 'Authorization': `Bearer ${existingToken}` } })
         .then(r => r.json())
         .then(data => {
           if (data.user) {

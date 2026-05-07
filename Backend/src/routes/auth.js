@@ -8,10 +8,162 @@ const logger = require('../utils/logger');
 const authenticate = require('../middleware/auth');
 const { authenticatePending, createPendingToken } = require('../middleware/pendingAuth');
 const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/messaging');
+const { redis: redisConnection } = require('../queue/redis'); // shared Redis client
 const router = express.Router();
 
 const VERIFICATION_CODE_EXPIRY_MINUTES = 15;
 const PENDING_REGISTRATION_TTL_HOURS = 24;
+
+const PASSWORD_RESET_CODE_HASH_COST = 12;
+
+// Redis lockouts (brute-force protection)
+const LOCKOUT_WINDOW_SECONDS = 15 * 60; // 15 minutes
+const MAX_RESET_CODE_ATTEMPTS = 10;
+const MAX_RESET_PASSWORD_ATTEMPTS = 5;
+const MAX_VERIFY_EMAIL_ATTEMPTS = 10;
+
+function getCorrelationId(req) {
+  return req.headers['x-correlation-id'] || uuidv4().slice(0, 8);
+}
+
+function sendAuthError(res, statusCode, error, code = null, correlationId = null, detail = null) {
+  const payload = { error };
+  if (code) payload.code = code;
+  if (correlationId) payload.correlationId = correlationId;
+  if (detail) payload.detail = detail;
+  return res.status(statusCode).json(payload);
+}
+
+// Password validation (stronger than min-length only)
+function validatePasswordStrength(password) {
+  if (typeof password !== 'string') {
+    return { valid: false, error: 'Password must be a string' };
+  }
+
+  if (password.length < 8) {
+    return { valid: false, error: 'Password must be at least 8 characters long' };
+  }
+
+  if (password.length > 128) {
+    return { valid: false, error: 'Password must be no more than 128 characters long' };
+  }
+
+  const weakPatterns = [
+    /^12345678/,
+    /^password/i,
+    /^qwerty/i,
+    /^abc123/i,
+    /^admin/i,
+    /^user/i,
+    /^login/i,
+    /^welcome/i,
+    /^letmein/i,
+    /^monkey/i,
+    /^dragon/i,
+    /^passw0rd/i,
+    /^p@ssw0rd/i
+  ];
+
+  for (const pattern of weakPatterns) {
+    if (pattern.test(password)) {
+      return { valid: false, error: 'Password contains common patterns that are easily guessed' };
+    }
+  }
+
+  // Repeated characters (e.g. aaa)
+  if (/(.)\1{2,}/.test(password)) {
+    return { valid: false, error: 'Password cannot contain repeated characters' };
+  }
+
+  // Sequential characters
+  if (
+    /123|234|345|456|567|678|789|890|abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz/i.test(
+      password
+    )
+  ) {
+    return { valid: false, error: 'Password cannot contain sequential characters' };
+  }
+
+  // Mixed charset heuristic
+  const hasLower = /[a-z]/.test(password);
+  const hasUpper = /[A-Z]/.test(password);
+  const hasDigit = /\d/.test(password);
+  const hasSpecial = /[^a-zA-Z\d]/.test(password);
+  const categories = [hasLower, hasUpper, hasDigit, hasSpecial].filter(Boolean).length;
+
+  if (categories < 3) {
+    return { valid: false, error: 'Password must include at least 3 of uppercase, lowercase, numbers, symbols' };
+  }
+
+  return { valid: true };
+}
+
+async function checkPasswordHistory(userId, newPassword) {
+  try {
+    const recentPasswords = await prisma.passwordHistory.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 5
+    });
+
+    for (const history of recentPasswords) {
+      // history.passwordHash is bcrypt hash; compare against plaintext password
+      const isSame = await bcrypt.compare(newPassword, history.passwordHash);
+      if (isSame) {
+        return { valid: false, error: 'You cannot reuse one of your last 5 passwords.' };
+      }
+    }
+
+    return { valid: true };
+  } catch (error) {
+    logger.warn('Password history check failed', { error: error.message, userId });
+    // Fail-open to avoid locking users out if DB/history fails
+    return { valid: true };
+  }
+}
+
+function buildLockKey({ prefix, email, ip, userId }) {
+  const safeEmail = email ? String(email).toLowerCase().trim() : '';
+  const safeIp = ip || 'unknown';
+
+  if (safeEmail) {
+    return `${prefix}email:${safeEmail}:ip:${safeIp}`;
+  }
+  if (userId) {
+    return `${prefix}user:${userId}:ip:${safeIp}`;
+  }
+  return `${prefix}ip:${safeIp}`;
+}
+
+async function bumpLockoutAttempt(key, maxAttempts, windowSeconds) {
+  try {
+    if (!redisConnection) return { locked: false, attempts: 0, ttlSeconds: null };
+
+    const current = await redisConnection.incr(key);
+    if (current === 1) {
+      await redisConnection.expire(key, windowSeconds);
+    }
+    const ttlSeconds = await redisConnection.ttl(key);
+    const locked = current >= maxAttempts;
+
+    return { locked, attempts: current, ttlSeconds: ttlSeconds > 0 ? ttlSeconds : null };
+  } catch (error) {
+    logger.warn('Lockout attempt bump failed', { error: error.message, key });
+    return { locked: false, attempts: 0, ttlSeconds: null };
+  }
+}
+
+async function isLockedOut(key, maxAttempts) {
+  try {
+    if (!redisConnection) return false;
+    const currentRaw = await redisConnection.get(key);
+    const current = parseInt(currentRaw || '0', 10);
+    return current >= maxAttempts;
+  } catch (error) {
+    logger.warn('Lockout check failed', { error: error.message, key });
+    return false;
+  }
+}
 
 // Health check endpoint for debugging
 router.get('/health', async (req, res) => {
@@ -191,16 +343,10 @@ router.post('/register', async (req, res) => {
     });
   }
 
-  if (password.length < 8) {
+  const passwordValidation = validatePasswordStrength(password);
+  if (!passwordValidation.valid) {
     return res.status(400).json({
-      error: 'Password must be at least 8 characters long.',
-      correlationId
-    });
-  }
-
-  if (password.length > 128) {
-    return res.status(400).json({
-      error: 'Password is too long (max 128 characters).',
+      error: passwordValidation.error,
       correlationId
     });
   }
@@ -437,9 +583,8 @@ router.post('/register', async (req, res) => {
     });
 
     res.status(500).json({
-      error: `Registration failed: ${err.message}`,
-      correlationId,
-      details: { code: err.code, stack: err.stack?.substring(0, 500) }
+      error: 'Internal server error',
+      correlationId
     });
   }
 });
@@ -494,7 +639,7 @@ router.post('/send-verification', async (req, res) => {
     res.status(200).json({ message: 'Verification code sent to your email' });
   } catch (err) {
     logger.error('Failed to send verification code', { error: err.message, email: normalizedEmail, stack: err.stack });
-    res.status(500).json({ error: 'Failed to send verification code' });
+    res.status(500).json({ error: 'Internal server error', correlationId });
   }
 });
 
@@ -846,7 +991,9 @@ router.get('/me', authenticate, async (req, res) => {
       return res.status(500).json({ error: 'Account configuration error. Please contact support.' });
     }
 
+    // Return standardized format matching /api/session/me
     res.status(200).json({
+      authenticated: true,
       user: {
         id: user.id,
         email: user.email,
@@ -857,7 +1004,8 @@ router.get('/me', authenticate, async (req, res) => {
         email_verified_at: user.emailVerifiedAt,
         store_name: user.tenant?.storeName,
         industry: user.tenant?.industry
-      }
+      },
+      onboarding_status: user.onboardingStatus === 'completed' ? 'completed' : 'pending'
     });
   } catch (err) {
     logger.error('Failed to get user data', {
@@ -930,7 +1078,8 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
     }
 
     const code = crypto.randomInt(100000, 999999).toString();
-    const codeHash = await bcrypt.hash(code, 10);
+    const salt = await bcrypt.genSalt(12);
+    const codeHash = await bcrypt.hash(code, salt);
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 

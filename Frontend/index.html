@@ -2956,7 +2956,7 @@
             if (!token || token === 'undefined' || token === 'null') return false;
 
             try {
-                const res = await fetch(`${API_BASE}/auth/me`, {
+                const res = await fetch(`${API_BASE}/session/me`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                     signal: AbortSignal.timeout(5000)
                 });

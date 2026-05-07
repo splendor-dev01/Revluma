@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const express = require('express');
 const cors = require('cors');
@@ -71,7 +71,8 @@ app.use(cors({
     return callback(new Error(`CORS origin denied: ${normalized}`), false);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token', 'X-Request-ID', 'X-Correlation-ID'],
+  exposedHeaders: ['X-Correlation-ID', 'X-RateLimit-Limit', 'X-RateLimit-Remaining'],
   credentials: true
 }));
 app.options('*', cors());
@@ -102,12 +103,22 @@ app.use(express.static(path.join(__dirname, '..', 'Frontend')));
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 50,
-  message: { error: 'Too many registration attempts' }
+  message: { error: 'Too many registration attempts' },
+  standardHeaders: true,
+  legacyHeaders: false
 });
 app.use('/api/auth', authLimiter, require('./src/routes/auth'));
 
+const sessionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 40,
+  message: { error: 'Too many session requests - please slow down' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // Session-based auth routes (with cookies)
-app.use('/api/session', require('./src/routes/authSession'));
+app.use('/api/session', sessionLimiter, require('./src/routes/authSession'));
 
 // Other API routes
 app.use('/api/webhook', rateLimit({

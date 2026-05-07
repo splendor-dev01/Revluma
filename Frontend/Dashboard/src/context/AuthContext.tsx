@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { api } from '@/lib/utils';
+import type { AxiosError } from 'axios';
 
 export interface User {
   id: string;
@@ -45,14 +46,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         timeout: SESSION_VALIDATION_TIMEOUT
       });
 
-      console.log('[DASHBOARD AUTH] Session validation response received', { 
+      console.log('[DASHBOARD AUTH] Session validation response received', {
         status: response.status,
         hasData: !!response.data,
         authenticated: response.data?.authenticated
       });
 
       if (response.data && response.data.authenticated) {
-        console.log('[DASHBOARD AUTH] User authenticated', { 
+        console.log('[DASHBOARD AUTH] User authenticated', {
           userId: response.data.user?.id,
           email: response.data.user?.email
         });
@@ -65,7 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('[DASHBOARD AUTH] Session validation error:', {
         message: error instanceof Error ? error.message : String(error),
-        status: (error as any)?.response?.status
+        status: (error as AxiosError<{ authenticated?: boolean }>)?.response?.status
       });
       setUser(null);
     } finally {
@@ -101,14 +102,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         // Validate session is actually set
         await checkSession();
+
+        // Redirect to dashboard on successful login
+        setTimeout(() => {
+          window.location.href = '/dashboard/overview';
+        }, 100);
       }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || 'Login failed. Please try again.';
+    } catch (error) {
+      const errorMessage = error instanceof Error
+        ? error.message
+        : (error as AxiosError<{ error?: string }>)?.response?.data?.error || 'Login failed. Please try again.';
       setError(errorMessage);
       setUser(null);
-      throw error;
-    } finally {
       setLoading(false);
+      throw error;
     }
   }, [checkSession]);
 
@@ -227,7 +234,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [csrfToken]);
 
-  const value = {
+  const value: AuthContextProps = {
     user,
     loading,
     error,
@@ -245,7 +252,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextProps => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

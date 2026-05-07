@@ -1,9 +1,6 @@
 // Recovery Analytics & Management Controller
 // Production-ready: Tenant-safe, cached metrics, A/B testing stubs
 
-const db = require('../config/db');
-const logger = require('../utils/logger');
-
 const express = require('express');
 const db = require('../config/db');
 const logger = require('../utils/logger');

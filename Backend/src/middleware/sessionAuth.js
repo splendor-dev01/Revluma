@@ -1,203 +1,140 @@
-// ============================================================
-// SESSION-BASED AUTHENTICATION MIDDLEWARE
-// ============================================================
-// Production-grade session management with secure cookies
-// Follows security best practices from the requirements
-
+﻿const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const { prisma } = require('../services/prisma');
 const logger = require('../utils/logger');
 
-// Session configuration
-const SESSION_EXPIRY_DAYS = 7;
-const REFRESH_TOKEN_EXPIRY_DAYS = 30;
-const CSRF_TOKEN_TTL = 30 * 60 * 1000; // 30 minutes
-const SESSION_VALIDATION_INTERVAL = 15 * 60 * 1000; // 15 minutes
+const SESSION_EXPIRY_DAYS = Number(process.env.SESSION_EXPIRY_DAYS || '7');
+const CSRF_TOKEN_TTL_MS = 30 * 60 * 1000;
+const isProduction = process.env.NODE_ENV === 'production';
+const CSRF_SECRET = process.env.CSRF_SECRET || process.env.JWT_SECRET;
+const COOKIE_NAME = 'revluma_session';
+const COOKIE_PATH = '/';
 
-// Cookie configuration - enterprise-grade security
-const getCookieOptions = (isProduction) => {
-  const baseOptions = {
+if (!CSRF_SECRET) {
+  logger.error('CSRF_SECRET or JWT_SECRET is required for CSRF token generation');
+  throw new Error('CSRF_SECRET or JWT_SECRET must be configured for auth middleware');
+}
+
+function getCookieOptions() {
+  return {
     httpOnly: true,
     sameSite: isProduction ? 'none' : 'lax',
-    path: '/',
+    path: COOKIE_PATH,
     secure: isProduction,
     maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
     expires: new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000)
   };
-  return baseOptions;
-};
-
-// CSRF token store - in-memory with DB persistence backup
-const csrfTokens = new Map();
-const isProduction = process.env.NODE_ENV === 'production';
-
-// Cleanup expired CSRF tokens periodically
-function cleanupExpiredCsrfTokens() {
-  const now = Date.now();
-  let cleaned = 0;
-  for (const [token, data] of csrfTokens.entries()) {
-    if (now - data.createdAt > CSRF_TOKEN_TTL) {
-      csrfTokens.delete(token);
-      cleaned++;
-    }
-  }
-  if (cleaned > 0) {
-    logger.debug(`Cleaned ${cleaned} expired CSRF tokens`);
-  }
-}
-setInterval(cleanupExpiredCsrfTokens, 5 * 60 * 1000);
-
-// Session tracking for concurrent session management
-const activeSessions = new Set();
-
-// Rate limiting store for auth endpoints (memory-based, production should use Redis)
-const authRateLimits = new Map();
-function checkRateLimit(key, max, windowMs) {
-  const now = Date.now();
-  const record = authRateLimits.get(key);
-
-  if (!record) {
-    authRateLimits.set(key, { count: 1, windowStart: now });
-    return { allowed: true, remaining: max - 1 };
-  }
-
-  if (now - record.windowStart > windowMs) {
-    record.count = 1;
-    record.windowStart = now;
-    return { allowed: true, remaining: max - 1 };
-  }
-
-  if (record.count >= max) {
-    return { allowed: false, remaining: 0, retryAfter: windowMs - (now - record.windowStart) };
-  }
-
-  record.count++;
-  return { allowed: true, remaining: max - record.count };
 }
 
-function cleanupExpiredRateLimits() {
-  const now = Date.now();
-  for (const [key, record] of authRateLimits.entries()) {
-    if (now - record.windowStart > 15 * 60 * 1000) {
-      authRateLimits.delete(key);
-    }
-  }
+function hashSessionToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
 }
-setInterval(cleanupExpiredRateLimits, 60 * 1000);
 
-// Generate CSRF token
 function generateCsrfToken(userId) {
-  const token = crypto.randomBytes(32).toString('hex');
-  csrfTokens.set(token, {
-    userId,
-    createdAt: Date.now()
-  });
-  return token;
+  const timestamp = Date.now().toString();
+  const payload = `${userId}:${timestamp}`;
+  const mac = crypto.createHmac('sha256', CSRF_SECRET).update(payload).digest('hex');
+  return Buffer.from(`${payload}:${mac}`, 'utf8').toString('base64url');
 }
 
-// Validate CSRF token
 function validateCsrfToken(token, userId) {
-  const data = csrfTokens.get(token);
-  if (!data) return false;
-  if (data.userId !== userId) return false;
-  if (Date.now() - data.createdAt > CSRF_TOKEN_TTL) {
-    csrfTokens.delete(token);
+  if (!token || !userId) {
     return false;
   }
-  return true;
-}
 
-// Invalidate CSRF token
-function invalidateCsrfToken(token) {
-  csrfTokens.delete(token);
-}
+  try {
+    const decoded = Buffer.from(token, 'base64url').toString('utf8');
+    const [tokenUserId, timestamp, signature] = decoded.split(':');
 
-// Invalidate all CSRF tokens for a user
-function invalidateUserCsrfTokens(userId) {
-  for (const [token, data] of csrfTokens.entries()) {
-    if (data.userId === userId) {
-      csrfTokens.delete(token);
+    if (!tokenUserId || !timestamp || !signature) {
+      return false;
     }
+
+    if (tokenUserId !== userId) {
+      return false;
+    }
+
+    if (Date.now() - Number(timestamp) > CSRF_TOKEN_TTL_MS) {
+      return false;
+    }
+
+    const expected = crypto.createHmac('sha256', CSRF_SECRET).update(`${tokenUserId}:${timestamp}`).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+  } catch (err) {
+    logger.warn('CSRF token validation failed', { error: err.message });
+    return false;
   }
 }
 
-// ============================================================
-// SESSION MANAGEMENT FUNCTIONS
-// ============================================================
-
-// Create a new session
-async function createSession(tenantId, userId, userEmail, res) {
-  const sessionToken = crypto.randomBytes(32).toString('hex');
+async function createSession(tenantId, userId, res, req = null) {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = hashSessionToken(rawToken);
   const expiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
   try {
     await prisma.userSession.create({
       data: {
         userId,
-        token: sessionToken,
-        expiresAt
+        tokenHash,
+        expiresAt,
+        ipAddress: req?.ip || 'unknown',
+        userAgent: req?.headers['user-agent'] || 'unknown',
+        lastSeenAt: new Date()
       }
     });
 
-    setSessionCookie(res, sessionToken);
-    activeSessions.add(sessionToken);
-    logger.debug('Session created', { userId, tenantId });
-    return { token: sessionToken, expiresAt };
+    setSessionCookie(res, rawToken);
+    logger.info('AUTH_EVENT', {
+      event: 'session_created',
+      userId,
+      tenantId,
+      ip: req?.ip || 'unknown',
+      userAgent: req?.headers['user-agent'] || 'unknown'
+    });
+    return { token: rawToken, expiresAt };
   } catch (error) {
     logger.error('Session creation failed', { error: error.message, userId });
     throw error;
   }
 }
 
-// Invalidate a specific session
-async function invalidateSession(sessionToken, userId) {
+async function invalidateSession(sessionToken, actorId) {
+  if (!sessionToken) {
+    return false;
+  }
+
+  const tokenHash = hashSessionToken(sessionToken);
   try {
-    await prisma.userSession.delete({
-      where: { token: sessionToken }
-    });
-    activeSessions.delete(sessionToken);
-    logger.debug('Session invalidated', { userId, sessionToken: sessionToken.slice(0, 20) });
+    await prisma.userSession.deleteMany({ where: { tokenHash } });
+    logger.debug('Session invalidated', { actorId, sessionHash: tokenHash.slice(0, 16) });
     return true;
   } catch (error) {
-    logger.error('Session invalidation failed', { error: error.message, userId });
+    logger.error('Session invalidation failed', { error: error.message, actorId });
     throw error;
   }
 }
 
-// Invalidate all sessions for a user (logout from other devices)
 async function invalidateAllUserSessions(userId, tenantId) {
   try {
-    const sessions = await prisma.userSession.findMany({
-      where: { userId }
-    });
-
-    for (const session of sessions) {
-      await prisma.userSession.delete({
-        where: { token: session.token }
-      });
-      activeSessions.delete(session.token);
-    }
-
-    logger.debug('All user sessions invalidated', { userId, tenantId, count: sessions.length });
-    return sessions.length;
+    const result = await prisma.userSession.deleteMany({ where: { userId } });
+    logger.debug('All user sessions invalidated', { userId, tenantId, count: result.count });
+    return result.count;
   } catch (error) {
-    logger.error('Failed to invalidate all sessions', { error: error.message, userId });
+    logger.error('Failed to invalidate all sessions', { error: error.message, userId, tenantId });
     throw error;
   }
 }
 
-// Validate a session and get user data
 async function validateSession(req, res) {
   const sessionId = getSessionId(req);
-
   if (!sessionId) {
     return null;
   }
 
+  const tokenHash = hashSessionToken(sessionId);
   try {
     const session = await prisma.userSession.findUnique({
-      where: { token: sessionId },
+      where: { tokenHash },
       include: {
         user: {
           select: {
@@ -217,20 +154,30 @@ async function validateSession(req, res) {
       return null;
     }
 
-    // Check if session is expired
-    if (new Date(session.expiresAt) < new Date()) {
+    if (session.expiresAt < new Date()) {
       clearSessionCookie(res);
-      await prisma.userSession.delete({
-        where: { token: sessionId }
-      });
+      await prisma.userSession.deleteMany({ where: { tokenHash } });
       return null;
     }
+
+    // Sliding window: extend session by 7 days on successful validation
+    const newExpiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+    await prisma.userSession.update({
+      where: { tokenHash },
+      data: {
+        expiresAt: newExpiresAt,
+        lastSeenAt: new Date()
+      }
+    });
+
+    // Reset cookie with new expiry
+    setSessionCookie(res, sessionId);
 
     return {
       token: sessionId,
       user: session.user,
       verified: session.user.emailVerified,
-      expiresAt: session.expiresAt
+      expiresAt: newExpiresAt
     };
   } catch (error) {
     logger.error('Session validation error', { error: error.message });
@@ -239,75 +186,79 @@ async function validateSession(req, res) {
   }
 }
 
-// Set session cookie
 function setSessionCookie(res, sessionToken) {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const options = getCookieOptions(isProduction);
-  res.cookie('revluma_session', sessionToken, options);
+  res.cookie(COOKIE_NAME, sessionToken, getCookieOptions());
 }
 
-// Clear session cookie
 function clearSessionCookie(res) {
-  res.clearCookie('revluma_session', {
+  res.clearCookie(COOKIE_NAME, {
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    path: '/',
-    secure: process.env.NODE_ENV === 'production'
+    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction,
+    path: COOKIE_PATH
   });
 }
 
-// Get session ID from request
 function getSessionId(req) {
-  return req.cookies ? req.cookies['revluma_session'] : null;
+  return req.cookies ? req.cookies[COOKIE_NAME] : null;
 }
 
-// CSRF protection middleware
 const csrfProtection = async (req, res, next) => {
-  // Skip CSRF check for safe methods
-  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return next();
   }
 
-  // Check for CSRF token in header
   const csrfToken = req.headers['x-csrf-token'];
-
   if (!csrfToken) {
-    logger.warn('CSRF token missing', { ip: req.ip, method: req.method, url: req.url });
+    logger.warn('CSRF token missing', { ip: req.ip, method: req.method, url: req.originalUrl });
     return res.status(403).json({ error: 'CSRF token required' });
   }
 
-  // Get session to validate against
+  // Try session-based authentication first
   const sessionId = getSessionId(req);
-  if (!sessionId) {
-    return res.status(401).json({ error: 'Session required for CSRF validation' });
+  if (sessionId) {
+    const session = await prisma.userSession.findUnique({
+      where: { tokenHash: hashSessionToken(sessionId) }
+    });
+
+    if (session) {
+      if (!validateCsrfToken(csrfToken, session.userId)) {
+        logger.warn('Invalid CSRF token', { ip: req.ip, userId: session.userId, url: req.originalUrl });
+        return res.status(403).json({ error: 'Invalid CSRF token' });
+      }
+      req.csrfValidatedUserId = session.userId;
+      return next();
+    } else {
+      clearSessionCookie(res);
+    }
   }
 
-  // Validate session exists to get userId
-  const session = await prisma.userSession.findUnique({ where: { token: sessionId } });
-  if (!session) {
-    clearSessionCookie(res);
-    return res.status(401).json({ error: 'Invalid session' });
+  // Fallback to JWT token
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Session or Bearer token required for CSRF validation' });
   }
 
-  if (!validateCsrfToken(csrfToken, session.userId)) {
-    logger.warn('Invalid CSRF token', { ip: req.ip, userId: session.userId });
-    return res.status(403).json({ error: 'Invalid CSRF token' });
+  const token = authHeader.slice('Bearer '.length);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+    // For JWT tokens, validate CSRF based on user ID in token
+    if (!validateCsrfToken(csrfToken, decoded.id)) {
+      logger.warn('Invalid CSRF token for JWT user', { ip: req.ip, userId: decoded.id, url: req.originalUrl });
+      return res.status(403).json({ error: 'Invalid CSRF token' });
+    }
+    req.csrfValidatedUserId = decoded.id;
+    next();
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token has expired' });
+    }
+    logger.warn('Invalid JWT token in CSRF validation', { ip: req.ip, error: err.message });
+    return res.status(401).json({ error: 'Invalid token' });
   }
-
-  req.csrfValidatedUserId = session.userId;
-  next();
 };
 
-
-
-
-
-// ============================================================
-// MAIN AUTHENTICATION MIDDLEWARE
-// ============================================================
-
 const authenticate = async (req, res, next) => {
-  // First try session-based auth
   const sessionAuth = await validateSession(req, res);
 
   if (sessionAuth) {
@@ -319,15 +270,12 @@ const authenticate = async (req, res, next) => {
     return next();
   }
 
-  // Fall back to JWT header auth (for API clients)
   const authHeader = req.headers.authorization;
-
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
   const token = authHeader.split(' ')[1];
-
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }
@@ -365,16 +313,17 @@ const authenticate = async (req, res, next) => {
       message = 'Malformed token';
     }
 
+    logger.warn('JWT authentication failed', { error: err.message, ip: req.ip });
     return res.status(status).json({ error: message });
   }
 };
 
-// ============================================================
-// OPTIONAL: REQUIRE ONBOARDING COMPLETE
-// ============================================================
-
 const requireOnboarding = async (req, res, next) => {
-  const { tenant_id } = req.user;
+  const tenant_id = req.user?.tenant_id;
+
+  if (!tenant_id) {
+    return res.status(400).json({ error: 'Tenant information is missing' });
+  }
 
   try {
     const tenant = await prisma.tenant.findUnique({
@@ -395,7 +344,7 @@ const requireOnboarding = async (req, res, next) => {
 
     next();
   } catch (error) {
-    logger.error('Onboarding check failed', { error: error.message });
+    logger.error('Onboarding check failed', { error: error.message, tenant_id });
     next();
   }
 };
@@ -412,7 +361,6 @@ module.exports = {
   getSessionId,
   generateCsrfToken,
   validateCsrfToken,
-  invalidateCsrfToken,
-  invalidateUserCsrfTokens,
-  csrfProtection
+  csrfProtection,
+  hashSessionToken
 };

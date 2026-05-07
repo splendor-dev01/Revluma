@@ -54,14 +54,11 @@ module.exports = (err, req, res, next) => {
     publicMessage = 'Resource already exists';
   }
 
-  // Never leak stack/inner error in production
+  // Never leak stack / internal error details
   const response = {
     error: publicMessage,
     correlationId, // helps user support trace issue
-    ...(process.env.NODE_ENV === 'development' && {
-      stack: err.stack,
-      internalError: err.message // for dev only
-    })
+    ...(err.code ? { code: err.code } : {})
   };
 
   // Security headers

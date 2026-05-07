@@ -113,13 +113,22 @@ redis.on('reconnecting', () => {
 // Startup health check
 async function checkRedisHealth() {
   try {
-    // Only call connect if not already connected
-    if (redis.status === 'wait') {
-      await redis.connect();
-    }
-    await redis.ping();
-    logger.info('Redis health check passed (PING OK)');
-    return true;
+    // Wrap in promise race to prevent indefinite hanging
+    const healthPromise = (async () => {
+      // Only call connect if not already connected
+      if (redis.status === 'wait') {
+        await redis.connect();
+      }
+      await redis.ping();
+      logger.info('Redis health check passed (PING OK)');
+      return true;
+    })();
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Redis health check timeout')), 3000)
+    );
+    
+    return await Promise.race([healthPromise, timeoutPromise]);
   } catch (err) {
     logger.error('Redis health check FAILED', { error: err.message });
     if (isProduction) {
