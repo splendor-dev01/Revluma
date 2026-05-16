@@ -9,8 +9,9 @@
 
 class RevlumaAuth {
     constructor(config = {}) {
-        this.baseUrl = config.baseUrl || '/api/session';
-        this.fallbackBaseUrl = '/api/auth'; // JWT fallback
+        const appApiBase = window.APP_API_BASE || '/api';
+        this.baseUrl = config.baseUrl || `${appApiBase}/session`;
+        this.fallbackBaseUrl = config.fallbackBaseUrl || `${appApiBase}/auth`;
         this.sessionCookie = 'revluma_session';
         this.timeout = config.timeout || 5000;
         this.debug = config.debug || false;

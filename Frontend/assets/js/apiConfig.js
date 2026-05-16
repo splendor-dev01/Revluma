@@ -2,7 +2,15 @@
     const sanitizeUrl = url => typeof url === 'string' ? url.replace(/\/$/, '') : url;
 
     const prodBackendUrl = 'https://revluma.onrender.com/api';
-    const isProduction = window.location.hostname === 'revluma.vercel.app';
+
+    // Be more robust about production host detection.
+    // Use the Render backend for any known Revluma production host.
+    const hostname = (window.location.hostname || '').toLowerCase();
+    const isVercelHost = hostname.endsWith('.vercel.app') || hostname.endsWith('.vercel.sh');
+    const isRenderHost = hostname === 'revluma.onrender.com' || hostname.endsWith('.revluma.onrender.com');
+    const isCustomDomain = hostname === 'revluma.com' || hostname.endsWith('.revluma.com');
+    const isRevlumaHost = hostname.includes('revluma');
+    const isProduction = isRenderHost || (isVercelHost && isRevlumaHost) || isCustomDomain;
 
     const envOverride = window.APP_API_BASE && typeof window.APP_API_BASE === 'string'
         ? sanitizeUrl(window.APP_API_BASE.trim())
@@ -21,7 +29,12 @@
     window.REVLUMA_CONFIG.apiBase = apiBase;
     window.REVLUMA_CONFIG.mode = envOverride ? 'override' : (isProduction ? 'production' : 'development');
 
-    if (!envOverride && !isProduction) {
+    // Always log API base in production to confirm which backend is targeted.
+    if (envOverride) {
+        console.info('Revluma API base overridden:', apiBase);
+    } else if (isProduction) {
+        console.info('Revluma API base (production):', apiBase);
+    } else {
         console.info('Revluma API using same-origin fallback:', apiBase);
     }
 })();
