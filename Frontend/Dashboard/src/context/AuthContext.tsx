@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null);
 
     try {
-      const response = await api.post('/api/session/login', {
+      const response = await api.post('/session/login', {
         email: email.toLowerCase().trim(),
         password
       }, {
