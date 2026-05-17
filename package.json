@@ -37,7 +37,7 @@
     "nodemailer": "^8.0.3",
     "pg": "^8.20.0",
     "redis": "^5.11.0",
-    "shopify-api-node": "^5.0.0",
+    "shopify-api-node": "^3.2.0",
     "twilio": "^5.13.0",
     "uuid": "^13.0.0",
     "winston": "^3.19.0",
