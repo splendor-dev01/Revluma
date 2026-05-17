@@ -25,8 +25,8 @@ class RevlumaAuth {
         this.baseUrl = config.baseUrl || `${appApiBase}/session`;
         this.fallbackBaseUrl = config.fallbackBaseUrl || `${appApiBase}/auth`;
         this.sessionCookie = 'revluma_session';
-        this.timeout = config.timeout || 5000;
-        this.debug = config.debug || false;
+        this.timeout = config.timeout || 15000;
+        this.debug = config.debug !== undefined ? config.debug : window.location.hostname === 'revluma.vercel.app';
 
         // Cache for CSRF token
         this.csrfToken = null;
@@ -59,6 +59,15 @@ class RevlumaAuth {
 
         const mergedOptions = { ...defaultOptions, ...options };
 
+        if (this.debug) {
+            console.debug('[RevlumaAuth] fetchWithAuth start', {
+                url,
+                method: mergedOptions.method || 'GET',
+                headers: mergedOptions.headers,
+                timeout: this.timeout
+            });
+        }
+
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), this.timeout);
@@ -83,6 +92,10 @@ class RevlumaAuth {
 
             return await response.json();
         } catch (error) {
+            if (error.name === 'AbortError') {
+                error.message = `Request timed out after ${this.timeout}ms: ${url}`;
+                error.code = 'REQUEST_TIMEOUT';
+            }
             if (this.debug) {
                 console.error('[RevlumaAuth]', error);
             }
@@ -437,4 +450,7 @@ class RevlumaAuth {
 }
 
 // Global instance
-window.revlumaAuth = window.revlumaAuth || new RevlumaAuth();
+window.revlumaAuth = window.revlumaAuth || new RevlumaAuth({
+    timeout: 15000,
+    debug: window.location.hostname === 'revluma.vercel.app'
+});
