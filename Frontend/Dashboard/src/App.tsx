@@ -28,7 +28,7 @@ function App() {
   // If not authenticated, redirect to login
   if (!user) {
     console.error('[DASHBOARD APP] No user authenticated, redirecting to login');
-    window.location.href = '/loginIn.html';
+    window.location.href = '/auth/loginIn.html';
     return null;
   }
 

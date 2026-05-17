@@ -1281,7 +1281,7 @@
         if (user && user.id) {
           const dest = (user.onboarding_status === 'completed')
             ? '/dashboard/overview'
-            : 'onboarding.html';
+            : '/auth/onboarding.html';
           try {
             const abs = new URL(dest, window.location.origin).href;
             console.info('[AUTH] Auto-login redirect to', abs);
@@ -1318,7 +1318,7 @@
 
       const dest = (onboarding_status === 'completed')
         ? '/dashboard/overview'
-        : 'onboarding.html';
+        : '/auth/onboarding.html';
 
       console.log('[AUTH STEP 10] Redirecting to:', { destination: dest, reason: onboarding_status === 'completed' ? 'onboarding complete' : 'onboarding required' });
       try {
@@ -1582,10 +1582,9 @@
 
         console.log('[AUTH STEP 12] Login successful, showing success message and preparing redirect');
         showSuccess('Signed in — redirecting…');
-        setTimeout(async () => {
-          console.log('[AUTH STEP 13] Timeout complete, verifying server session and redirecting');
-          await verifyServerSessionAndRedirect(data.user);
-        }, 900);
+        setTimeout(() => {
+        redirectAfterLogin(data.user);
+      }, 900);
 
       } catch (err) {
         console.error('[AUTH] Login failed', {
