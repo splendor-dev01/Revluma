@@ -55,7 +55,7 @@ function App() {
         <Toaster />
         <Sonner />
         <Routes>
-          <Route path="/dashboard/*" element={<DashboardRoutes />} />
+          <Route path="/*" element={<DashboardRoutes />} />
           <Route path="/" element={<Navigate to="/dashboard/overview" replace />} />
           <Route path="*" element={<Navigate to="/dashboard/overview" replace />} />
         </Routes>
