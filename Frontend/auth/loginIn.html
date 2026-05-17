@@ -1222,6 +1222,13 @@
     // ================================================================
     //  SESSION MANAGEMENT
     // ================================================================
+    // Global error hooks for easier tracing in production
+    window.addEventListener('error', function (event) {
+      console.error('[GLOBAL ERROR]', { message: event.message, filename: event.filename, lineno: event.lineno, colno: event.colno, error: event.error });
+    });
+    window.addEventListener('unhandledrejection', function (event) {
+      console.error('[UNHANDLED REJECTION]', event.reason);
+    });
     function storeSession(token, user, remember) {
       console.log('[AUTH STEP 6] Storing session locally', {
         remember,
@@ -1239,6 +1246,15 @@
         localStorage.removeItem('revluma_token');
         localStorage.removeItem('revluma_user');
         console.log('[AUTH STEP 8] Cleared localStorage to use sessionStorage only');
+      }
+      // Safety: ensure session writes succeeded
+      try {
+        const checkToken = remember ? localStorage.getItem('revluma_token') : sessionStorage.getItem('revluma_token');
+        if (!checkToken) {
+          console.error('[AUTH ERROR] Session token not present after storeSession', { remember, userId: user?.id });
+        }
+      } catch (err) {
+        console.error('[AUTH ERROR] storeSession validation failed', err);
       }
     }
 
@@ -1266,7 +1282,13 @@
           const dest = (user.onboarding_status === 'completed')
             ? '/dashboard/overview'
             : 'onboarding.html';
-          window.location.replace(dest);
+          try {
+            const abs = new URL(dest, window.location.origin).href;
+            console.info('[AUTH] Auto-login redirect to', abs);
+            window.location.replace(abs);
+          } catch (err) {
+            console.error('[AUTH ERROR] Auto-login redirect failed', err, { dest });
+          }
         }
       } catch (error) {
         console.warn('[AUTH] Auto-login failed:', error);
@@ -1277,7 +1299,12 @@
       if (!user) {
         console.warn('[AUTH ERROR] redirectAfterLogin called without user object');
         console.log('[AUTH] Falling back to login page');
-        window.location.replace('/auth/loginIn.html');
+        try {
+          const abs = new URL('/auth/loginIn.html', window.location.origin).href;
+          window.location.replace(abs);
+        } catch (err) {
+          console.error('[AUTH ERROR] redirect fallback failed', err);
+        }
         return;
       }
 
@@ -1294,7 +1321,48 @@
         : 'onboarding.html';
 
       console.log('[AUTH STEP 10] Redirecting to:', { destination: dest, reason: onboarding_status === 'completed' ? 'onboarding complete' : 'onboarding required' });
-      window.location.replace(dest);
+      try {
+        const abs = new URL(dest, window.location.origin).href;
+        console.info('[AUTH] redirectAfterLogin ->', abs);
+        window.location.replace(abs);
+      } catch (err) {
+        console.error('[AUTH ERROR] redirectAfterLogin failed', err, { dest, onboarding_status, user });
+      }
+    }
+
+    // Verify server-side session (cookie) is set before redirecting
+    async function verifyServerSessionAndRedirect(user) {
+      try {
+        console.info('[AUTH] Verifying server-side session via /session/me');
+        const res = await fetch(`${API_BASE}/session/me`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!res.ok) {
+          console.error('[AUTH ERROR] /session/me returned non-OK', { status: res.status });
+          showError('Could not confirm session with server. Please try signing in again.');
+          setLoading(false);
+          return false;
+        }
+
+        const body = await res.json();
+        if (body.authenticated) {
+          console.info('[AUTH] Server session verified, proceeding to redirect');
+          redirectAfterLogin(user);
+          return true;
+        }
+
+        console.error('[AUTH ERROR] Server does not recognize session after login', body);
+        showError('Login did not complete correctly. Please ensure cookies are enabled and try again.');
+        setLoading(false);
+        return false;
+      } catch (err) {
+        console.error('[AUTH ERROR] verifyServerSessionAndRedirect failed', err);
+        showError('Network error while verifying session. Please try again.');
+        setLoading(false);
+        return false;
+      }
     }
 
     // ================================================================
@@ -1426,7 +1494,9 @@
         if (data.token && data.user) {
           storeSession(data.token, data.user, state.rememberMe);
           showSuccess('Email verified — signing you in…');
-          setTimeout(() => redirectAfterLogin(data.user), 1000);
+          setTimeout(async () => {
+            await verifyServerSessionAndRedirect(data.user);
+          }, 1000);
         } else {
           // Verified but no token returned — prompt to log in again
           showInfoBanner(
@@ -1512,9 +1582,9 @@
 
         console.log('[AUTH STEP 12] Login successful, showing success message and preparing redirect');
         showSuccess('Signed in — redirecting…');
-        setTimeout(() => {
-          console.log('[AUTH STEP 13] Timeout complete, calling redirectAfterLogin');
-          redirectAfterLogin(data.user);
+        setTimeout(async () => {
+          console.log('[AUTH STEP 13] Timeout complete, verifying server session and redirecting');
+          await verifyServerSessionAndRedirect(data.user);
         }, 900);
 
       } catch (err) {

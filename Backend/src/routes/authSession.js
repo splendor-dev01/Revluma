@@ -248,7 +248,8 @@ router.post('/signup', signupLimiter, async (req, res) => {
       return { tenant, user };
     });
 
-    await createSession(result.tenant.id, result.user.id, res, req);
+    const sessionResult = await createSession(result.tenant.id, result.user.id, res, req);
+    logger.info('Signup session created', { userId: result.user.id, sessionId: sessionResult?.sessionId });
 
     const csrfToken = generateCsrfToken(result.user.id);
 
@@ -326,7 +327,8 @@ router.post('/login', loginLimiter, async (req, res) => {
     });
 
     await invalidateAllUserSessions(user.id, user.tenantId);
-    await createSession(user.tenantId, user.id, res, req);
+    const sessionResult = await createSession(user.tenantId, user.id, res, req);
+    logger.info('Login session created', { userId: user.id, sessionId: sessionResult?.sessionId });
 
     const csrfToken = generateCsrfToken(user.id);
 
@@ -440,6 +442,29 @@ router.get('/csrf-token', async (req, res) => {
 
   const csrfToken = generateCsrfToken(sessionAuth.user.id);
   res.status(200).json({ csrfToken, userId: sessionAuth.user.id });
+});
+
+// DEBUG: return server-side session info for current cookie (useful for client validation)
+router.get('/debug/session-check', async (req, res) => {
+  try {
+    const sessionAuth = await validateSession(req, res);
+    if (!sessionAuth) {
+      return res.status(200).json({ session: null, authenticated: false });
+    }
+
+    return res.status(200).json({
+      session: {
+        token: sessionAuth.token,
+        expiresAt: sessionAuth.expiresAt
+      },
+      user: buildUserPayload(sessionAuth.user),
+      authenticated: true,
+      verified: sessionAuth.verified
+    });
+  } catch (err) {
+    logger.error('Debug session-check failed', { error: err.message });
+    return res.status(500).json({ error: 'Debug session-check failed' });
+  }
 });
 
 // SESSION VALIDATION

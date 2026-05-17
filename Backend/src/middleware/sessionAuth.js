@@ -72,7 +72,8 @@ async function createSession(tenantId, userId, res, req = null) {
   const expiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
   try {
-    await prisma.userSession.create({
+    // Attempt to create the session row and capture the created record for diagnostics
+    const created = await prisma.userSession.create({
       data: {
         userId,
         tokenHash,
@@ -83,17 +84,25 @@ async function createSession(tenantId, userId, res, req = null) {
       }
     });
 
+    // Set cookie for the raw token so the browser stores the session identifier (HTTP-only)
     setSessionCookie(res, rawToken);
+
+    // Log an abbreviated tokenHash for traceability without leaking secrets
     logger.info('AUTH_EVENT', {
       event: 'session_created',
       userId,
       tenantId,
+      sessionId: created.id,
+      tokenHashPrefix: tokenHash.slice(0, 16),
       ip: req?.ip || 'unknown',
       userAgent: req?.headers['user-agent'] || 'unknown'
     });
-    return { token: rawToken, expiresAt };
+
+    // Return the raw token to be used by the caller (note: raw token is not persisted)
+    return { token: rawToken, expiresAt, sessionId: created.id };
   } catch (error) {
-    logger.error('Session creation failed', { error: error.message, userId });
+    // Log full error details for debugging (avoid leaking sensitive token material)
+    logger.error('Session creation failed', { error: error.message, userId, tenantId });
     throw error;
   }
 }

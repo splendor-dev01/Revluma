@@ -21,13 +21,28 @@
 
         if (response.ok) {
           // User is already logged in, redirect to dashboard
-          window.location.href = '/dashboard/overview';
+          try {
+            const abs = new URL('/dashboard/overview', window.location.origin).href;
+            console.info('[SIGNUP] Authenticated - redirect to', abs);
+            window.location.href = abs;
+          } catch (err) {
+            console.error('[SIGNUP ERROR] Dashboard redirect failed', err);
+            window.location.href = '/dashboard/overview';
+          }
         } else {
           // User is not logged in, proceed to onboarding
-          window.location.href = 'onboarding.html';
+          try {
+            const abs = new URL('onboarding.html', window.location.origin).href;
+            console.info('[SIGNUP] Not authenticated - redirect to onboarding', abs);
+            window.location.href = abs;
+          } catch (err) {
+            console.error('[SIGNUP ERROR] Onboarding redirect failed', err);
+            window.location.href = 'onboarding.html';
+          }
         }
       } catch (error) {
         // On error, default to onboarding
+        console.error('[SIGNUP ERROR] checkAuthAndRedirect failed', error);
         window.location.href = 'onboarding.html';
       }
     }

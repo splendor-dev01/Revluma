@@ -130,6 +130,9 @@ app.use('/api/trending', require('./src/routes/trending'));
 app.use('/api/watchlist', require('./src/routes/watchlist'));
 app.use('/api/shopify', require('./src/routes/shopify'));
 
+// Debug routes (server-side session inspection)
+app.use('/api/debug', require('./src/routes/debug'));
+
 // Store routes need prisma instance
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
