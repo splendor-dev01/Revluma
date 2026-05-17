@@ -248,8 +248,19 @@ router.post('/signup', signupLimiter, async (req, res) => {
       return { tenant, user };
     });
 
-    const sessionResult = await createSession(result.tenant.id, result.user.id, res, req);
-    logger.info('Signup session created', { userId: result.user.id, sessionId: sessionResult?.sessionId });
+    let sessionResult;
+    try {
+      sessionResult = await createSession(result.tenant.id, result.user.id, res, req);
+      logger.info('Signup session created', { userId: result.user.id, sessionId: sessionResult?.sessionId });
+    } catch (sessionErr) {
+      logger.error('Signup: session creation failed after user creation', {
+        error: sessionErr.message,
+        userId: result.user.id,
+        email: normalizedEmail,
+        code: sessionErr.code
+      });
+      throw new Error(`Session creation failed: ${sessionErr.message}`);
+    }
 
     const csrfToken = generateCsrfToken(result.user.id);
 
@@ -266,7 +277,7 @@ router.post('/signup', signupLimiter, async (req, res) => {
     if (err.code === 'P2002') {
       return sendErrorResponse(res, 409, 'Email already in use', 'EMAIL_ALREADY_EXISTS');
     }
-    sendErrorResponse(res, 500, 'Signup failed. Please try again.', 'SERVER_ERROR');
+    return sendErrorResponse(res, 500, 'Signup failed. Please try again.', 'SERVER_ERROR');
   }
 });
 
@@ -327,8 +338,20 @@ router.post('/login', loginLimiter, async (req, res) => {
     });
 
     await invalidateAllUserSessions(user.id, user.tenantId);
-    const sessionResult = await createSession(user.tenantId, user.id, res, req);
-    logger.info('Login session created', { userId: user.id, sessionId: sessionResult?.sessionId });
+
+    let sessionResult;
+    try {
+      sessionResult = await createSession(user.tenantId, user.id, res, req);
+      logger.info('Login session created', { userId: user.id, sessionId: sessionResult?.sessionId });
+    } catch (sessionErr) {
+      logger.error('Login: session creation failed', {
+        error: sessionErr.message,
+        userId: user.id,
+        email: normalizedEmail,
+        code: sessionErr.code
+      });
+      throw new Error(`Session creation failed: ${sessionErr.message}`);
+    }
 
     const csrfToken = generateCsrfToken(user.id);
 
@@ -340,7 +363,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     });
   } catch (err) {
     logger.error('Login failed', { error: err.message, email: normalizedEmail });
-    sendErrorResponse(res, 500, 'Login failed. Please try again.', 'SERVER_ERROR');
+    return sendErrorResponse(res, 500, 'Login failed. Please try again.', 'SERVER_ERROR');
   }
 });
 

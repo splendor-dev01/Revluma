@@ -1689,7 +1689,15 @@
             break;
 
           case 'SERVER_ERROR':
-            showErrorBanner('Server error', err.detail);
+            // Check if this is a session creation failure
+            if (err.message && err.message.includes('Session creation')) {
+              showErrorBanner(
+                'We couldn\'t establish your session',
+                'Our servers are having trouble saving your login. This is temporary. Please try again in a moment.'
+              );
+            } else {
+              showErrorBanner('Server error', err.detail || 'Please try again later.');
+            }
             break;
 
           default:
