@@ -10,7 +10,7 @@ export function ConnectBanner() {
         <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: "hsl(var(--amber))", boxShadow: "0 0 0 4px hsl(var(--amber) / 0.18)" }} />
         <p className="text-[0.82rem] leading-snug text-t2">
           <strong className="text-t1">Your store isn't connected yet.</strong>{" "}
-          Connect Shopify to unlock live recovery data, customer intelligence, and automated email sequences.
+          Connect your Store to unlock live recovery data, customer intelligence, and automated messaging sequences.
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -19,7 +19,7 @@ export function ConnectBanner() {
           style={{ background: "hsl(var(--accent))", color: "#000" }}
         >
           <ExternalLink className="h-3 w-3" />
-          Connect Shopify
+          Connect Store
         </button>
       </div>
     </div>
