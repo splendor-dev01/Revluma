@@ -21,6 +21,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://revluma.onrender.com/api/:path*"
+    },
+    {
       "source": "/dashboard/assets/:path*",
       "destination": "/Dashboard/dist/assets/:path*"
     },
