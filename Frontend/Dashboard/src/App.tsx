@@ -15,15 +15,12 @@ function App() {
 
   console.log('[DASHBOARD APP] Render state', { loading, hasUser: !!user, userId: user?.id });
 
-  // While checking authentication, show loading spinner
   if (loading) {
     console.log('[DASHBOARD APP] Still loading auth state, showing spinner');
     return <LoadingSpinner />;
   }
 
-  // If not authenticated, handle redirect or error
   if (!user) {
-    // ✅ Show error UI on transient server/network errors instead of redirect loop
     if (error) {
       return (
         <div className="flex items-center justify-center min-h-screen bg-gray-950">
@@ -41,7 +38,6 @@ function App() {
       );
     }
 
-    // Genuinely not authenticated — redirect to login
     console.error('[DASHBOARD APP] No user authenticated, redirecting to login');
     window.location.href = '/auth/loginIn.html';
     return null;
@@ -55,9 +51,12 @@ function App() {
         <Toaster />
         <Sonner />
         <Routes>
-          <Route path="/dashboard/*" element={<DashboardRoutes />} />
-          <Route path="/" element={<Navigate to="/dashboard/overview" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard/overview" replace />} />
+          {/*
+            BrowserRouter has basename="/dashboard/" (from import.meta.env.BASE_URL).
+            React Router strips the basename, so it sees "" or "overview" — no leading slash.
+            Use "*" to catch all routes and pass to DashboardRoutes.
+          */}
+          <Route path="*" element={<DashboardRoutes />} />
         </Routes>
       </TooltipProvider>
     </QueryClientProvider>
