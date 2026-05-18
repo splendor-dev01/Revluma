@@ -16,6 +16,8 @@ Frontend/dist/
 Backend/dist/
 Frontend/build/
 Backend/build/
+Frontend/Dashboard/dist/
+Frontend/Dashboard/node_modules/
 
 # IDE & OS files (NEVER PUSH)
 .vscode/
