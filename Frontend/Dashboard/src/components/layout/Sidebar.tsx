@@ -4,10 +4,12 @@ import { useUI } from "@/store/ui";
 import { NAV } from "@/data/nav";
 import { MOCK } from "@/data/mockOverview";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 
 export function Sidebar() {
   const { sidebarCollapsed, setSidebarCollapsed, mobileSidebarOpen, setMobileSidebarOpen, theme, toggleTheme } = useUI();
+  const { logout } = useAuth();
   const location = useLocation();
   const [userOpen, setUserOpen] = useState(false);
 
@@ -179,7 +181,7 @@ export function Sidebar() {
               <DDItem icon={UsersIcon} label="Team Members" />
               <DDItem icon={HelpCircle} label="Help & Support" />
               <div className="my-1 h-px bg-border" />
-              <DDItem icon={LogOut} label="Log out" danger />
+              <DDItem icon={LogOut} label="Log out" danger onClick={logout} />
             </div>
           )}
           <button
@@ -220,9 +222,9 @@ export function Sidebar() {
 
 function NavBadge({ tone, text }: { tone: "new" | "beta" | "count"; text: string }) {
   const styles =
-    tone === "new"   ? { background: "hsl(var(--accent))", color: "#000" }
-    : tone === "beta" ? { background: "hsl(var(--purple))", color: "#fff" }
-    :                   { background: "hsl(var(--t1))", color: "hsl(var(--sidebar-bg))" };
+    tone === "new" ? { background: "hsl(var(--accent))", color: "#000" }
+      : tone === "beta" ? { background: "hsl(var(--purple))", color: "#fff" }
+        : { background: "hsl(var(--t1))", color: "hsl(var(--sidebar-bg))" };
   return (
     <span className="shrink-0 whitespace-nowrap rounded-full px-1.5 py-px text-[0.58rem] font-bold uppercase tracking-[0.04em]" style={styles}>
       {text}
@@ -230,9 +232,16 @@ function NavBadge({ tone, text }: { tone: "new" | "beta" | "count"; text: string
   );
 }
 
-function DDItem({ icon: Icon, label, danger }: { icon: React.ElementType; label: string; danger?: boolean }) {
+function DDItem({ icon: Icon, label, danger, onClick }: { icon: React.ElementType; label: string; danger?: boolean; onClick?: () => void }) {
   return (
-    <button className={cn("flex w-full items-center gap-2.5 px-3.5 py-2.5 text-[0.8rem] font-medium text-t2 transition-colors hover:bg-white/[0.065] hover:text-t1", danger && "hover:!text-red")}>
+    <button
+      onClick={onClick}
+      type="button"
+      className={cn(
+        "flex w-full items-center gap-2.5 px-3.5 py-2.5 text-[0.8rem] font-medium text-t2 transition-colors hover:bg-white/[0.065] hover:text-t1",
+        danger && "hover:!text-red"
+      )}
+    >
       <Icon className="h-3.5 w-3.5" />
       {label}
     </button>
