@@ -3,8 +3,11 @@ const jwt = require('jsonwebtoken');
 const { prisma } = require('../services/prisma');
 const logger = require('../utils/logger');
 
-const SESSION_EXPIRY_DAYS = Number(process.env.SESSION_EXPIRY_DAYS || '7');
-const CSRF_TOKEN_TTL_MS = 30 * 60 * 1000;
+// ============================================================
+// 24-HOUR SESSION — matches product requirement
+// ============================================================
+const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours in ms
+const CSRF_TOKEN_TTL_MS = 30 * 60 * 1000;       // 30 min CSRF window
 const isProduction = process.env.NODE_ENV === 'production';
 const CSRF_SECRET = process.env.CSRF_SECRET || process.env.JWT_SECRET;
 const COOKIE_NAME = 'revluma_session';
@@ -21,8 +24,8 @@ function getCookieOptions() {
     sameSite: isProduction ? 'none' : 'lax',
     path: COOKIE_PATH,
     secure: isProduction,
-    maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
-    expires: new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000)
+    maxAge: SESSION_EXPIRY_MS,
+    expires: new Date(Date.now() + SESSION_EXPIRY_MS)
   };
 }
 
@@ -38,25 +41,15 @@ function generateCsrfToken(userId) {
 }
 
 function validateCsrfToken(token, userId) {
-  if (!token || !userId) {
-    return false;
-  }
+  if (!token || !userId) return false;
 
   try {
     const decoded = Buffer.from(token, 'base64url').toString('utf8');
     const [tokenUserId, timestamp, signature] = decoded.split(':');
 
-    if (!tokenUserId || !timestamp || !signature) {
-      return false;
-    }
-
-    if (tokenUserId !== userId) {
-      return false;
-    }
-
-    if (Date.now() - Number(timestamp) > CSRF_TOKEN_TTL_MS) {
-      return false;
-    }
+    if (!tokenUserId || !timestamp || !signature) return false;
+    if (tokenUserId !== userId) return false;
+    if (Date.now() - Number(timestamp) > CSRF_TOKEN_TTL_MS) return false;
 
     const expected = crypto.createHmac('sha256', CSRF_SECRET).update(`${tokenUserId}:${timestamp}`).digest('hex');
     return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
@@ -69,10 +62,9 @@ function validateCsrfToken(token, userId) {
 async function createSession(tenantId, userId, res, req = null) {
   const rawToken = crypto.randomBytes(32).toString('hex');
   const tokenHash = hashSessionToken(rawToken);
-  const expiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + SESSION_EXPIRY_MS);
 
   try {
-    // Attempt to create the session row and capture the created record for diagnostics
     const created = await prisma.userSession.create({
       data: {
         userId,
@@ -84,33 +76,28 @@ async function createSession(tenantId, userId, res, req = null) {
       }
     });
 
-    // Set cookie for the raw token so the browser stores the session identifier (HTTP-only)
     setSessionCookie(res, rawToken);
 
-    // Log an abbreviated tokenHash for traceability without leaking secrets
     logger.info('AUTH_EVENT', {
       event: 'session_created',
       userId,
       tenantId,
       sessionId: created.id,
       tokenHashPrefix: tokenHash.slice(0, 16),
+      expiresAt: expiresAt.toISOString(),
       ip: req?.ip || 'unknown',
       userAgent: req?.headers['user-agent'] || 'unknown'
     });
 
-    // Return the raw token to be used by the caller (note: raw token is not persisted)
     return { token: rawToken, expiresAt, sessionId: created.id };
   } catch (error) {
-    // Log full error details for debugging (avoid leaking sensitive token material)
     logger.error('Session creation failed', { error: error.message, userId, tenantId });
     throw error;
   }
 }
 
 async function invalidateSession(sessionToken, actorId) {
-  if (!sessionToken) {
-    return false;
-  }
+  if (!sessionToken) return false;
 
   const tokenHash = hashSessionToken(sessionToken);
   try {
@@ -136,9 +123,7 @@ async function invalidateAllUserSessions(userId, tenantId) {
 
 async function validateSession(req, res) {
   const sessionId = getSessionId(req);
-  if (!sessionId) {
-    return null;
-  }
+  if (!sessionId) return null;
 
   const tokenHash = hashSessionToken(sessionId);
   try {
@@ -169,23 +154,17 @@ async function validateSession(req, res) {
       return null;
     }
 
-    // Sliding window: extend session by 7 days on successful validation
-    const newExpiresAt = new Date(Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+    // Update lastSeenAt but do NOT extend expiry — 24hr is fixed
     await prisma.userSession.update({
       where: { tokenHash },
-      data: {
-        expiresAt: newExpiresAt
-      }
+      data: { lastSeenAt: new Date() }
     });
-
-    // Reset cookie with new expiry
-    setSessionCookie(res, sessionId);
 
     return {
       token: sessionId,
       user: session.user,
       verified: session.user.emailVerified,
-      expiresAt: newExpiresAt
+      expiresAt: session.expiresAt
     };
   } catch (error) {
     logger.error('Session validation error', { error: error.message });
@@ -212,9 +191,7 @@ function getSessionId(req) {
 }
 
 const csrfProtection = async (req, res, next) => {
-  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return next();
-  }
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
 
   const csrfToken = req.headers['x-csrf-token'];
   if (!csrfToken) {
@@ -222,7 +199,6 @@ const csrfProtection = async (req, res, next) => {
     return res.status(403).json({ error: 'CSRF token required' });
   }
 
-  // Try session-based authentication first
   const sessionId = getSessionId(req);
   if (sessionId) {
     const session = await prisma.userSession.findUnique({
@@ -241,7 +217,6 @@ const csrfProtection = async (req, res, next) => {
     }
   }
 
-  // Fallback to JWT token
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Session or Bearer token required for CSRF validation' });
@@ -250,7 +225,6 @@ const csrfProtection = async (req, res, next) => {
   const token = authHeader.slice('Bearer '.length);
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-    // For JWT tokens, validate CSRF based on user ID in token
     if (!validateCsrfToken(csrfToken, decoded.id)) {
       logger.warn('Invalid CSRF token for JWT user', { ip: req.ip, userId: decoded.id, url: req.originalUrl });
       return res.status(403).json({ error: 'Invalid CSRF token' });
@@ -273,7 +247,6 @@ const authenticate = async (req, res, next) => {
     if (!sessionAuth.verified) {
       return res.status(403).json({ error: 'Email verification required' });
     }
-
     req.user = sessionAuth.user;
     return next();
   }
@@ -284,9 +257,7 @@ const authenticate = async (req, res, next) => {
   }
 
   const token = authHeader.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
+  if (!token) return res.status(401).json({ error: 'No token provided' });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
@@ -312,31 +283,24 @@ const authenticate = async (req, res, next) => {
 
     next();
   } catch (err) {
-    let status = 401;
     let message = 'Invalid or expired token';
-
-    if (err.name === 'TokenExpiredError') {
-      message = 'Token has expired';
-    } else if (err.name === 'JsonWebTokenError') {
-      message = 'Malformed token';
-    }
+    if (err.name === 'TokenExpiredError') message = 'Token has expired';
+    else if (err.name === 'JsonWebTokenError') message = 'Malformed token';
 
     logger.warn('JWT authentication failed', { error: err.message, ip: req.ip });
-    return res.status(status).json({ error: message });
+    return res.status(401).json({ error: message });
   }
 };
 
 const requireOnboarding = async (req, res, next) => {
-  const tenant_id = req.user?.tenant_id;
+  const tenant_id = req.user?.tenant_id || req.user?.tenantId;
 
   if (!tenant_id) {
     return res.status(400).json({ error: 'Tenant information is missing' });
   }
 
   try {
-    const tenant = await prisma.tenant.findUnique({
-      where: { id: tenant_id }
-    });
+    const tenant = await prisma.tenant.findUnique({ where: { id: tenant_id } });
 
     if (!tenant) {
       return res.status(404).json({ error: 'Tenant not found' });
