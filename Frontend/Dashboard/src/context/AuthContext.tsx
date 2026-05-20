@@ -27,6 +27,24 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 const SESSION_POLL_INTERVAL = 5 * 60 * 1000;
 const SESSION_VALIDATION_TIMEOUT = 30 * 1000;
 
+// Every key that could hold auth state across the app
+const ALL_AUTH_KEYS = [
+  'revluma_token',
+  'revluma_user',
+  'revluma_pending_token',
+  'csrf_token',
+  'auth_bridge',
+  'rv_auth_bridge',
+];
+
+function nukeAllAuthStorage() {
+  ALL_AUTH_KEYS.forEach(key => {
+    try { localStorage.removeItem(key); } catch {}
+    try { sessionStorage.removeItem(key); } catch {}
+  });
+  try { sessionStorage.clear(); } catch {}
+}
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -35,21 +53,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const checkSessionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const userRef = useRef<User | null>(null);
+  const isLoggingOut = useRef(false);
 
   useEffect(() => {
     userRef.current = user;
   }, [user]);
 
   const checkSession = useCallback(async () => {
-    console.log('[DASHBOARD AUTH] Starting session validation', { timestamp: new Date().toISOString() });
     try {
       const response = await api.get('/session/me', {
         withCredentials: true,
         timeout: SESSION_VALIDATION_TIMEOUT
       });
 
-      if (response.data && response.data.authenticated) {
-        // ✅ Merge tenant-level onboarding_status into user object
+      if (response.data?.authenticated) {
         const authenticatedUser: User = {
           ...response.data.user,
           onboarding_status:
@@ -57,31 +74,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             response.data.user?.onboarding_status ??
             'pending'
         };
-
-        console.log('[DASHBOARD AUTH] User authenticated', {
-          userId: authenticatedUser.id,
-          onboarding_status: authenticatedUser.onboarding_status
-        });
-
         setUser(authenticatedUser);
         setError(null);
       } else {
-        console.warn('[DASHBOARD AUTH] Response not authenticated');
         setUser(null);
       }
     } catch (err) {
       const status = (err as AxiosError)?.response?.status;
-      console.error('[DASHBOARD AUTH] Session validation error:', {
-        message: err instanceof Error ? err.message : String(err),
-        status
-      });
-
       if (status === 401 || status === 403) {
-        // Genuinely not authenticated
         setUser(null);
       } else {
-        // ✅ Server down or network error — show error, don't clear user
-        setError('Unable to connect to server. Please check your connection.');
+        if (!userRef.current) {
+          setError('Unable to connect to server. Please check your connection.');
+        }
       }
     } finally {
       setLoading(false);
@@ -116,51 +121,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           userRef.current = loggedInUser;
         }
 
-        // Ensure the server-side cookie session is established before redirecting.
-        // Some browsers may not attach the HTTP-only cookie instantly; poll /session/me
-        // a few times (short-lived) to confirm the server recognizes the session.
-        const maxAttempts = 8;
-        const delayMs = 250;
-        let authenticated = false;
-
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            const me = await api.get('/session/me', { withCredentials: true, timeout: SESSION_VALIDATION_TIMEOUT });
-            if (me.data && me.data.authenticated) {
-              // Merge server-provided user info if present
-              const serverUser = me.data.user;
-              if (serverUser) {
-                const merged: User = {
-                  ...serverUser,
-                  onboarding_status: me.data.onboarding_status ?? serverUser.onboarding_status ?? 'pending'
-                };
-                setUser(merged);
-                userRef.current = merged;
-              }
-              authenticated = true;
-              break;
-            }
-          } catch (e) {
-            // swallow errors and retry briefly
-          }
-
-          // eslint-disable-next-line no-await-in-loop
-          await new Promise((r) => setTimeout(r, delayMs));
-        }
-
-        if (authenticated) {
+        setTimeout(() => {
           window.location.href = '/dashboard/overview';
-        } else {
-          // Session wasn't confirmed. Stay on login and show an error so user can retry.
-          setError('Unable to confirm server session after login. Please try again.');
-          setUser(null);
-        }
+        }, 100);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error
-        ? err.message
-        : (err as AxiosError<{ error?: string }>)?.response?.data?.error || 'Login failed. Please try again.';
+      const errorMessage = (err as AxiosError<{ error?: string }>)?.response?.data?.error
+        || 'Login failed. Please try again.';
       setError(errorMessage);
       setUser(null);
       setLoading(false);
@@ -168,59 +135,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  // logout(allSessions = false) -> if allSessions true, request server to invalidate all user sessions
-  const logout = useCallback(async (allSessions = false) => {
+  const logout = useCallback(async () => {
+    if (isLoggingOut.current) return;
+    isLoggingOut.current = true;
     setLoading(true);
 
     try {
       const token = csrfToken || sessionStorage.getItem('csrf_token');
       const headers: Record<string, string> = {};
       if (token) headers['X-CSRF-Token'] = token;
-
-      const body = { allSessions };
-
-      const response = await api.post('/session/logout', body, { withCredentials: true, headers });
-
-      // If server asks clients to broadcast logout, set a persistent signal in localStorage
-      if (response.data?.logoutBroadcast) {
-        try {
-          localStorage.setItem('auth_logout_signal', Date.now().toString());
-        } catch (e) {
-          // ignore storage errors
-        }
-      }
+      await api.post('/session/logout', {}, { withCredentials: true, headers });
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error('[AUTH] Logout server call failed:', err);
+      // Always continue with local cleanup
     } finally {
-      // Clear client state (best-effort). Server clears HTTP-only cookie.
+      // 1. Clear React state
       setUser(null);
       userRef.current = null;
       setCsrfToken(null);
-      try {
-        sessionStorage.removeItem('csrf_token');
-        sessionStorage.clear();
-      } catch (e) { }
 
-      // Comprehensive localStorage cleanup to prevent stale session resurrection
+      // 2. Nuke ALL auth storage — this is the critical fix
+      // Clears revluma_token, revluma_user, all JWT tokens, CSRF tokens
+      nukeAllAuthStorage();
+
+      // 3. Set a persistent logout flag (5 minute window, not 10 seconds)
+      // This prevents checkAutoLogin from running on the login page after logout
       try {
-        const authKeys = [
-          'revluma_token',
-          'revluma_user',
-          'revluma_pending_token',
-          'revluma_remembered_email',
-          'csrf_token',
-          'auth_bridge'
-        ];
-        authKeys.forEach(key => {
-          try {
-            localStorage.removeItem(key);
-          } catch (e) { }
-        });
-      } catch (e) { }
+        localStorage.setItem('rv_logged_out', Date.now().toString());
+      } catch {}
+
+      // 4. Signal other tabs
+      try {
+        localStorage.setItem('auth_logout_signal', Date.now().toString());
+        // Small delay then remove so storage event fires in other tabs
+        setTimeout(() => {
+          try { localStorage.removeItem('auth_logout_signal'); } catch {}
+        }, 500);
+      } catch {}
 
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
       setLoading(false);
-      // Redirect to login page
+      isLoggingOut.current = false;
       window.location.href = '/auth/loginIn.html';
     }
   }, [csrfToken]);
@@ -228,18 +184,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const clearError = useCallback(() => setError(null), []);
 
   useEffect(() => {
-    console.log('[DASHBOARD AUTH] AuthProvider mounted, starting initial session check');
     checkSession();
 
     pollIntervalRef.current = setInterval(() => {
-      checkSession();
+      if (!isLoggingOut.current) checkSession();
     }, SESSION_POLL_INTERVAL);
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'auth_logout_signal') {
+      if (e.key === 'auth_logout_signal' && e.newValue) {
         setUser(null);
         userRef.current = null;
         setCsrfToken(null);
+        nukeAllAuthStorage();
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         window.location.href = '/auth/loginIn.html';
       }
     };
@@ -263,15 +220,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const errorInterceptor = api.interceptors.response.use(
       (response) => response,
       (err) => {
-        if (err.response?.status === 401 || err.response?.status === 403) {
-          if (userRef.current) {
-            console.warn('[DASHBOARD AUTH] Session expired, redirecting to login');
-            setUser(null);
-            userRef.current = null;
-            setCsrfToken(null);
-            sessionStorage.removeItem('csrf_token');
-            window.location.href = '/auth/loginIn.html';
-          }
+        const status = err.response?.status;
+        if ((status === 401 || status === 403) && userRef.current && !isLoggingOut.current) {
+          setUser(null);
+          userRef.current = null;
+          setCsrfToken(null);
+          nukeAllAuthStorage();
+          window.location.href = '/auth/loginIn.html';
         }
         return Promise.reject(err);
       }
