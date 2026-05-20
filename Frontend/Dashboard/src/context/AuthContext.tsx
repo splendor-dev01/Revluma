@@ -2,10 +2,6 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef } f
 import { api } from '@/lib/utils';
 import type { AxiosError } from 'axios';
 
-// ============================================================
-// AUTH CONTEXT — 24-hour session, no redirect loops
-// ============================================================
-
 export interface User {
   id: string;
   email: string;
@@ -28,51 +24,8 @@ export interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-// Session polling — check every 10 minutes (not 5, to reduce server load)
-const SESSION_POLL_INTERVAL = 10 * 60 * 1000;
-const SESSION_VALIDATION_TIMEOUT = 15 * 1000;
-
-// Key used by loginIn.html to pass auth state to dashboard
-const AUTH_BRIDGE_KEY = 'rv_auth_bridge';
-const AUTH_BRIDGE_TTL_MS = 30 * 1000; // Bridge data valid for 30 seconds
-
-// ============================================================
-// HELPERS
-// ============================================================
-
-function buildUserFromResponse(data: any): User | null {
-  if (!data?.user) return null;
-  return {
-    ...data.user,
-    onboarding_status:
-      data.onboarding_status ??
-      data.user?.onboarding_status ??
-      'pending'
-  };
-}
-
-function readAuthBridge(): User | null {
-  try {
-    const raw = sessionStorage.getItem(AUTH_BRIDGE_KEY);
-    if (!raw) return null;
-    const { user, timestamp } = JSON.parse(raw);
-    if (Date.now() - timestamp > AUTH_BRIDGE_TTL_MS) {
-      sessionStorage.removeItem(AUTH_BRIDGE_KEY);
-      return null;
-    }
-    return user;
-  } catch {
-    return null;
-  }
-}
-
-function clearAuthBridge() {
-  sessionStorage.removeItem(AUTH_BRIDGE_KEY);
-}
-
-// ============================================================
-// PROVIDER
-// ============================================================
+const SESSION_POLL_INTERVAL = 5 * 60 * 1000;
+const SESSION_VALIDATION_TIMEOUT = 30 * 1000;
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -80,68 +33,61 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const checkSessionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const userRef = useRef<User | null>(null);
-  const isLoggingOut = useRef(false);
 
-  // Keep userRef in sync
   useEffect(() => {
     userRef.current = user;
   }, [user]);
 
-  // ============================================================
-  // CHECK SESSION — called on mount and every 10 min
-  // ============================================================
   const checkSession = useCallback(async () => {
-    // 1. Check if loginIn.html passed auth state via bridge
-    const bridgeUser = readAuthBridge();
-    if (bridgeUser) {
-      console.log('[AUTH] Using auth bridge from login page');
-      clearAuthBridge();
-      setUser(bridgeUser);
-      setError(null);
-      setLoading(false);
-      return;
-    }
-
-    // 2. Verify with server
+    console.log('[DASHBOARD AUTH] Starting session validation', { timestamp: new Date().toISOString() });
     try {
       const response = await api.get('/session/me', {
         withCredentials: true,
         timeout: SESSION_VALIDATION_TIMEOUT
       });
 
-      if (response.data?.authenticated) {
-        const authenticatedUser = buildUserFromResponse(response.data);
-        if (authenticatedUser) {
-          setUser(authenticatedUser);
-          setError(null);
-        } else {
-          setUser(null);
-        }
+      if (response.data && response.data.authenticated) {
+        // ✅ Merge tenant-level onboarding_status into user object
+        const authenticatedUser: User = {
+          ...response.data.user,
+          onboarding_status:
+            response.data.onboarding_status ??
+            response.data.user?.onboarding_status ??
+            'pending'
+        };
+
+        console.log('[DASHBOARD AUTH] User authenticated', {
+          userId: authenticatedUser.id,
+          onboarding_status: authenticatedUser.onboarding_status
+        });
+
+        setUser(authenticatedUser);
+        setError(null);
       } else {
+        console.warn('[DASHBOARD AUTH] Response not authenticated');
         setUser(null);
       }
     } catch (err) {
       const status = (err as AxiosError)?.response?.status;
+      console.error('[DASHBOARD AUTH] Session validation error:', {
+        message: err instanceof Error ? err.message : String(err),
+        status
+      });
 
       if (status === 401 || status === 403) {
-        // Genuinely not authenticated — clear and let App.tsx redirect
+        // Genuinely not authenticated
         setUser(null);
       } else {
-        // Network/server error — don't clear existing user, show error
-        if (!userRef.current) {
-          setError('Unable to connect to server. Please check your connection.');
-        }
-        console.error('[AUTH] Session check failed:', err instanceof Error ? err.message : String(err));
+        // ✅ Server down or network error — show error, don't clear user
+        setError('Unable to connect to server. Please check your connection.');
       }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // ============================================================
-  // LOGIN — called from dashboard login form (if used)
-  // ============================================================
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     setError(null);
@@ -158,24 +104,63 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           sessionStorage.setItem('csrf_token', response.data.csrfToken);
         }
 
-        const loggedInUser = buildUserFromResponse(response.data);
-        if (loggedInUser) {
+        if (response.data.user) {
+          const loggedInUser: User = {
+            ...response.data.user,
+            onboarding_status:
+              response.data.onboarding_status ??
+              response.data.user?.onboarding_status ??
+              'pending'
+          };
           setUser(loggedInUser);
           userRef.current = loggedInUser;
         }
 
-        // Store expiry for UI display
-        if (response.data.expiresAt) {
-          sessionStorage.setItem('rv_session_expires', response.data.expiresAt);
+        // Ensure the server-side cookie session is established before redirecting.
+        // Some browsers may not attach the HTTP-only cookie instantly; poll /session/me
+        // a few times (short-lived) to confirm the server recognizes the session.
+        const maxAttempts = 8;
+        const delayMs = 250;
+        let authenticated = false;
+
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            const me = await api.get('/session/me', { withCredentials: true, timeout: SESSION_VALIDATION_TIMEOUT });
+            if (me.data && me.data.authenticated) {
+              // Merge server-provided user info if present
+              const serverUser = me.data.user;
+              if (serverUser) {
+                const merged: User = {
+                  ...serverUser,
+                  onboarding_status: me.data.onboarding_status ?? serverUser.onboarding_status ?? 'pending'
+                };
+                setUser(merged);
+                userRef.current = merged;
+              }
+              authenticated = true;
+              break;
+            }
+          } catch (e) {
+            // swallow errors and retry briefly
+          }
+
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((r) => setTimeout(r, delayMs));
         }
 
-        setTimeout(() => {
+        if (authenticated) {
           window.location.href = '/dashboard/overview';
-        }, 100);
+        } else {
+          // Session wasn't confirmed. Stay on login and show an error so user can retry.
+          setError('Unable to confirm server session after login. Please try again.');
+          setUser(null);
+        }
       }
     } catch (err) {
-      const errorMessage = (err as AxiosError<{ error?: string }>)?.response?.data?.error
-        || 'Login failed. Please try again.';
+      const errorMessage = err instanceof Error
+        ? err.message
+        : (err as AxiosError<{ error?: string }>)?.response?.data?.error || 'Login failed. Please try again.';
       setError(errorMessage);
       setUser(null);
       setLoading(false);
@@ -183,65 +168,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  // ============================================================
-  // LOGOUT — clears session on server + client
-  // ============================================================
   const logout = useCallback(async () => {
-    if (isLoggingOut.current) return;
-    isLoggingOut.current = true;
     setLoading(true);
 
     try {
       const token = csrfToken || sessionStorage.getItem('csrf_token');
       const headers: Record<string, string> = {};
       if (token) headers['X-CSRF-Token'] = token;
-
       await api.post('/session/logout', {}, { withCredentials: true, headers });
     } catch (err) {
-      console.error('[AUTH] Logout error:', err);
-      // Continue with local cleanup even if server fails
+      console.error('Logout error:', err);
     } finally {
-      // Always clean up local state
       setUser(null);
       userRef.current = null;
       setCsrfToken(null);
-      clearAuthBridge();
       sessionStorage.removeItem('csrf_token');
-      sessionStorage.removeItem('rv_session_expires');
       sessionStorage.clear();
-
-      // Signal other tabs to logout
-      localStorage.setItem('rv_logout_signal', Date.now().toString());
-      localStorage.removeItem('rv_logout_signal');
-
+      localStorage.setItem('auth_logout_signal', Date.now().toString());
+      localStorage.removeItem('auth_logout_signal');
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-
       setLoading(false);
-      isLoggingOut.current = false;
       window.location.href = '/auth/loginIn.html';
     }
   }, [csrfToken]);
 
   const clearError = useCallback(() => setError(null), []);
 
-  // ============================================================
-  // MOUNT — initial session check + polling
-  // ============================================================
   useEffect(() => {
+    console.log('[DASHBOARD AUTH] AuthProvider mounted, starting initial session check');
     checkSession();
 
-    // Poll every 10 minutes to detect expired sessions
     pollIntervalRef.current = setInterval(() => {
-      if (!isLoggingOut.current) checkSession();
+      checkSession();
     }, SESSION_POLL_INTERVAL);
 
-    // Cross-tab logout sync
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'rv_logout_signal' && e.newValue) {
+      if (e.key === 'auth_logout_signal') {
         setUser(null);
         userRef.current = null;
         setCsrfToken(null);
-        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         window.location.href = '/auth/loginIn.html';
       }
     };
@@ -250,13 +215,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (checkSessionTimeoutRef.current) clearTimeout(checkSessionTimeoutRef.current);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [checkSession]);
 
-  // ============================================================
-  // AXIOS INTERCEPTORS — attach CSRF + handle 401
-  // ============================================================
   useEffect(() => {
     const requestInterceptor = api.interceptors.request.use((config) => {
       const token = csrfToken || sessionStorage.getItem('csrf_token');
@@ -267,16 +230,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const errorInterceptor = api.interceptors.response.use(
       (response) => response,
       (err) => {
-        const status = err.response?.status;
-        // Only redirect on 401/403 if user was previously authenticated
-        // This prevents redirect on the initial /session/me check
-        if ((status === 401 || status === 403) && userRef.current && !isLoggingOut.current) {
-          console.warn('[AUTH] Session expired mid-session, redirecting to login');
-          setUser(null);
-          userRef.current = null;
-          setCsrfToken(null);
-          sessionStorage.removeItem('csrf_token');
-          window.location.href = '/auth/loginIn.html';
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          if (userRef.current) {
+            console.warn('[DASHBOARD AUTH] Session expired, redirecting to login');
+            setUser(null);
+            userRef.current = null;
+            setCsrfToken(null);
+            sessionStorage.removeItem('csrf_token');
+            window.location.href = '/auth/loginIn.html';
+          }
         }
         return Promise.reject(err);
       }
