@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd Frontend/Dashboard && npm install && npm run build",
+"buildCommand": "cd Frontend/Dashboard && npm install && npm run build && cd ../Affiliate && npm install && npm run build",
   "outputDirectory": "Frontend",
   "installCommand": "echo 'skip root install'",
   "headers": [
@@ -35,6 +35,18 @@
     {
       "source": "/dashboard",
       "destination": "/Dashboard/dist/index.html"
+    },
+    {
+      "source": "/affiliate/assets/:path*",
+      "destination": "/Affiliate/dist/assets/:path*"
+    },
+    {
+      "source": "/affiliate/:path*",
+      "destination": "/Affiliate/dist/index.html"
+    },
+    {
+      "source": "/affiliate",
+      "destination": "/Affiliate/dist/index.html"
     }
   ]
 }
