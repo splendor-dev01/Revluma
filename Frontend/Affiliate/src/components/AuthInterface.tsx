@@ -17,21 +17,40 @@ interface AuthInterfaceProps {
   allCreatedProfiles: PartnerProfile[];
   onCreateProfile: (profile: PartnerProfile) => void;
   onSendSimulatedEmail: (emailObj: { to: string; subject: string; body: string; isSystem: boolean }) => void;
+  sentEmails: Array<{
+    id: string;
+    timestamp: string;
+    to: string;
+    subject: string;
+    body: string;
+    isSystem: boolean;
+  }>;
+  onClearEmailLogs?: () => void;
 }
 
-export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreatedProfiles, onCreateProfile, onSendSimulatedEmail }: AuthInterfaceProps) {
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot' | 'resetConfirm' | 'submittedTokenVerification'>('login');
+export default function AuthInterface({ 
+  onAuthSuccess, 
+  onBackToLanding, 
+  allCreatedProfiles, 
+  onCreateProfile, 
+  onSendSimulatedEmail,
+  sentEmails,
+  onClearEmailLogs
+}: AuthInterfaceProps) {
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot' | 'resetConfirm' | 'submittedTokenVerification' | 'verifyRegistrationEmail'>('login');
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState('');
   const [successText, setSuccessText] = useState('');
 
+  // Email Verification Flow State
+  const [inputVerificationCode, setInputVerificationCode] = useState('');
+  const [isVerificationResending, setIsVerificationResending] = useState(false);
+
   // Token Verification Flow State
   const [pendingUser, setPendingUser] = useState<PartnerProfile | null>(null);
   const [inputToken, setInputToken] = useState('');
   const [tokenVerified, setTokenVerified] = useState(false);
-
-  const APPROVAL_TOKEN = "f3b6d2a7-5ea9-42bf-be08-592f15e8daea";
 
   // Fields
   // STEP 1 FIELDS: Personal & Credentials
@@ -141,6 +160,9 @@ export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreat
         return;
       }
 
+      // Generate a unique 6-digit confirmation code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
       // Create profile object
       const customProfile: PartnerProfile = {
         id: `usr_${Math.random().toString(36).substring(2, 10)}`,
@@ -161,15 +183,42 @@ export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreat
         role: email.toLowerCase().includes('admin') || username.toLowerCase() === 'admin' ? 'admin' : 'user', // Backdoor for admin simulation
         createdAt: new Date().toISOString(),
         tier: 'Affiliate',
-        commissionRate: 0.20
+        commissionRate: 0.20,
+        emailVerified: false,
+        emailVerificationCode: verificationCode,
+        password: password // Keep track of password for login!
       };
 
       onCreateProfile(customProfile);
       setPendingUser(customProfile);
-      setSuccessText("Your vetting request has been successfully queued. Welcome to the exclusive developer pipeline!");
-      setAuthMode('submittedTokenVerification');
-      setInputToken('');
-      setTokenVerified(false);
+
+      // Trigger standard email simulation
+      onSendSimulatedEmail({
+        to: customProfile.email,
+        subject: `[Luminor Terminal] Complete your affiliate security verification - ${verificationCode}`,
+        body: `
+Dear ${customProfile.fullName},
+
+Thank you for registering to join the Revluma Growth Ecosystem.
+
+To activate your account and access the secure vetting dashboard queue, please verify your email address. Enter the following 6-digit confirmation code in your terminal window:
+
+----------------------------------------
+>>> VERIFICATION CODE: ${verificationCode} <<<
+----------------------------------------
+
+This security code validates your account communication channel and is required before credentials can be activated.
+
+Best regards,
+Luminor Security Gateway System
+Ecosystem Identifier: c4cd099f
+        `.trim(),
+        isSystem: false
+      });
+
+      setSuccessText(`Verification email dispatched to ${customProfile.email}. Please enter the 6-digit confirmation security code below.`);
+      setAuthMode('verifyRegistrationEmail');
+      setInputVerificationCode('');
       setIsLoading(false);
     }, 1200);
   };
@@ -199,11 +248,58 @@ export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreat
         return;
       }
 
+      // Check access key security matching
+      const isPasswordCorrect = !partner.password || partner.password === loginPassword;
+      if (!isPasswordCorrect) {
+        setErrorText("Incorrect access key / password coordinates. Check and try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Block access if email is not verified yet
+      if (partner.emailVerified === false) {
+        const verificationCode = partner.emailVerificationCode || Math.floor(100000 + Math.random() * 900000).toString();
+        const updatedPartner = {
+          ...partner,
+          emailVerificationCode: verificationCode
+        };
+
+        onCreateProfile(updatedPartner);
+        setPendingUser(updatedPartner);
+
+        onSendSimulatedEmail({
+          to: updatedPartner.email,
+          subject: `[Luminor Terminal] Complete your affiliate security verification - ${verificationCode}`,
+          body: `
+Dear ${updatedPartner.fullName},
+
+An access attempt was made on this unverified affiliate account.
+
+To verify your email address and authorize dashboard entry, please enter the following 6-digit confirmation code in your terminal window:
+
+----------------------------------------
+>>> VERIFICATION CODE: ${verificationCode} <<<
+----------------------------------------
+
+Best regards,
+Luminor Security Gateway Services
+Code Identifier: c4cd099f
+          `.trim(),
+          isSystem: false
+        });
+
+        setSuccessText(`Credentials authentic. However, email verification is pending. We have resent a 6-digit verification code to ${updatedPartner.email}.`);
+        setAuthMode('verifyRegistrationEmail');
+        setInputVerificationCode('');
+        setIsLoading(false);
+        return;
+      }
+
       // Vetting clearance logic check unless admin
       if (partner.status === 'pending' && partner.role !== 'admin') {
         setPendingUser(partner);
         setAuthMode('submittedTokenVerification');
-        setSuccessText("Welcome back! Your application is submitted and pending review. Enter your approval token below to secure your spot immediately.");
+        setSuccessText("Welcome back! Your application is submitted and pending review. Please verify your email using the code sent to your inbox.");
         setIsLoading(false);
         return;
       }
@@ -220,53 +316,145 @@ export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreat
     }, 1000);
   };
 
-  // Verify approval partnership UUID token
-  const handleVerifyApprovalToken = (e: React.FormEvent) => {
+  // Verify approval partnership token via backend email OTP
+  const handleVerifyApprovalToken = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorText('');
+    if (!inputToken.trim()) {
+      setErrorText("Please enter the verification code sent to your email.");
+      return;
+    }
+    if (!pendingUser?.email) {
+      setErrorText("No pending registration session found. Please register an account first.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: pendingUser.email, code: inputToken.trim() })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorText(data.error || 'Invalid code.');
+        setIsLoading(false);
+        return;
+      }
+      const approvedProfile: PartnerProfile = {
+        ...pendingUser,
+        status: 'approved',
+        emailVerified: true,
+        tier: 'Affiliate',
+        commissionRate: 0.20
+      };
+      onCreateProfile(approvedProfile);
+      setSuccessText("Email verified! Opening dashboard...");
+      setTokenVerified(true);
+      setIsLoading(false);
+      setTimeout(() => onAuthSuccess(approvedProfile), 1500);
+    } catch {
+      setErrorText("Verification failed. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  // Validate the 6-digit email confirmation code
+  const handleVerifyEmailCode = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorText('');
     setSuccessText('');
 
     if (!pendingUser) {
-      setErrorText("No pending partnership session found. Please register an account first.");
+      setErrorText("No pending email verification session found. Please register an account first.");
       return;
     }
 
-    if (!inputToken.trim()) {
-      setErrorText("Please enter your approval partnership token.");
+    const trimmedInput = inputVerificationCode.trim();
+    if (!trimmedInput) {
+      setErrorText("Please enter your 6-digit confirmation security code.");
       return;
     }
 
-    const sanitizedInput = inputToken.trim().toLowerCase();
-    const sanitizedToken = APPROVAL_TOKEN.toLowerCase();
-
-    if (sanitizedInput !== sanitizedToken) {
-      setErrorText("Invalid approval partnership token. Please check and try again, or await manual review from our administrators.");
+    if (trimmedInput !== pendingUser.emailVerificationCode) {
+      setErrorText("Invalid verification code. Please check your simulated queue logs at the bottom of this interface or trigger a fresh resend.");
       return;
     }
 
     setIsLoading(true);
 
     setTimeout(() => {
-      // Create approved version of user profile
-      const approvedProfile: PartnerProfile = {
+      // Complete confirmation on user profile
+      const verifiedProfile: PartnerProfile = {
         ...pendingUser,
-        status: 'approved',
-        tier: 'Elite', // Grant elite status on spot activation
-        commissionRate: 0.35 // 35% commission rate
+        emailVerified: true,
+        emailVerificationCode: undefined
       };
 
-      // Propagate the updated profile containing status approved to profiles in App
-      onCreateProfile(approvedProfile);
+      // Store verified profile in master list
+      onCreateProfile(verifiedProfile);
+      setPendingUser(verifiedProfile);
 
-      setSuccessText("Authorization verified! Token successfully assigned to standard pool allocation. Opening terminal...");
-      setTokenVerified(true);
+      setSuccessText("Secure communications channel established! Email verified successfully.");
       setIsLoading(false);
 
-      // Instant redirect
+      // Instant redirect if approved, or transition to the vetting gateway
       setTimeout(() => {
-        onAuthSuccess(approvedProfile);
+        if (verifiedProfile.status === 'approved') {
+          onAuthSuccess(verifiedProfile);
+        } else {
+          setAuthMode('submittedTokenVerification');
+          setSuccessText("Email verified! Your waitlist application is now queuing. Enter your spots approval token to secure your credentials immediately.");
+        }
       }, 1500);
-    }, 1500);
+    }, 1200);
+  };
+
+  // Resend code callback
+  const handleResendVerificationCode = () => {
+    if (!pendingUser) {
+      setErrorText("No active session detected.");
+      return;
+    }
+
+    setIsVerificationResending(true);
+    setErrorText('');
+    setSuccessText('');
+
+    setTimeout(() => {
+      const freshCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const updatedProfile: PartnerProfile = {
+        ...pendingUser,
+        emailVerificationCode: freshCode
+      };
+
+      onCreateProfile(updatedProfile);
+      setPendingUser(updatedProfile);
+
+      onSendSimulatedEmail({
+        to: updatedProfile.email,
+        subject: `[Luminor Terminal] Complete your affiliate security verification - ${freshCode}`,
+        body: `
+Dear ${updatedProfile.fullName},
+
+A security resend action was triggered for this email address.
+
+To complete dynamic registration, please input the following 6-digit confirmation code in your terminal widget:
+
+----------------------------------------
+>>> NEW VERIFICATION CODE: ${freshCode} <<<
+----------------------------------------
+
+Best regards,
+Luminor Security Gateway Services
+Code Identifier: c4cd099f
+        `.trim(),
+        isSystem: false
+      });
+
+      setSuccessText(`A fresh confirmation security code has been dispatched to ${updatedProfile.email}.`);
+      setIsVerificationResending(false);
+    }, 1000);
   };
 
   // Simulated Forgot Password
@@ -918,10 +1106,10 @@ export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreat
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-zinc-350 font-semibold uppercase tracking-wider">
                   <Key className="w-4 h-4 text-zinc-400 shrink-0" />
-                  <span>Enter Exclusive Approval Token</span>
+                  <span>Email Verification Code</span>
                 </div>
                 <p className="text-[11px] text-zinc-500 leading-normal">
-                  Enter your assigned UUID partnership token to instantly bypass the queue, verify your status, and activate your dashboard.
+                  Enter the verification code sent to your email to verify your account and activate your dashboard.
                 </p>
               </div>
 
@@ -930,7 +1118,7 @@ export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreat
                   type="text"
                   value={inputToken}
                   onChange={(e) => setInputToken(e.target.value)}
-                  placeholder="e.g. f3b6d2a7-5ea9-42bf-be08-592f15e8daea"
+                  placeholder="Enter 6-digit verification code"
                   className="w-full bg-zinc-950 border border-zinc-850 rounded-xl py-3 px-4 text-xs font-mono text-white placeholder-zinc-700 text-center uppercase tracking-widest focus:outline-none focus:border-white/50"
                   disabled={isLoading || tokenVerified}
                 />
@@ -944,17 +1132,17 @@ export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreat
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
-                    Verifying UUID On Ledger...
+                    Verifying Code...
                   </>
                 ) : tokenVerified ? (
                   <>
                     <Sparkles className="w-4 h-4 text-zinc-950 animate-bounce" />
-                    Access Token Cleared ! Loading Dashboard...
+                    Email Verified! Loading Dashboard...
                   </>
                 ) : (
                   <>
                     <Shield className="w-4 h-4 text-zinc-950" />
-                    Verify Approval Token
+                    Verify Email Code
                   </>
                 )}
               </button>
@@ -975,12 +1163,144 @@ export default function AuthInterface({ onAuthSuccess, onBackToLanding, allCreat
             </div>
           </form>
         )}
+
+        {/* EMAIL VERIFICATION CODE VIEW */}
+        {authMode === 'verifyRegistrationEmail' && (
+          <form onSubmit={handleVerifyEmailCode} className="space-y-6 animate-fade-in">
+            <div className="space-y-1 text-center pb-2">
+              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest block mb-1">Step 3A // Security Core Authenticator</span>
+              <h3 className="text-xl font-display font-semibold text-white">Email Security Verification</h3>
+              <p className="text-xs text-zinc-400">
+                To guarantee secure communication routes, please verify the registration coordinate for <span className="text-zinc-200 font-semibold">{pendingUser?.email}</span>.
+              </p>
+            </div>
+
+            <div className="p-4 bg-zinc-950/80 border border-zinc-850 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2 text-xs font-semibold text-white uppercase tracking-wider">
+                <Mail className="w-4 h-4 text-zinc-400 shrink-0 animate-pulse" />
+                <span>Verification Dispatch Queued</span>
+              </div>
+              <p className="text-[11px] text-zinc-400 leading-relaxed font-sans font-medium">
+                We have transmitted a security credentials token containing a unique 6-digit confirmation code. Enter the code below to authorize your registration pipeline.
+              </p>
+              
+              <div className="text-[10px] bg-zinc-950 p-2 border border-zinc-900 rounded font-mono text-zinc-500 mt-2 flex justify-between items-center">
+                <span>CHANNEL SECURE: MULTIPLEX SMTP</span>
+                <span className="text-emerald-400 font-bold">● DISPATCHED</span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400 mb-1.5 text-center">Enter 6-digit verification code</label>
+                <div className="relative">
+                  <Key className="absolute left-3 top-3.5 w-4 h-4 text-zinc-650" />
+                  <input 
+                    type="text" 
+                    value={inputVerificationCode}
+                    onChange={(e) => setInputVerificationCode(e.target.value)}
+                    placeholder="000000" 
+                    maxLength={6}
+                    className="w-full bg-zinc-950 border border-zinc-850 rounded-xl py-3.5 pl-10 pr-4 text-sm font-mono text-white text-center uppercase tracking-widest focus:outline-none focus:border-white/50"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3.5 px-4 rounded-xl text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-200 transition-all flex justify-center items-center gap-2 font-mono uppercase tracking-wider cursor-pointer"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
+                  Verifying Security token...
+                </>
+              ) : (
+                <>
+                  <Shield className="w-4 h-4 text-zinc-950" />
+                  Confirm Verification Code
+                </>
+              )}
+            </button>
+
+            <div className="flex flex-col items-center gap-3 pt-2 text-center">
+              <p className="text-xs text-zinc-500">
+                Did not receive the dispatch email?{' '}
+                <button 
+                  type="button" 
+                  onClick={handleResendVerificationCode}
+                  disabled={isVerificationResending}
+                  className="text-zinc-300 hover:text-white font-semibold underline decoration-zinc-700 cursor-pointer disabled:text-zinc-650 disabled:no-underline"
+                >
+                  {isVerificationResending ? 'Sending Code...' : 'Resend Verification Code'}
+                </button>
+              </p>
+              
+              <button 
+                type="button" 
+                onClick={() => {
+                  setAuthMode('login');
+                  setErrorText('');
+                  setSuccessText('');
+                }}
+                className="text-xs text-[#a1a1aa] hover:text-white transition-colors cursor-pointer"
+              >
+                Return to terminal login gateway
+              </button>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* Selective Vetting Info box underneath */}
       <div className="max-w-xl text-center mt-6 text-[11px] text-zinc-600 font-mono leading-relaxed p-1">
         <span>SECURITY CORE ID: c4cd099f // Luminor Terminal processes and logs credentials in a highly secure sandbox environment using enterprise PostgreSQL schemas.</span>
       </div>
+
+      {/* Real-time SMTP Outbound Log Console */}
+      {sentEmails.length > 0 && (
+        <div className="w-full max-w-xl bg-zinc-900/60 border border-zinc-800/80 rounded-2xl glass-card p-6 mt-6 relative z-10 space-y-4 animate-fade-in">
+          <div className="flex justify-between items-center pb-2 border-b border-zinc-800/80">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <h4 className="text-[10px] sm:text-xs font-bold text-zinc-300 uppercase tracking-widest font-mono">Live SMTP Outbound Relay Terminal</h4>
+            </div>
+            {onClearEmailLogs && (
+              <button 
+                onClick={onClearEmailLogs}
+                className="text-[10px] text-zinc-500 hover:text-red-400 cursor-pointer font-mono"
+              >
+                Clear buffer
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-4 max-h-[250px] overflow-y-auto no-scrollbar">
+            {sentEmails.map((email) => (
+              <div key={email.id} className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-850 space-y-2 text-[10.5px] font-mono">
+                <div className="flex justify-between text-zinc-500 text-[9px]">
+                  <span>OUTBOUND TRANS: {email.id}</span>
+                  <span>{new Date(email.timestamp).toLocaleTimeString()}</span>
+                </div>
+                <div>
+                  <span className="text-emerald-400 font-bold">SMTP TO: </span>
+                  <span className="text-zinc-300 select-all font-semibold font-sans">{email.to}</span>
+                </div>
+                <div>
+                  <span className="text-amber-500 font-bold">SUBJECT: </span>
+                  <span className="text-zinc-250 font-semibold font-sans">{email.subject}</span>
+                </div>
+                <div className="p-2.5 bg-zinc-950 rounded-lg text-zinc-400 whitespace-pre-wrap select-text font-mono leading-normal border border-zinc-900 border-dashed">
+                  {email.body}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -639,7 +639,7 @@ router.post('/send-verification', async (req, res) => {
     res.status(200).json({ message: 'Verification code sent to your email' });
   } catch (err) {
     logger.error('Failed to send verification code', { error: err.message, email: normalizedEmail, stack: err.stack });
-    res.status(500).json({ error: 'Internal server error', correlationId });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -1100,7 +1100,7 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
       }
     });
 
-    await sendPasswordResetEmail(sanitizedEmail, code, user.full_name || 'there');
+    await sendPasswordResetEmail(sanitizedEmail, code, user.fullName || 'there');
 
     logger.info('Password reset code sent', { email: sanitizedEmail, userId: user.id });
 

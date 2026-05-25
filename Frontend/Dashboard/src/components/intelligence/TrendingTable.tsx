@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ProductRow } from "./ProductRow";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FiltersBar, type SortKey } from "./FiltersBar";
 import type { Category, Region, TrendingProduct } from "@/data/mockTrending";
 

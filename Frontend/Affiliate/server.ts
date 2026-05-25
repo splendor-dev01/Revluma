@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import crypto from "crypto";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import { Resend } from "resend";
 
 // Load environment variables
 dotenv.config();
@@ -117,6 +118,61 @@ async function startServer() {
   // 1. API: Health Check
   app.get("/api/health", (_req, res) => {
     res.json({ status: "healthy", timestamp: new Date().toISOString(), logsPending: webhookLogs.length });
+  });
+
+  // 1B. API: Dispatches mail via Resend API (if configured)
+  app.post("/api/send-email", async (req, res) => {
+    try {
+      const { to, subject, body } = req.body;
+      const apiKey = process.env.RESEND_API_KEY;
+      
+      if (!apiKey || apiKey === "MY_RESEND_API_KEY" || apiKey.trim() === "") {
+        console.warn("⚠️ Warning: RESEND_API_KEY environment variable is not configured. Email logged to local terminal only.");
+        res.json({ 
+          success: true, 
+          simulated: true, 
+          message: "Email queued in sandbox terminal simulation because RESEND_API_KEY is not set." 
+        });
+        return;
+      }
+      
+      const resendObj = new Resend(apiKey);
+      const fromAddress = process.env.RESEND_FROM_EMAIL || "Luminor Terminal <onboarding@resend.dev>";
+      
+      // We convert newline into html linebreaks to ensure perfect typography
+      const formattedHtml = `
+        <div style="font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #0c0a09; border: 1px solid #1c1917; border-radius: 16px; color: #e4e4e7;">
+          <h2 style="font-size: 20px; color: #fafafa; border-bottom: 2px solid #27272a; padding-bottom: 12px; font-weight: 600;">LUMINOR TERMINAL GATEWAY</h2>
+          <div style="font-size: 14px; color: #a1a1aa; line-height: 1.6; white-space: pre-line; margin-top: 16px; margin-bottom: 24px;">
+            ${body}
+          </div>
+          <p style="font-size: 11px; color: #52525b; border-top: 1px solid #1c1917; padding-top: 12px; font-family: monospace;">
+            SYSTEM CONTEXT SECURITY ID: c4cd099f-99bf-4b86-b916-fa035ad9fa75<br/>
+            Ref: LUMINOR-SEC-ROUTE-01
+          </p>
+        </div>
+      `;
+      
+      const response = await resendObj.emails.send({
+        from: fromAddress,
+        to: [to],
+        subject: subject,
+        html: formattedHtml,
+        text: body
+      });
+      
+      if (response.error) {
+         console.error("❌ Resend API returned error:", response.error);
+         res.status(400).json({ success: false, error: response.error });
+         return;
+      }
+      
+      console.log(`✉️ Email successfully delivered to ${to} via Resend. ID:`, response.data?.id);
+      res.json({ success: true, simulated: false, id: response.data?.id });
+    } catch (err: any) {
+      console.error("❌ Exception inside /api/send-email:", err);
+      res.status(500).json({ success: false, error: err.message || err });
+    }
   });
 
   // 2. Fetch Lemon Squeezy Webhook auditing log streams

@@ -47,8 +47,7 @@ const verifyWebhook = async (req, res, next) => {
 };
 
 // Map webhook to tenant (critical for multi-tenant)
-async function resolveTenant(payload) {
-  // Real: match by shop domain (payload.domain or headers['x-shopify-shop-domain'])
+async function resolveTenant(payload, req) {
   const shopDomain = payload.domain || payload.shop_domain || req.headers['x-shopify-shop-domain'];
 
   if (!shopDomain) throw new Error('No shop domain in payload');
@@ -77,7 +76,7 @@ router.post('/abandoned-cart', verifyWebhook, async (req, res) => {
     }
 
     // Resolve tenant from shop domain (production critical)
-    const tenant_id = await resolveTenant(payload);
+    const tenant_id = await resolveTenant(payload, req);
 
     const externalCartId = payload.id;
     const cartValue = parseFloat(payload.total_price);

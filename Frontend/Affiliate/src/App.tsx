@@ -732,6 +732,8 @@ Revluma Logistics division.
             };
             setSentEmails(prev => [newEmail, ...prev]);
           }}
+          sentEmails={sentEmails}
+          onClearEmailLogs={() => setSentEmails([])}
         />
       )}
 

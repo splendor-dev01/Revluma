@@ -16,7 +16,6 @@ import {
   PartnerProfile, ReferredUser, EarningRecord, LeaderboardUser, 
   CampaignInfo, FounderBroadcast, NotificationItem, WithdrawalRequest 
 } from '../types';
-import LemonSqueezyHub from './LemonSqueezyHub';
 import WithdrawalPortal from './WithdrawalPortal';
 import LeaderboardComingSoon from './LeaderboardComingSoon';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
@@ -101,7 +100,7 @@ export default function Dashboard({
   }, [allProfiles]);
 
   // Navigation tabs of Growth Operating System
-  const [activeTab, setActiveTab] = useState<'home' | 'referrals' | 'earnings' | 'campaigns' | 'leaderboard' | 'assets' | 'copilot' | 'training' | 'settings' | 'billing'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'referrals' | 'earnings' | 'campaigns' | 'leaderboard' | 'assets' | 'copilot' | 'training' | 'settings'>('home');
 
   // Theme control state ("dark" | "light")
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -798,18 +797,6 @@ export default function Dashboard({
           >
             <PiggyBank className="w-4 h-4 shrink-0" />
             <span>Ledger Earnings</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('billing')}
-            className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 ${
-              activeTab === 'billing' 
-                ? 'bg-orange-500 text-white shadow-[0_4px_12px_rgba(249,115,22,0.2)]' 
-                : `${isDark ? 'text-zinc-400 hover:text-white hover:bg-zinc-900/50' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'}`
-            }`}
-          >
-            <CreditCard className="w-4 h-4 shrink-0" />
-            <span>Lemon Squeezy Hub</span>
           </button>
 
           <button 
@@ -1788,21 +1775,6 @@ export default function Dashboard({
             />
           )}
 
-
-          {/* LEMON SQUEEZY BILLING HUB */}
-          {activeTab === 'billing' && (
-            <LemonSqueezyHub
-              currentProfile={currentProfile}
-              allProfiles={allProfiles}
-              isDark={isDark}
-              theme={theme}
-              cardBg={cardBg}
-              textSubtleLabel={textSubtleLabel}
-              textTitleColor={textTitleColor}
-              tableHeaderBg={tableHeaderBg}
-              tableBorder={tableBorder}
-            />
-          )}
 
 
           {/* TAB 4: ADVANCED CAMPAIGNS (UTM MANAGER) */}
