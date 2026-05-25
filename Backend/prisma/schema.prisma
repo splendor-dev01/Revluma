@@ -1,155 +1,280 @@
-// ============================================================
-// Revluma Prisma Schema
-// Production-ready database schema with migrations
-// ============================================================
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-// ============================================================
-// TENANT (Organization/Store)
-// ============================================================
-
 model Tenant {
-  id               String   @id @default(uuid())
-  storeName        String
-  industry         String?  @default("general")
-  businessModel    String?
-  onboardingStatus String   @default("pending") // pending, started, step1-5, completed
+  id                    String           @id
+  storeName             String
+  industry              String?          @default("general")
+  businessModel         String?
+  onboardingStatus      String           @default("pending")
   onboardingCompletedAt DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  users            User[]
-  profile          TenantProfile?
-  abandonedCarts  AbandonedCart[]
-  recoveryEvents   RecoveryEvent[]
-  customerCrm      CustomerCrm[]
-  ltvSegments      LtvSegment[]
-  churnEvents      ChurnEvent[]
-  automationTasks  AutomationTask[]
-  notifications    Notification[]
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  uuid_id               String?          @unique(map: "tenants_uuid_id_idx") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  abandonedCarts        AbandonedCart[]
+  automationTasks       AutomationTask[]
+  churnEvents           ChurnEvent[]
+  customerCrm           CustomerCrm[]
+  ltvSegments           LtvSegment[]
+  notifications         Notification[]
+  recoveryEvents        RecoveryEvent[]
+  profile               TenantProfile?
+  users                 User[]
 
   @@map("tenants")
 }
 
-// ============================================================
-// USER (Authentication)
-// ============================================================
-
 model User {
-  id                  String    @id @default(uuid())
-  tenantId            String
-  email               String    @unique
-  passwordHash        String
-  fullName            String
-  role                String    @default("user") // user, admin, owner
-  onboardingStatus    String    @default("started")
-  onboardingCompletedAt DateTime?
-  emailVerified       Boolean   @default(false)
-  emailVerifiedAt     DateTime?
-  lastLoginAt         DateTime?
-  failedLoginAttempts Int       @default(0)
-  lockedUntil         DateTime?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-
-  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
-  // Password reset
-  passwordResetTokens PasswordResetToken[]
-  passwordHistory    PasswordHistory[]
-  userSessions       UserSession[]
-  
-  // Email verification
+  id                     String                  @id @default(uuid())
+  tenantId               String
+  email                  String                  @unique
+  passwordHash           String
+  fullName               String
+  role                   String                  @default("user")
+  onboardingStatus       String                  @default("started")
+  onboardingCompletedAt  DateTime?
+  emailVerified          Boolean                 @default(false)
+  emailVerifiedAt        DateTime?
+  lastLoginAt            DateTime?
+  failedLoginAttempts    Int                     @default(0)
+  lockedUntil            DateTime?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  uuid_id                String?                 @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   emailVerificationCodes EmailVerificationCode[]
-  
-  // Notifications
-  notifications      Notification[]
+  notifications          Notification[]
+  passwordHistory        PasswordHistory[]
+  passwordResetTokens    PasswordResetToken[]
+  userSessions           UserSession[]
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  affiliateProfile       AffiliateProfile?       // <-- ADD THIS LINE
 
   @@index([tenantId])
   @@map("users")
 }
 
+// ============================================================
+// AFFILIATE MODULE - Unified with main auth
+// ============================================================
+
+enum AffiliateTier {
+  AFFILIATE
+  GROWTH
+  ELITE
+  FOUNDING_AMBASSADOR
+}
+
+enum AffiliateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ReferralStatus {
+  WAITLIST_JOINED
+  ACCOUNT_CREATED
+  TRIAL_STARTED
+  ACTIVE_SUBSCRIBER
+  CANCELLED
+  PENDING
+}
+
+enum EarningStatus {
+  PENDING
+  CLEARED
+  WITHDRAWN
+}
+
+enum NotificationType {
+  COMMISSION
+  SIGNUP
+  BADGE
+  PAYOUT
+  BROADCAST
+}
+
+model AffiliateProfile {
+  id                  String                @id @default(uuid())
+  userId              String                @unique
+  fullName            String
+  username            String                @unique
+  phoneNumber         String
+  country             String
+  twitterHandle       String?
+  instagramHandle     String?
+  linkedinProfile     String?
+  website             String?
+  audienceNiche       String
+  audienceSize        String
+  affiliateExperience String
+  whyJoin             String
+  status              AffiliateStatus       @default(PENDING)
+  tier                AffiliateTier         @default(AFFILIATE)
+  commissionRate      Decimal               @default(0.20) @db.Decimal(4, 2)
+  totalEarned         Decimal               @default(0) @db.Decimal(12, 2)
+  totalWithdrawn      Decimal               @default(0) @db.Decimal(12, 2)
+  pendingBalance      Decimal               @default(0) @db.Decimal(12, 2)
+  approvedAt          DateTime?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaigns           AffiliateCampaign[]
+  referrals           AffiliateReferral[]
+  earnings            AffiliateEarning[]
+  notifications       AffiliateNotification[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([username])
+  @@map("affiliate_profiles")
+}
+
+model AffiliateCampaign {
+  id          String   @id @default(uuid())
+  partnerId   String
+  tag         String
+  source      String
+  clicks      Int      @default(0)
+  createdAt   DateTime @default(now())
+  partner     AffiliateProfile @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerId, tag])
+  @@index([partnerId])
+  @@map("affiliate_campaigns")
+}
+
+model AffiliateReferral {
+  id            String         @id @default(uuid())
+  partnerId     String
+  customerEmail String         // Masked for privacy
+  customerId    String?        // If customer creates account
+  status        ReferralStatus @default(WAITLIST_JOINED)
+  planName      String         @default("None")
+  monthlyValue  Decimal        @default(0) @db.Decimal(10, 2)
+  lifetimeValue Decimal        @default(0) @db.Decimal(10, 2)
+  campaignTag   String?
+  lastActiveAt  DateTime       @default(now())
+  convertedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  partner       AffiliateProfile @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  earnings      AffiliateEarning[]
+
+  @@index([partnerId])
+  @@index([status])
+  @@index([customerEmail])
+  @@map("affiliate_referrals")
+}
+
+model AffiliateEarning {
+  id          String        @id @default(uuid())
+  partnerId   String
+  referralId  String?
+  amount      Decimal       @db.Decimal(10, 2)
+  isRecurring Boolean       @default(true)
+  status      EarningStatus @default(PENDING)
+  description String?
+  paidAt      DateTime?
+  createdAt   DateTime      @default(now())
+  partner     AffiliateProfile @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  referral    AffiliateReferral? @relation(fields: [referralId], references: [id], onDelete: SetNull)
+
+  @@index([partnerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("affiliate_earnings")
+}
+
+model AffiliateBroadcast {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  author    String
+  createdAt DateTime @default(now())
+
+  @@map("affiliate_broadcasts")
+}
+
+model AffiliateNotification {
+  id        String           @id @default(uuid())
+  partnerId String
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  partner   AffiliateProfile @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId, isRead])
+  @@index([createdAt])
+  @@map("affiliate_notifications")
+}
+
 model PendingRegistration {
-  id                    String   @id @default(uuid())
-  email                 String   @unique
+  id                    String    @id @default(uuid())
+  email                 String    @unique
   firstName             String
   lastName              String
   passwordHash          String
   verificationCodeHash  String
-  emailVerified         Boolean  @default(false)
+  emailVerified         Boolean   @default(false)
   emailVerifiedAt       DateTime?
   verificationExpiresAt DateTime
-  onboardingData        Json     @default("{}")
-  step                  Int      @default(1)
+  onboardingData        Json      @default("{}")
+  step                  Int       @default(1)
   expiresAt             DateTime
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@index([expiresAt])
   @@map("pending_registrations")
 }
 
-// ============================================================
-// TENANT PROFILE (Business Configuration)
-// ============================================================
-
 model TenantProfile {
-  id                    String   @id @default(uuid())
-  tenantId              String   @unique
-  
-  // Business info
-  industry              String?
-  businessModel         String?
-  targetMarket          Json?
-  aov                   Decimal? @db.Decimal(12, 2)
-  purchaseFrequency     Int?
-  salesChannels         Json?
-  paymentMethods        Json?
-  teamSize              Int?
-  inventorySize         Int?
-  fulfillmentSpeed      Int?
-  growthGoals           Json?
-  brandTone             String?
-  maturityScore         Int      @default(0)
-  
-  // Recovery settings
-  preferredChannel      String   @default("whatsapp") // email, sms, whatsapp
-  touch1Delay          Int      @default(15) // minutes
-  touch2Delay          Int      @default(90) // minutes
-  discountThreshold     Decimal  @default(0.1) @db.Decimal(5, 2)
-  fromEmail             String?
-  whatsappBusinessId    String?
-  
-  // Onboarding fields
-  platform              String? // shopify, woocommerce, other
-  storeUrl              String?
-  monthlyTraffic        String? // 0-1k, 1k-10k, 10k-50k, 50k+
-  monthlyRevenue        String?
-  goals                 Json?
-  preferredRecoveryChannel String? // email, whatsapp, both
-  onboardingStatus      String   @default("started")
-  onboardingCompletedAt DateTime?
-  
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                       String    @id @default(uuid())
+  tenantId                 String    @unique
+  industry                 String?
+  businessModel            String?
+  targetMarket             Json?
+  aov                      Decimal?  @db.Decimal(12, 2)
+  purchaseFrequency        Int?
+  salesChannels            Json?
+  paymentMethods           Json?
+  teamSize                 Int?
+  inventorySize            Int?
+  fulfillmentSpeed         Int?
+  growthGoals              Json?
+  brandTone                String?
+  maturityScore            Int       @default(0)
+  preferredChannel         String    @default("whatsapp")
+  touch1Delay              Int       @default(15)
+  touch2Delay              Int       @default(90)
+  discountThreshold        Decimal   @default(0.1) @db.Decimal(5, 2)
+  fromEmail                String?
+  whatsappBusinessId       String?
+  platform                 String?
+  storeUrl                 String?
+  monthlyTraffic           String?
+  monthlyRevenue           String?
+  goals                    Json?
+  preferredRecoveryChannel String?
+  onboardingStatus         String    @default("started")
+  onboardingCompletedAt    DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  tenant                   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("tenant_profiles")
 }
-
-// ============================================================
-// EMAIL VERIFICATION
-// ============================================================
 
 model EmailVerificationCode {
   id        String   @id @default(uuid())
@@ -159,7 +284,6 @@ model EmailVerificationCode {
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
-
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -167,22 +291,17 @@ model EmailVerificationCode {
   @@map("email_verification_codes")
 }
 
-// ============================================================
-// PASSWORD RESET
-// ============================================================
-
 model PasswordResetToken {
-  id          String    @id @default(uuid())
-  userId      String
-  token       String    @unique
-  code        String    // hashed
-  expiresAt   DateTime
-  usedAt      DateTime?
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime  @default(now())
-
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique
+  code      String
+  expiresAt DateTime
+  usedAt    DateTime?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([userId])
@@ -190,58 +309,51 @@ model PasswordResetToken {
 }
 
 model PasswordHistory {
-  id            String   @id @default(uuid())
-  userId        String
-  passwordHash  String
-  createdAt     DateTime @default(now())
-
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(uuid())
+  userId       String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("password_history")
 }
 
 model UserSession {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   userId     String
-  tokenHash  String   @unique
+  tokenHash  String    @unique
   expiresAt  DateTime
+  createdAt  DateTime  @default(now())
   ipAddress  String?
   userAgent  String?
-  lastSeenAt DateTime?
-  createdAt  DateTime @default(now())
-
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastSeenAt DateTime? @db.Timestamptz(6)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tokenHash])
   @@map("user_sessions")
 }
 
-// ============================================================
-// CART RECOVERY
-// ============================================================
-
 model AbandonedCart {
-  id                    String   @id @default(uuid())
-  tenantId              String
-  externalCartId        String   @unique
-  customerEmail         String?
-  customerPhone         String?
-  cartValue             Decimal  @db.Decimal(12, 2)
-  currency              String   @default("USD")
-  items                 Json
-  abandonmentAt          DateTime @default(now())
-  intentScore           Int?
-  status                String   @default("new") // new, sent1-5, recovered, expired
+  id                     String          @id @default(uuid())
+  tenantId               String
+  externalCartId         String          @unique
+  customerEmail          String?
+  customerPhone          String?
+  cartValue              Decimal         @db.Decimal(12, 2)
+  currency               String          @default("USD")
+  items                  Json
+  abandonmentAt          DateTime        @default(now())
+  intentScore            Int?
+  status                 String          @default("new")
   sessionDurationSeconds Int?
-  scrollDepthPercentage Int?
-  addRemoveActions      Int?
-  repeatVisits          Int      @default(1)
-  deviceType            String?
-  createdAt             DateTime @default(now())
-
-  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  recoveryEvents        RecoveryEvent[]
+  scrollDepthPercentage  Int?
+  addRemoveActions       Int?
+  repeatVisits           Int             @default(1)
+  deviceType             String?
+  createdAt              DateTime        @default(now())
+  tenant                 Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  recoveryEvents         RecoveryEvent[]
 
   @@index([tenantId, abandonmentAt])
   @@index([status])
@@ -249,95 +361,72 @@ model AbandonedCart {
 }
 
 model RecoveryEvent {
-  id              String   @id @default(uuid())
+  id              String        @id @default(uuid())
   tenantId        String
   abandonedCartId String
-  eventType       String   // sent, opened, clicked, recovered
-  channel         String   // email, sms, whatsapp
+  eventType       String
+  channel         String
   touchNumber     Int?
   metadata        Json?
-  createdAt       DateTime @default(now())
-
-  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
   abandonedCart   AbandonedCart @relation(fields: [abandonedCartId], references: [id], onDelete: Cascade)
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([abandonedCartId, createdAt])
   @@map("recovery_events")
 }
 
-// ============================================================
-// BENCHMARKS (Industry data)
-// ============================================================
-
 model Benchmark {
-  id        String   @id @default(uuid())
-  industry  String
-  businessModel String
-  priceBand String?
-  region    String   @default("global")
-  periodMonth DateTime @db.Timestamp
-  
-  // Conversion rate percentiles
-  crP25     Decimal? @db.Decimal(5, 2)
-  crP50     Decimal? @db.Decimal(5, 2)
-  crP75     Decimal? @db.Decimal(5, 2)
-  
-  // AOV percentiles
-  aovP25    Decimal? @db.Decimal(10, 2)
-  aovP50    Decimal? @db.Decimal(10, 2)
-  aovP75    Decimal? @db.Decimal(10, 2)
-  
-  // Repeat rate
-  repeatRateP25 Decimal? @db.Decimal(5, 2)
-  repeatRateP50 Decimal? @db.Decimal(5, 2)
-  repeatRateP75 Decimal? @db.Decimal(5, 2)
-  
-  // Churn rate
-  churnRateP25 Decimal? @db.Decimal(5, 2)
-  churnRateP50 Decimal? @db.Decimal(5, 2)
-  churnRateP75 Decimal? @db.Decimal(5, 2)
-  
-  // Inventory turnover
+  id                   String   @id @default(uuid())
+  industry             String
+  businessModel        String
+  priceBand            String?
+  region               String   @default("global")
+  periodMonth          DateTime @db.Timestamp(6)
+  crP25                Decimal? @db.Decimal(5, 2)
+  crP50                Decimal? @db.Decimal(5, 2)
+  crP75                Decimal? @db.Decimal(5, 2)
+  aovP25               Decimal? @db.Decimal(10, 2)
+  aovP50               Decimal? @db.Decimal(10, 2)
+  aovP75               Decimal? @db.Decimal(10, 2)
+  repeatRateP25        Decimal? @db.Decimal(5, 2)
+  repeatRateP50        Decimal? @db.Decimal(5, 2)
+  repeatRateP75        Decimal? @db.Decimal(5, 2)
+  churnRateP25         Decimal? @db.Decimal(5, 2)
+  churnRateP50         Decimal? @db.Decimal(5, 2)
+  churnRateP75         Decimal? @db.Decimal(5, 2)
   inventoryTurnoverP25 Decimal? @db.Decimal(5, 2)
   inventoryTurnoverP50 Decimal? @db.Decimal(5, 2)
   inventoryTurnoverP75 Decimal? @db.Decimal(5, 2)
-  
-  // CAC
-  cacP25    Decimal? @db.Decimal(10, 2)
-  cacP50    Decimal? @db.Decimal(10, 2)
-  cacP75    Decimal? @db.Decimal(10, 2)
-  
-  createdAt DateTime @default(now())
+  cacP25               Decimal? @db.Decimal(10, 2)
+  cacP50               Decimal? @db.Decimal(10, 2)
+  cacP75               Decimal? @db.Decimal(10, 2)
+  createdAt            DateTime @default(now())
 
   @@unique([industry, businessModel, priceBand, region, periodMonth])
   @@index([industry, businessModel, region])
   @@map("benchmarks")
 }
 
-// ============================================================
-// CRM (Customer data)
-// ============================================================
-
 model CustomerCrm {
-  id          String   @id @default(uuid())
-  tenantId    String
-  externalId  String?
-  name        String?
-  email       String?
-  phone       String?
-  totalPurchases Int   @default(0)
-  totalSpent  Decimal  @default(0) @db.Decimal(12, 2)
-  lastPurchase DateTime?
-  ltvScore    Int      @default(0) // 0-100
-  intentScore Int      @default(0) // 0-100
-  churnRisk   Int      @default(0) // 0-100
-  segment     String   @default("low-intent")
-  behaviorData Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  churnEvents ChurnEvent[]
+  id             String       @id @default(uuid())
+  tenantId       String
+  externalId     String?
+  name           String?
+  email          String?
+  phone          String?
+  totalPurchases Int          @default(0)
+  totalSpent     Decimal      @default(0) @db.Decimal(12, 2)
+  lastPurchase   DateTime?
+  ltvScore       Int          @default(0)
+  intentScore    Int          @default(0)
+  churnRisk      Int          @default(0)
+  segment        String       @default("low-intent")
+  behaviorData   Json?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  churnEvents    ChurnEvent[]
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, ltvScore])
   @@index([tenantId, churnRisk])
@@ -345,100 +434,83 @@ model CustomerCrm {
 }
 
 model LtvSegment {
-  id               String   @id @default(uuid())
-  tenantId         String
-  name             String // VIP, Rising, etc.
-  criteria         Json // {min_aov: 100, purchases: 3}
-  size             Int      @default(0)
-  revenueOpportunity Decimal @default(0) @db.Decimal(12, 2)
-  createdAt        DateTime @default(now())
-
-  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                 String   @id @default(uuid())
+  tenantId           String
+  name               String
+  criteria           Json
+  size               Int      @default(0)
+  revenueOpportunity Decimal  @default(0) @db.Decimal(12, 2)
+  createdAt          DateTime @default(now())
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("ltv_segments")
 }
 
 model ChurnEvent {
-  id            String   @id @default(uuid())
-  tenantId      String
-  customerId    String?
-  daysInactive  Int?
-  triggerType   String? // inactivity_30d, no_repeat
-  escalationLevel Int   @default(1)
-  status        String   @default("queued")
-  createdAt     DateTime @default(now())
-
-  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  customer      CustomerCrm? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  id              String       @id @default(uuid())
+  tenantId        String
+  customerId      String?
+  daysInactive    Int?
+  triggerType     String?
+  escalationLevel Int          @default(1)
+  status          String       @default("queued")
+  createdAt       DateTime     @default(now())
+  customer        CustomerCrm? @relation(fields: [customerId], references: [id])
+  tenant          Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("churn_events")
 }
 
-// ============================================================
-// NOTIFICATIONS
-// ============================================================
-
 model Notification {
-  id          String   @id @default(uuid())
-  tenantId    String
-  userId      String
-  type        String   // cart_recovered, abandoned_cart, campaign, system
-  title       String
-  message     String
-  data        Json?
-  read        Boolean  @default(false)
-  readAt      DateTime?
-  createdAt   DateTime @default(now())
-
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String    @id @default(uuid())
+  tenantId  String
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      Json?
+  read      Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, userId, read])
   @@index([createdAt])
   @@map("notifications")
 }
 
-// ============================================================
-// AUTOMATION TASKS
-// ============================================================
-
 model AutomationTask {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   tenantId    String
   title       String
   description String?
-  type        String? // activate_flow, adjust_pricing
-  status      String   @default("pending") // pending, approved, executing, completed
-  priority    String   @default("medium")
-  assignedAt  DateTime @default(now())
+  type        String?
+  status      String    @default("pending")
+  priority    String    @default("medium")
+  assignedAt  DateTime  @default(now())
   completedAt DateTime?
-
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("automation_tasks")
 }
 
-// ============================================================
-// NEWSLETTER
-// ============================================================
-
 model NewsletterSubscriber {
-  id          String   @id @default(uuid())
-  tenantId    String
-  email       String
-  name        String?
-  status      String   @default("active") // active, unsubscribed, bounced
-  source      String? // website, import, checkout
-  verified    Boolean  @default(false)
-  verifiedAt  DateTime?
-  verifyToken String?  @unique
+  id            String                @id @default(uuid())
+  tenantId      String
+  email         String
+  name          String?
+  status        String                @default("active")
+  source        String?
+  verified      Boolean               @default(false)
+  verifiedAt    DateTime?
+  verifyToken   String?               @unique
   verifyExpires DateTime?
-  unsubToken  String?  @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  sends       NewsletterSend[]
-  sendEvents  NewsletterSendEvent[]
+  unsubToken    String?               @unique
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  sendEvents    NewsletterSendEvent[]
+  sends         NewsletterSend[]
 
   @@unique([tenantId, email])
   @@index([tenantId, status])
@@ -446,53 +518,46 @@ model NewsletterSubscriber {
 }
 
 model NewsletterSend {
-  id          String   @id @default(uuid())
-  tenantId    String
+  id           String                @id @default(uuid())
+  tenantId     String
   subscriberId String
-  subject     String
-  body        String   @db.Text
-  status      String   @default("queued") // queued, sent, failed
-  sentAt      DateTime?
-  createdAt   DateTime @default(now())
-
-  subscriber  NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
-  sendEvents  NewsletterSendEvent[]
+  subject      String
+  body         String
+  status       String                @default("queued")
+  sentAt       DateTime?
+  createdAt    DateTime              @default(now())
+  sendEvents   NewsletterSendEvent[]
+  subscriber   NewsletterSubscriber  @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, sentAt])
   @@map("newsletter_sends")
 }
 
 model NewsletterSendEvent {
-  id          String   @id @default(uuid())
-  sendId      String
+  id           String               @id @default(uuid())
+  sendId       String
   subscriberId String
-  eventType   String // delivered, opened, clicked, bounced, unsubscribed
-  metadata    Json?
-  createdAt   DateTime @default(now())
-
-  send        NewsletterSend  @relation(fields: [sendId], references: [id], onDelete: Cascade)
-  subscriber  NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  eventType    String
+  metadata     Json?
+  createdAt    DateTime             @default(now())
+  send         NewsletterSend       @relation(fields: [sendId], references: [id], onDelete: Cascade)
+  subscriber   NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
 
   @@index([sendId, createdAt])
   @@map("newsletter_send_events")
 }
 
-// ============================================================
-// CUSTOMER IDENTITY (Identity Resolution)
-// ============================================================
-
 model Customer {
-  id          String   @id @default(uuid())
-  tenantId    String   // Using String to match existing schema (TEXT in SQL)
-  externalId  String?
-  status      String   @default("unknown") // unknown, identified, verified, churned, merged
+  id         String             @id @default(uuid())
+  tenantId   String
+  externalId String?
+  status     String             @default("unknown")
   mergedInto String?
-  metadata    Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  identities  CustomerIdentity[]
-  events      CustomerEvent[]
+  metadata   Json?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  events     CustomerEvent[]
+  identities CustomerIdentity[]
 
   @@unique([tenantId, externalId])
   @@index([tenantId, status])
@@ -501,13 +566,12 @@ model Customer {
 
 model CustomerIdentity {
   id            String   @id @default(uuid())
-  tenantId      String   // Using String to match existing schema (TEXT in SQL)
+  tenantId      String
   customerId    String
-  identityType  String   // anonymous_cookie, email, phone, device_fingerprint, shopify_customer_id, klaviyo_profile_id
+  identityType  String
   identityValue String
   confidence    Decimal  @default(0.5) @db.Decimal(3, 2)
   createdAt     DateTime @default(now())
-
   customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, identityType, identityValue])
@@ -515,64 +579,53 @@ model CustomerIdentity {
   @@map("customer_identities")
 }
 
-// ============================================================
-// EVENT STORE (Append-only event log)
-// ============================================================
-
 model CustomerEvent {
-  id            String   @id @default(uuid())
-  tenantId      String   // Using String to match existing schema (TEXT in SQL)
-  customerId    String?
-  eventType     String   // cart_created, cart_abandoned, checkout_completed, email_opened, etc.
-  eventSource   String   @default("internal") // shopify, tracking_script, klaviyo, internal
-  payload       Json
-  sessionId     String?
-  anonymousId   String?
-  createdAt     DateTime @default(now())
-
-  customer      Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  id          String    @id @default(uuid())
+  tenantId    String
+  customerId  String?
+  eventType   String
+  eventSource String    @default("internal")
+  payload     Json
+  sessionId   String?
+  anonymousId String?
+  createdAt   DateTime  @default(now())
+  customer    Customer? @relation(fields: [customerId], references: [id])
 
   @@index([tenantId, eventType, createdAt])
   @@index([tenantId, customerId, createdAt])
   @@map("customer_events")
 }
 
-// Dead letter queue for failed events
 model EventDlq {
-  id          String   @id @default(uuid())
-  eventData   Json
+  id           String   @id @default(uuid())
+  eventData    Json
   errorMessage String
-  failedAt    DateTime @default(now())
+  failedAt     DateTime @default(now())
 
   @@index([failedAt])
   @@map("event_dlq")
 }
 
-// ============================================================
-// STORE CONFIG (E-commerce Platform Integration)
-// ============================================================
-
 model StoreConfig {
-  id                      String    @id @default(uuid())
-  tenantId                String
-  platform                Platform
-  storeName               String
-  storeUrl                String
-  callbackUrl             String?
-  credentialsEncrypted    String
-  cartTrackingMode        String    @default("plugin")
-  abandonmentWindowMinutes Int       @default(60)
-  status                  String    @default("pending")
-  lastSyncAt              DateTime?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-
-  syncCursors             SyncCursor[]
-  syncJobs                SyncJob[]
-  webhookRegistrations    WebhookRegistration[]
-  webhooks                WebhookEvent[]
-  checkouts               Checkout[]
-  credentials             PlatformCredential?
+  id                       String                @id @default(uuid())
+  tenantId                 String
+  platform                 Platform
+  storeName                String
+  storeUrl                 String
+  callbackUrl              String?
+  credentialsEncrypted     String
+  cartTrackingMode         String                @default("plugin")
+  abandonmentWindowMinutes Int                   @default(60)
+  status                   String                @default("pending")
+  lastSyncAt               DateTime?
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+  checkouts                Checkout[]
+  credentials              PlatformCredential?
+  syncCursors              SyncCursor[]
+  syncJobs                 SyncJob[]
+  webhooks                 WebhookEvent[]
+  webhookRegistrations     WebhookRegistration[]
 
   @@unique([tenantId, platform, storeUrl])
   @@index([tenantId])
@@ -581,20 +634,125 @@ model StoreConfig {
 }
 
 model SyncCursor {
-  id              String   @id @default(uuid())
-  storeId         String
-  resource        String
-  cursor          String
-  timestamp       DateTime
-  processedCount  Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  store           StoreConfig @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  id             String      @id @default(uuid())
+  storeId        String
+  resource       String
+  cursor         String
+  timestamp      DateTime
+  processedCount Int         @default(0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  store          StoreConfig @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@unique([storeId, resource])
   @@index([storeId])
   @@map("sync_cursors")
+}
+
+model SyncJob {
+  id               String       @id @default(uuid())
+  storeId          String
+  platform         Platform
+  resource         SyncResource
+  status           SyncStatus   @default(PENDING)
+  cursor           Json?
+  recordsProcessed Int          @default(0)
+  recordsFailed    Int          @default(0)
+  lastError        String?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  store            StoreConfig  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, resource, status])
+  @@index([status, createdAt])
+  @@map("sync_jobs")
+}
+
+model WebhookRegistration {
+  id            String      @id @default(uuid())
+  storeId       String
+  topic         String
+  webhookId     String
+  callbackUrl   String
+  secret        String?
+  secretIv      String?
+  secretAuthTag String?
+  active        Boolean     @default(true)
+  registeredAt  DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  store         StoreConfig @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, topic])
+  @@index([storeId])
+  @@map("webhook_registrations")
+}
+
+model PlatformCredential {
+  id               String           @id @default(uuid())
+  storeId          String           @unique
+  platform         Platform
+  encryptedPayload String
+  iv               String
+  authTag          String
+  status           CredentialStatus @default(ACTIVE)
+  lastVerifiedAt   DateTime?
+  failureReason    String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  store            StoreConfig      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([platform, status])
+  @@map("platform_credentials")
+}
+
+model WebhookEvent {
+  id              String             @id @default(uuid())
+  storeId         String
+  platform        Platform
+  topic           String
+  externalEventId String?
+  status          WebhookEventStatus @default(RECEIVED)
+  processingError String?
+  rawPayload      Json?
+  receivedAt      DateTime           @default(now())
+  processedAt     DateTime?
+  store           StoreConfig        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([platform, storeId, externalEventId])
+  @@index([storeId, status, receivedAt])
+  @@index([status, receivedAt])
+  @@map("webhook_events")
+}
+
+model Checkout {
+  id                  String         @id @default(uuid())
+  storeId             String
+  platform            Platform
+  externalId          String
+  customerId          String?
+  email               String?
+  phone               String?
+  status              CheckoutStatus @default(ACTIVE)
+  lineItems           Json
+  totalPrice          Float
+  currency            String         @db.VarChar(3)
+  checkoutUrl         String?
+  lastActivityAt      DateTime
+  completedAt         DateTime?
+  abandonedAt         DateTime?
+  recoveryTriggeredAt DateTime?
+  recoveredAt         DateTime?
+  recoveredOrderId    String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  store               StoreConfig    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([platform, storeId, externalId])
+  @@index([storeId, status, lastActivityAt])
+  @@index([storeId, abandonedAt])
+  @@map("checkouts")
 }
 
 enum SyncResource {
@@ -612,48 +770,6 @@ enum SyncStatus {
   FAILED
 }
 
-model SyncJob {
-  id                String       @id @default(uuid())
-  storeId           String
-  platform          Platform
-  resource          SyncResource
-  status            SyncStatus   @default(PENDING)
-  cursor            Json?
-  recordsProcessed  Int          @default(0)
-  recordsFailed     Int          @default(0)
-  lastError         String?
-  startedAt         DateTime?
-  completedAt       DateTime?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-
-  store             StoreConfig  @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  @@index([storeId, resource, status])
-  @@index([status, createdAt])
-  @@map("sync_jobs")
-}
-
-model WebhookRegistration {
-  id            String   @id @default(uuid())
-  storeId       String
-  topic         String
-  webhookId     String
-  callbackUrl   String
-  secret        String?
-  secretIv      String?
-  secretAuthTag String?
-  active        Boolean  @default(true)
-  registeredAt  DateTime @default(now())
-  createdAt     DateTime @default(now())
-
-  store         StoreConfig @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  @@unique([storeId, topic])
-  @@index([storeId])
-  @@map("webhook_registrations")
-}
-
 enum Platform {
   SHOPIFY
   WOOCOMMERCE
@@ -667,25 +783,6 @@ enum CredentialStatus {
   PENDING_VERIFICATION
 }
 
-model PlatformCredential {
-  id                 String           @id @default(uuid())
-  storeId            String           @unique
-  platform           Platform
-  encryptedPayload   String
-  iv                 String
-  authTag            String
-  status             CredentialStatus @default(ACTIVE)
-  lastVerifiedAt     DateTime?
-  failureReason      String?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-
-  store              StoreConfig      @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  @@index([platform, status])
-  @@map("platform_credentials")
-}
-
 enum WebhookEventStatus {
   RECEIVED
   PROCESSING
@@ -695,59 +792,9 @@ enum WebhookEventStatus {
   REJECTED
 }
 
-model WebhookEvent {
-  id                String             @id @default(uuid())
-  storeId           String
-  platform          Platform
-  topic             String
-  externalEventId   String?
-  status            WebhookEventStatus @default(RECEIVED)
-  processingError   String?
-  rawPayload        Json?
-  receivedAt        DateTime           @default(now())
-  processedAt       DateTime?
-
-  store             StoreConfig        @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  @@unique([platform, storeId, externalEventId])
-  @@index([storeId, status, receivedAt])
-  @@index([status, receivedAt])
-  @@map("webhook_events")
-}
-
 enum CheckoutStatus {
   ACTIVE
   COMPLETED
   ABANDONED
   UNKNOWN
-}
-
-model Checkout {
-  id                    String         @id @default(uuid())
-  storeId               String
-  platform              Platform
-  externalId            String
-  customerId            String?
-  email                 String?
-  phone                 String?
-  status                CheckoutStatus @default(ACTIVE)
-  lineItems             Json
-  totalPrice            Float
-  currency              String         @db.VarChar(3)
-  checkoutUrl           String?
-  lastActivityAt        DateTime
-  completedAt           DateTime?
-  abandonedAt           DateTime?
-  recoveryTriggeredAt  DateTime?
-  recoveredAt           DateTime?
-  recoveredOrderId     String?
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
-
-  store                 StoreConfig    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  @@unique([platform, storeId, externalId])
-  @@index([storeId, status, lastActivityAt])
-  @@index([storeId, abandonedAt])
-  @@map("checkouts")
 }
