@@ -28,7 +28,7 @@ function requireRole(roles) {
 }
 
 const affiliateOrAdmin = requireRole(['affiliate', 'admin']);
-const adminOnly        = requireRole(['admin']);
+const adminOnly = requireRole(['admin']);
 
 // GET /api/affiliate/dashboard-summary
 router.get('/dashboard-summary', affiliateOrAdmin, async (req, res) => {
@@ -135,12 +135,12 @@ router.patch('/profile', affiliateOrAdmin, async (req, res) => {
     const profile = await prisma.affiliateProfile.update({
       where: { userId: req.user.id },
       data: {
-        ...(websiteUrl       !== undefined && { website: websiteUrl }),
-        ...(twitterHandle    !== undefined && { twitterHandle }),
-        ...(instagramHandle  !== undefined && { instagramHandle }),
-        ...(linkedinProfile  !== undefined && { linkedinProfile }),
-        ...(audienceNiche    !== undefined && { audienceNiche }),
-        ...(audienceSize     !== undefined && { audienceSize }),
+        ...(websiteUrl !== undefined && { website: websiteUrl }),
+        ...(twitterHandle !== undefined && { twitterHandle }),
+        ...(instagramHandle !== undefined && { instagramHandle }),
+        ...(linkedinProfile !== undefined && { linkedinProfile }),
+        ...(audienceNiche !== undefined && { audienceNiche }),
+        ...(audienceSize !== undefined && { audienceSize }),
         updatedAt: new Date()
       }
     });
@@ -192,9 +192,9 @@ router.post('/campaigns', affiliateOrAdmin, async (req, res) => {
     const campaign = await prisma.affiliateCampaign.create({
       data: {
         partnerId: profile.id,
-        name:      name || normalizedTag,
-        tag:       normalizedTag,
-        source:    source || 'direct'
+        name: name || normalizedTag,
+        tag: normalizedTag,
+        source: source || 'direct'
       }
     });
 
@@ -213,7 +213,7 @@ router.post('/campaigns', affiliateOrAdmin, async (req, res) => {
 // GET /api/affiliate/referrals
 router.get('/referrals', affiliateOrAdmin, async (req, res) => {
   const { status, page = '1', limit = '25' } = req.query;
-  const pageNum  = Math.max(1, parseInt(page, 10)  || 1);
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const pageSize = Math.min(100, parseInt(limit, 10) || 25);
 
   try {
@@ -223,11 +223,11 @@ router.get('/referrals', affiliateOrAdmin, async (req, res) => {
     // Map API status strings to Prisma enum values
     const statusMap = {
       'Active Subscriber': 'ACTIVE_SUBSCRIBER',
-      'Waitlist Joined':   'WAITLIST_JOINED',
-      'Account Created':   'ACCOUNT_CREATED',
-      'Trial Started':     'TRIAL_STARTED',
-      'Cancelled':         'CANCELLED',
-      'Pending':           'PENDING'
+      'Waitlist Joined': 'WAITLIST_JOINED',
+      'Account Created': 'ACCOUNT_CREATED',
+      'Trial Started': 'TRIAL_STARTED',
+      'Cancelled': 'CANCELLED',
+      'Pending': 'PENDING'
     };
 
     const where = {
@@ -260,7 +260,7 @@ router.get('/referrals', affiliateOrAdmin, async (req, res) => {
 // GET /api/affiliate/earnings
 router.get('/earnings', affiliateOrAdmin, async (req, res) => {
   const { status, page = '1', limit = '25' } = req.query;
-  const pageNum  = Math.max(1, parseInt(page, 10)  || 1);
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const pageSize = Math.min(100, parseInt(limit, 10) || 25);
 
   try {
@@ -295,9 +295,9 @@ router.get('/earnings', affiliateOrAdmin, async (req, res) => {
       earnings,
       pagination: { page: pageNum, limit: pageSize, total, pages: Math.ceil(total / pageSize) },
       summary: {
-        totalEarned:  Number(summary._sum.amount  || 0),
-        totalCleared: Number(cleared._sum.amount  || 0),
-        balance:      Number(cleared._sum.amount  || 0)
+        totalEarned: Number(summary._sum.amount || 0),
+        totalCleared: Number(cleared._sum.amount || 0),
+        balance: Number(cleared._sum.amount || 0)
       }
     });
   } catch (err) {
@@ -365,15 +365,15 @@ router.post('/withdrawals', affiliateOrAdmin, async (req, res) => {
         partnerId: profile.id,
         amountUsd: Number(amountUsd),
         payoutMethod,
-        payoutEmail:   payoutEmail   || null,
+        payoutEmail: payoutEmail || null,
         legalName,
         country,
         currency,
-        bankName:      bankName      || null,
+        bankName: bankName || null,
         accountNumber: accountNumber || null,
-        iban:          iban          || null,
-        swiftBic:      swiftBic      || null,
-        status:        'Pending Review'
+        iban: iban || null,
+        swiftBic: swiftBic || null,
+        status: 'Pending Review'
       }
     });
 
@@ -486,12 +486,12 @@ router.get('/leaderboard', affiliateOrAdmin, async (req, res) => {
     });
 
     const ranked = leaderboard.map((p, idx) => ({
-      rank:             idx + 1,
-      username:         p.username,
-      tier:             p.tier,
+      rank: idx + 1,
+      username: p.username,
+      tier: p.tier,
       revenueGenerated: Number(p.totalEarned || 0),
-      referralsCount:   p.referrals.length,
-      points:           Math.round(Number(p.totalEarned || 0) * 10)
+      referralsCount: p.referrals.length,
+      points: Math.round(Number(p.totalEarned || 0) * 10)
     }));
 
     res.json({ leaderboard: ranked });
@@ -508,7 +508,7 @@ router.get('/leaderboard', affiliateOrAdmin, async (req, res) => {
 // GET /api/affiliate/admin/list
 router.get('/admin/list', adminOnly, async (req, res) => {
   const { status, page = '1', limit = '50' } = req.query;
-  const pageNum  = Math.max(1, parseInt(page, 10)  || 1);
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const pageSize = Math.min(100, parseInt(limit, 10) || 50);
 
   try {
@@ -555,6 +555,42 @@ router.patch('/admin/:id/status', adminOnly, async (req, res) => {
     });
 
     logger.info('Affiliate status updated', { profileId: id, status, adminId: req.user.id });
+
+    // If approved, ensure a ReferralLink exists for this affiliate
+    if (status.toUpperCase() === 'APPROVED') {
+      try {
+        const existingLink = await prisma.referralLink.findFirst({ where: { affiliateId: profile.id } });
+        if (!existingLink) {
+          // Generate an id-safe suffix
+          const generateSuffix = () => Math.random().toString(36).slice(2, 7);
+          let suffix = generateSuffix();
+          let referralCode = `${profile.username}-${suffix}`;
+          // Ensure uniqueness
+          let attempt = 0;
+          while (attempt < 6) {
+            const conflict = await prisma.referralLink.findUnique({ where: { referralCode } });
+            if (!conflict) break;
+            suffix = generateSuffix();
+            referralCode = `${profile.username}-${suffix}`;
+            attempt += 1;
+          }
+
+          await prisma.referralLink.create({
+            data: {
+              affiliateId: profile.id,
+              username: profile.username,
+              uniqueId: suffix,
+              referralCode
+            }
+          });
+
+          logger.info('Referral link generated for approved affiliate', { profileId: id, referralCode });
+        }
+      } catch (linkErr) {
+        logger.error('Failed to create referral link on approval', { error: linkErr.message, profileId: id });
+      }
+    }
+
     res.json({ profile });
   } catch (err) {
     logger.error('Admin update affiliate status failed', { error: err.message, profileId: id });

@@ -132,6 +132,13 @@ export async function getEarnings(params?: { status?: string; page?: number; lim
 }
 
 // ============================================================
+// Referral Links (Dashboard)
+// ============================================================
+export async function getReferralLinks() {
+  return request<{ links: Array<{ id: string; referralCode: string; clicksCount: number; url: string }> }>('GET', '/affiliate/dashboard/referral-links');
+}
+
+// ============================================================
 // Withdrawals
 // ============================================================
 

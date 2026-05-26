@@ -41,6 +41,8 @@ const parseOrigins = value =>
 const configuredOrigins = new Set([
   ...parseOrigins(process.env.CORS_ORIGINS),
   ...parseOrigins(process.env.ALLOWED_ORIGINS),
+  ...(process.env.NEXT_PUBLIC_BASE_URL ? [process.env.NEXT_PUBLIC_BASE_URL.trim()] : []),
+  ...(process.env.BASE_URL ? [process.env.BASE_URL.trim()] : []),
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim()] : [])
 ].map(origin => origin.replace(/\/$/, '')));
 
@@ -133,6 +135,9 @@ app.use('/api/tracking', createTrackingPixelRouter(prisma));
 // Partner referral redirect (public) - /partner/username-uniqueid
 app.get('/partner/:code', require('./src/routes/v1/affiliate-tracking'));
 
+// Also support /affiliate/:code as a public friendly alias for referral links
+app.get('/affiliate/:code', require('./src/routes/v1/affiliate-tracking'));
+
 // Waitlist API (public)
 app.use('/api/waitlist', require('./src/routes/v1/waitlist'));
 
@@ -140,11 +145,11 @@ app.use('/api/waitlist', require('./src/routes/v1/waitlist'));
 // Protected API routes — all use the unified session authenticate
 // ============================================================
 
-app.use('/api/v1/dashboard',     authenticate, require('./src/routes/v1/dashboard'));
-app.use('/api/v1/metrics',       authenticate, require('./src/routes/v1/metrics'));
-app.use('/api/v1/insights',      authenticate, require('./src/routes/v1/insights'));
-app.use('/api/v1/customers',     authenticate, require('./src/routes/v1/customers'));
-app.use('/api/v1/user',          authenticate, require('./src/routes/v1/user'));
+app.use('/api/v1/dashboard', authenticate, require('./src/routes/v1/dashboard'));
+app.use('/api/v1/metrics', authenticate, require('./src/routes/v1/metrics'));
+app.use('/api/v1/insights', authenticate, require('./src/routes/v1/insights'));
+app.use('/api/v1/customers', authenticate, require('./src/routes/v1/customers'));
+app.use('/api/v1/user', authenticate, require('./src/routes/v1/user'));
 app.use('/api/v1/notifications', authenticate, require('./src/routes/v1/notifications'));
 
 // Affiliate routes (authenticated)
@@ -257,7 +262,7 @@ async function startServer() {
     };
 
     process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-    process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
   } catch (err) {
     logger.error('Server startup failed', { error: err.message, stack: err.stack });
     process.exit(1);

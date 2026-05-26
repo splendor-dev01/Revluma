@@ -160,14 +160,22 @@ router.get('/referral-links', affiliateOrAdmin, async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
+    // Construct absolute URLs using centralized BASE_URL config if available
+    let configuredBase = null;
+    try { configuredBase = require('../../config/baseUrl').BASE_URL; } catch (e) { configuredBase = null; }
+
     res.json({
-      links: links.map(link => ({
-        id: link.id,
-        referralCode: link.referralCode,
-        clicksCount: link.clicksCount,
-        createdAt: link.createdAt,
-        updatedAt: link.updatedAt
-      }))
+      links: links.map(link => {
+        const base = configuredBase || `${req.protocol}://${req.get('host')}`;
+        return {
+          id: link.id,
+          referralCode: link.referralCode,
+          clicksCount: link.clicksCount,
+          createdAt: link.createdAt,
+          updatedAt: link.updatedAt,
+          url: `${base.replace(/\/$/, '')}/affiliate/${link.referralCode}`
+        };
+      })
     });
   } catch (err) {
     logger.error('Referral links fetch error', { error: err.message, userId: req.user.id });

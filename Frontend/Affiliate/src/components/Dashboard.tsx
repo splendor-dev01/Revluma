@@ -19,7 +19,7 @@ import {
 import WithdrawalPortal from './WithdrawalPortal';
 import LeaderboardComingSoon from './LeaderboardComingSoon';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
-import { getCampaigns, getReferrals, getEarnings, getNotifications, getProfile, getLeaderboard } from '../lib/api';
+import { getCampaigns, getReferrals, getEarnings, getNotifications, getProfile, getLeaderboard, getReferralLinks } from '../lib/api';
 
 const ProfessionalCrown = () => (
   <svg
@@ -115,6 +115,9 @@ export default function Dashboard({
   const [referrals, setReferrals] = useState<ReferredUser[]>([]);
   const [referralsLoading, setReferralsLoading] = useState(true);
 
+  // Referral links returned by API
+  const [referralLinks, setReferralLinks] = useState<Array<{ id: string; referralCode: string; url: string }>>([]);
+
   // Invite referred candidate form state
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteStatus, setInviteStatus] = useState('');
@@ -141,17 +144,23 @@ export default function Dashboard({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [campaignsRes, referralsRes, notificationsRes, leaderboardRes] = await Promise.all([
+        const [campaignsRes, referralsRes, notificationsRes, leaderboardRes, referralLinksRes] = await Promise.all([
           getCampaigns().catch(() => ({ campaigns: [] })),
           getReferrals().catch(() => ({ referrals: [] })),
           getNotifications().catch(() => ({ notifications: [] })),
-          getLeaderboard().catch(() => ({ leaderboard: [] }))
+          getLeaderboard().catch(() => ({ leaderboard: [] })),
+          // Fetch referral links for copy/share (direct fetch to avoid build-time import issues)
+          (fetch('/api/affiliate/dashboard/referral-links', { credentials: 'include' })
+            .then(r => r.ok ? r.json() : { links: [] })
+            .catch(() => ({ links: [] })) as any)
         ]) as any[];
 
         setCampaigns((campaignsRes?.campaigns as CampaignInfo[]) || []);
         setReferrals((referralsRes?.referrals as ReferredUser[]) || []);
         setNotifications((notificationsRes?.notifications as NotificationItem[]) || []);
         setLeaderboardData((leaderboardRes?.leaderboard as LeaderboardUser[]) || []);
+        // set referral links
+        setReferralLinks((referralLinksRes?.links as Array<{ id: string; referralCode: string; url: string }>) || []);
       } finally {
         setCampaignsLoading(false);
         setReferralsLoading(false);

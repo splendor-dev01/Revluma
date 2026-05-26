@@ -23,7 +23,7 @@ try {
 
 const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@revluma.onrender.com';
 const FROM_NAME = process.env.SENDGRID_FROM_NAME || 'Revluma';
-const BASE_URL = process.env.BASE_URL || 'https://revluma.onrender.com';
+const { BASE_URL } = require('../config/baseUrl');
 
 // ====================== QUEUE SETUP ======================
 

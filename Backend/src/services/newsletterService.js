@@ -18,7 +18,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@revluma.onrender.com';
 const FROM_NAME = process.env.SENDGRID_FROM_NAME || 'Revluma';
-const BASE_URL = process.env.BASE_URL || 'https://revluma.onrender.com';
+const { BASE_URL } = require('../config/baseUrl');
 const VERIFICATION_EXPIRY_HOURS = 24;
 const BATCH_SIZE = 500;
 const BATCH_DELAY_MS = 1200; // ~50 emails/sec to stay under SendGrid limits

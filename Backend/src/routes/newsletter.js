@@ -105,7 +105,7 @@ function renderHTMLPage(title, message, isSuccess) {
     <div class="icon">${icon}</div>
     <h1>${title}</h1>
     <p>${message}</p>
-    <a href="${process.env.BASE_URL || 'https://revluma.onrender.com'}" class="back-link">&larr; Back to Revluma</a>
+    <a href="${require('../config/baseUrl').BASE_URL}" class="back-link">&larr; Back to Revluma</a>
   </div>
 </body>
 </html>`;
